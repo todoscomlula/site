@@ -97,17 +97,17 @@
       "postId": "storiesig-seremosresistencia-e895c82c1ce4",
       "mediaId": "18018846719931067",
       "publishedAt": "2026-10-14T20:38:29.210Z"
+    },
+    {
+      "contentHash": "45c9c0bbba12474aec5689d55e2ebecb260b1e794baaf818cddcc662021850a0",
+      "postId": "storiesig-seremosresistencia-0d78ffa7363d",
+      "mediaId": "18125991082842860",
+      "publishedAt": "2026-10-14T20:39:47.978Z"
     }
   ],
-  "pending": {
-    "contentHash": "45c9c0bbba12474aec5689d55e2ebecb260b1e794baaf818cddcc662021850a0",
-    "postId": "storiesig-seremosresistencia-0d78ffa7363d",
-    "containerId": "18132179911655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:38:34.748Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "8dfcf80a-42c1-4c03-872e-0e288db14e28",
-    "expiresAt": "2026-10-14T20:59:39.445Z"
+    "expiresAt": "2026-10-14T20:59:47.978Z"
   }
 }
