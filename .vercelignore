@@ -11,6 +11,7 @@ __pycache__
 /docs/
 /tests/
 /data/
+/public/media/instagram/
 /test-results/
 /playwright-report/
 .env*

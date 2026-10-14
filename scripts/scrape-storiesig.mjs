@@ -8,15 +8,16 @@ import fsSync from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fingerprintVideo, sameVideo, assignContentGroups, relativeAgeDays } from './storiesig-video-fingerprint.mjs';
+import { prepareVideoQuality } from './video-quality.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const options = { 'max-reels': 1, 'max-posts': 1, 'additional-reels': 0, 'scan-reels': 6, 'max-age-days': 14, 'max-reel-mb': 2.4, 'profile-delay': 5, 'max-total-mb': 85 };
+const options = { 'max-reels': 1, 'max-posts': 1, 'additional-reels': 0, 'scan-reels': 6, 'max-age-days': 14, 'max-reel-mb': 90, 'profile-delay': 5, 'max-total-mb': 1024, 'archive-only': 0 };
 for (let index = 2; index < process.argv.length; index += 2) {
   const name = process.argv[index]?.replace(/^--/, '');
   if (!(name in options) && !['seed-metadata', 'source'].includes(name)) throw new Error('Argumento desconhecido.');
   options[name] = name === 'seed-metadata' || name === 'source' ? process.argv[index + 1] : Number(process.argv[index + 1]);
 }
-if (![options['max-reels'], options['max-posts'], options['additional-reels']].every(value => Number.isInteger(value) && value >= 0 && value <= 20) || options['max-reels'] + options['max-posts'] + options['additional-reels'] < 1 || !(Number.isInteger(options['scan-reels']) && options['scan-reels'] >= 1 && options['scan-reels'] <= 20) || !(options['max-age-days'] >= 1 && options['max-age-days'] <= 365) || !(options['max-reel-mb'] > 0 && options['max-reel-mb'] <= 2.4) || !(options['profile-delay'] >= 5 && options['profile-delay'] <= 60) || !(options['max-total-mb'] > 0 && options['max-total-mb'] <= 85)) throw new Error('Limites inválidos.');
+if (![options['max-reels'], options['max-posts'], options['additional-reels']].every(value => Number.isInteger(value) && value >= 0 && value <= 20) || options['max-reels'] + options['max-posts'] + options['additional-reels'] < 1 || !(Number.isInteger(options['scan-reels']) && options['scan-reels'] >= 1 && options['scan-reels'] <= 20) || !(options['max-age-days'] >= 1 && options['max-age-days'] <= 365) || !(options['max-reel-mb'] > 0 && options['max-reel-mb'] <= 90) || !(options['profile-delay'] >= 5 && options['profile-delay'] <= 60) || !(options['max-total-mb'] > 0 && options['max-total-mb'] <= 1024) || ![0, 1].includes(options['archive-only'])) throw new Error('Limites inválidos.');
 const output = path.join(root, 'src/data/storiesig-posts.json');
 const reportPath = path.join(root, 'data/storiesig-import-report.json');
 const staging = path.join(root, '.cache/storiesig');
@@ -74,6 +75,10 @@ async function atomicJson(filename, data) {
   await fs.rename(temporary, filename);
 }
 async function persist() {
+  if (options['archive-only']) {
+    await atomicJson(reportPath, { ...report, finishedAt: new Date().toISOString(), recordsInFeed: records.length, publishedMediaBytes: publishedBytes });
+    return;
+  }
   records = assignContentGroups(records, fingerprints);
   await atomicJson(output, records);
   await atomicJson(reportPath, { ...report, finishedAt: new Date().toISOString(), recordsInFeed: records.length, publishedMediaBytes: publishedBytes });
@@ -103,20 +108,17 @@ async function importFile(filename, metadata) {
   const originalArchive = path.join(staging, 'originals', username, `${originalHash}${extension}`);
   await fs.mkdir(path.dirname(originalArchive), { recursive: true });
   try { await fs.access(originalArchive); } catch { await fs.copyFile(filename, originalArchive); }
+  if (options['archive-only']) return 'archived';
   let prepared = filename;
   const isVideo = extension === '.mp4';
   let fingerprint = null;
   if (isVideo) {
     fingerprint = await fingerprintVideo(filename);
     if (records.some(entry => entry.kind === 'video' && sameVideo(fingerprint, fingerprints[entry.id], metadata.caption, entry.excerpt))) return 'duplicate_content';
-    const compressed = path.join(staging, `${username}-${originalHash.slice(0,12)}-web.mp4`);
-    const probe = JSON.parse(await command('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'json', filename], true));
-    const duration = Number(probe.format?.duration);
-    if (!(duration > 0)) return 'unsupported_media';
-    const audioBitrate = duration > 180 ? 24000 : 32000;
-    const videoBitrate = Math.max(24000, Math.min(500000, Math.floor(options['max-reel-mb'] * 1024 * 1024 * 8 * 0.90 / duration - audioBitrate)));
-    await command('ffmpeg', ['-nostdin', '-y', '-v', 'error', '-i', filename, '-map', '0:v:0', '-map', '0:a?', '-vf', 'scale=w=\'if(gte(iw,ih),854,480)\':h=\'if(gte(iw,ih),480,854)\':force_original_aspect_ratio=decrease:force_divisible_by=2', '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', String(videoBitrate), '-maxrate', String(Math.floor(videoBitrate * 1.15)), '-bufsize', String(videoBitrate * 2), '-c:a', 'aac', '-b:a', String(audioBitrate), '-map_metadata', '-1', '-movflags', '+faststart', compressed]);
-    if ((await fs.stat(compressed)).size < (await fs.stat(filename)).size) prepared = compressed;
+    if ((await fs.stat(filename)).size > options['max-reel-mb'] * 1024 * 1024) return 'media_budget';
+    prepared = path.join(staging, `${username}-${originalHash.slice(0,12)}-quality.mp4`);
+    await prepareVideoQuality(filename, prepared, command);
+    if ((await fs.stat(prepared)).size > options['max-reel-mb'] * 1024 * 1024) return 'media_budget';
     // Container padding can shift frame samples; compare the actual web copy too.
     fingerprint = { ...await fingerprintVideo(prepared), basis: 'published-media' };
     if (records.some(entry => entry.kind === 'video' && sameVideo(fingerprint, fingerprints[entry.id], metadata.caption, entry.excerpt))) return 'duplicate_content';
@@ -194,7 +196,7 @@ async function normalSearch(username) {
 async function collectTab(username, tab, maxItems, sourceReport) {
   if (!maxItems) return;
   const incremental = tab === 'reels' && options['additional-reels'] > 0;
-  const priorCount = records.filter(entry => entry.source === username && entry.sourceUrl?.endsWith(tab === 'reels' ? '/reels/' : `/${username}/`)).length;
+  const priorCount = options['archive-only'] ? 0 : records.filter(entry => entry.source === username && entry.sourceUrl?.endsWith(tab === 'reels' ? '/reels/' : `/${username}/`)).length;
   if (!incremental && priorCount >= maxItems) return;
   await page.getByRole('button', { name: tab, exact: true }).click();
   await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
@@ -254,7 +256,7 @@ async function collectTab(username, tab, maxItems, sourceReport) {
     const status = await importFile(saved, metadata);
     sourceReport[status] = (sourceReport[status] || 0) + 1;
     if (status === 'imported') sourceReport.tabs[tab].imported++;
-    if (status === 'imported' || (!incremental && ['duplicate', 'duplicate_content'].includes(status))) accepted++;
+    if (status === 'imported' || status === 'archived' || (!incremental && ['duplicate', 'duplicate_content'].includes(status))) accepted++;
     if (status === 'media_budget') break;
   }
 }
@@ -270,7 +272,7 @@ try {
     report.sources.push(sourceReport);
     try {
       const previous = records.filter(entry => entry.source === username);
-      const complete = options['additional-reels'] === 0 && previous.filter(entry => entry.sourceUrl?.endsWith('/reels/')).length >= options['max-reels'] && previous.filter(entry => entry.sourceUrl?.endsWith(`/${username}/`)).length >= options['max-posts'];
+      const complete = !options['archive-only'] && options['additional-reels'] === 0 && previous.filter(entry => entry.sourceUrl?.endsWith('/reels/')).length >= options['max-reels'] && previous.filter(entry => entry.sourceUrl?.endsWith(`/${username}/`)).length >= options['max-posts'];
       if (complete) sourceReport.status = 'preserved';
       else {
         await normalSearch(username);
@@ -282,7 +284,7 @@ try {
     }
     sourceReport.recordsInFeed = records.filter(entry => entry.source === username).length;
     if (sourceReport.media_budget) sourceReport.status = 'media_budget';
-    else if (sourceReport.status === 'ok' && sourceReport.recordsInFeed === 0) sourceReport.status = 'media_unavailable';
+    else if (sourceReport.status === 'ok' && (sourceReport.recordsInFeed === 0 || (options['archive-only'] && !sourceReport.archived))) sourceReport.status = 'media_unavailable';
     await persist();
     console.log(`@${username}: ${sourceReport.status}; ${sourceReport.recordsInFeed} arquivos; ${(publishedBytes / 1024 / 1024).toFixed(1)} MiB publicados`);
     if (blocked) {

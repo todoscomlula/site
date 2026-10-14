@@ -87,14 +87,20 @@ npm run build
 Para buscar um Reel recente ainda ausente por perfil, sem repetir cópias do mesmo
 vídeo, use `npm run scrape:storiesig:update`. A coleta incremental examina até seis
 Reels por fonte, usa os horários relativos informados pelo serviço para uma janela
-de até 14 dias e mantém o limite acumulado de 85 MiB. Não converte esses rótulos em
+de até 14 dias e mantém o limite acumulado de 1 GiB. Não converte esses rótulos em
 datas de publicação. As últimas adições ao acervo aparecem primeiro nas galerias.
 
 Por padrão, coleta até uma postagem e um Reel por perfil, aguarda cinco
-segundos entre fontes e limita a mídia pública a 85 MiB. Preserva importações
+segundos entre fontes e limita a mídia pública a 1 GiB e cada vídeo a 90 MiB. Preserva importações
 anteriores e registra falhas em `data/storiesig-import-report.json`.
 O relatório e os originais em `.cache/` ficam fora do Git. O scraper depende
 da disponibilidade e do fluxo público atual do serviço.
+
+O preparo preserva a resolução e copia os streams H.264/AAC, sem impor 2 MB por
+vídeo. Outros codecs recebem conversão de compatibilidade com qualidade alta.
+Em 14/10/2026, 38 dos 42 vídeos tiveram a qualidade recuperada dos arquivos
+guardados; quatro originais não estavam disponíveis. Os IDs e grupos de conteúdo
+continuam estáveis, e as URLs dos arquivos recuperados mudam para renovar o cache.
 
 ```sh
 npm run scrape:storiesig -- --source lulaoficial
@@ -119,10 +125,13 @@ ausência de conteúdo.
 npx vercel@64.0.2 --prod --yes
 ```
 
-Use a cópia local que contém as mídias importadas. Esses arquivos não são
-versionados no Git. O passo `prebuild` verifica os arquivos locais e restaura
-os que faltarem a partir do deployment público existente. Novos conteúdos
-devem ser publicados primeiro pela cópia local que contém os downloads.
+As mídias não são versionadas no Git nem enviadas no pacote de código do CLI.
+O passo `prebuild` verifica os arquivos locais e restaura os que faltarem a partir
+dos assets públicos da release, com tamanho e SHA-256 fixados em
+`src/data/media-sources.json`. Arquivos ainda sem essa origem usam o deployment
+público existente. Novas mídias maiores devem ser preparadas e publicadas como
+assets antes do deploy. A transferência ocorre durante o build remoto, preservando
+a qualidade sem exceder o limite de upload de código do CLI no Hobby.
 O scraper não roda no build nem a cada visita.
 
 Veja a [análise da referência](docs/reverse-engineering.md), a
