@@ -61,17 +61,17 @@
       "postId": "storiesig-uneoficial-2bef936dd851",
       "mediaId": "18118568623980121",
       "publishedAt": "2026-10-14T20:31:34.221Z"
+    },
+    {
+      "contentHash": "d5d95df7661f3af12b155eed2dff11ba1222216f74ffd95152c043adbd5532b0",
+      "postId": "storiesig-pragmatismopolitico-756a719bb67b",
+      "mediaId": "18109165237913404",
+      "publishedAt": "2026-10-14T20:31:52.738Z"
     }
   ],
-  "pending": {
-    "contentHash": "d5d95df7661f3af12b155eed2dff11ba1222216f74ffd95152c043adbd5532b0",
-    "postId": "storiesig-pragmatismopolitico-756a719bb67b",
-    "containerId": "18132177457655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:31:39.944Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "4b7f4fa2-4de7-4ccc-814f-5ded63b4df70",
-    "expiresAt": "2026-10-14T20:51:48.128Z"
+    "expiresAt": "2026-10-14T20:51:52.738Z"
   }
 }
