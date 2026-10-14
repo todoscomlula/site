@@ -186,12 +186,12 @@
   "pending": {
     "contentHash": "76bb1fb91c40ba3c875ad2261153304c83dce1f467ec6c85ba0608e756e417d5",
     "postId": "storiesig-gleisihoffmann-7df80435df71",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132184660655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T20:55:08.816Z"
   },
   "lease": {
     "owner": "12a7e624-ae37-4000-9fd6-be7dd61a8357",
-    "expiresAt": "2026-10-14T21:15:08.816Z"
+    "expiresAt": "2026-10-14T21:15:10.915Z"
   }
 }
