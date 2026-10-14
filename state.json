@@ -13,17 +13,17 @@
       "postId": "pe-de-meia",
       "mediaId": "18446017795134166",
       "publishedAt": "2026-10-14T20:24:59.932Z"
+    },
+    {
+      "contentHash": "201d1cfef531602ce448b606eea17a547fd1dad16c42c6a222c8412805850201",
+      "postId": "bolsa-familia",
+      "mediaId": "18112212769887474",
+      "publishedAt": "2026-10-14T20:25:19.635Z"
     }
   ],
-  "pending": {
-    "contentHash": "201d1cfef531602ce448b606eea17a547fd1dad16c42c6a222c8412805850201",
-    "postId": "bolsa-familia",
-    "containerId": "18132175744655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:25:05.903Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "3e133c32-624a-4af9-9ede-74ddd2825e7b",
-    "expiresAt": "2026-10-14T20:45:14.800Z"
+    "expiresAt": "2026-10-14T20:45:19.635Z"
   }
 }
