@@ -37,17 +37,17 @@
       "postId": "portal-da-transparencia",
       "mediaId": "17886162690501509",
       "publishedAt": "2026-10-14T20:26:14.830Z"
+    },
+    {
+      "contentHash": "fb89105220a64a0d74642cd9dfce8b9a3cdcc81120a6e1de8ebd5d28e363955b",
+      "postId": "storiesig-lulaoficial-94c2634d684d",
+      "mediaId": "18080590388382386",
+      "publishedAt": "2026-10-14T20:27:36.084Z"
     }
   ],
-  "pending": {
-    "contentHash": "fb89105220a64a0d74642cd9dfce8b9a3cdcc81120a6e1de8ebd5d28e363955b",
-    "postId": "storiesig-lulaoficial-94c2634d684d",
-    "containerId": "18132176041655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:26:21.013Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "98d573b1-d15c-4969-bf7e-84d332a86826",
-    "expiresAt": "2026-10-14T20:47:25.906Z"
+    "expiresAt": "2026-10-14T20:47:36.084Z"
   }
 }
