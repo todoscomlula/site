@@ -139,17 +139,17 @@
       "postId": "storiesig-manueladavila-be8b5002adbf",
       "mediaId": "18114585752105792",
       "publishedAt": "2026-10-14T20:47:47.230Z"
+    },
+    {
+      "contentHash": "d5692b86b11aa6509179007a24c1c52af52823be390b8bcadb6e3d7eb272163d",
+      "postId": "storiesig-manueladavila-8b20608999fe",
+      "mediaId": "17966420559197196",
+      "publishedAt": "2026-10-14T20:49:07.623Z"
     }
   ],
-  "pending": {
-    "contentHash": "d5692b86b11aa6509179007a24c1c52af52823be390b8bcadb6e3d7eb272163d",
-    "postId": "storiesig-manueladavila-8b20608999fe",
-    "containerId": "18132182440655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:47:52.980Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "2832fc7b-0f59-4ecd-aae2-8646c518c336",
-    "expiresAt": "2026-10-14T21:08:57.191Z"
+    "expiresAt": "2026-10-14T21:09:07.623Z"
   }
 }
