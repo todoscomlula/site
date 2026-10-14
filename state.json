@@ -273,9 +273,15 @@
       "publishedAt": "2026-10-14T21:59:53.761Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "3bcbf05e705a2d91c41f8733d2a54220db8239026695d5ce5428353d02a14a1d",
+    "postId": "storiesig-ptsaopaulo-c883e8d800a0",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T22:00:00.263Z"
+  },
   "lease": {
     "owner": "3a9c5dd9-c672-4339-bfd6-4c0b4f463464",
-    "expiresAt": "2026-10-14T22:19:57.702Z"
+    "expiresAt": "2026-10-14T22:20:00.263Z"
   }
 }
