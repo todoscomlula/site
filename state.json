@@ -199,11 +199,11 @@
     "contentHash": "85c85e05f8fc7c70d2ce07ffeec2ed70bca830bc692d115af74ecd9492a8ba14",
     "postId": "storiesig-ptsaopaulo-7be07c999cf1",
     "containerId": "18132185362655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:57:48.242Z"
   },
   "lease": {
     "owner": "e681d997-09e8-4bd3-8502-6d75056653ab",
-    "expiresAt": "2026-10-14T21:17:54.627Z"
+    "expiresAt": "2026-10-14T21:17:56.484Z"
   }
 }
