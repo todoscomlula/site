@@ -243,9 +243,15 @@
       "publishedAt": "2026-10-14T21:51:14.229Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "6d2b6080d8ebd000c0dc095524dd850dd69b9bd6ea824334d932249a13677ace",
+    "postId": "storiesig-manueladavila-14c2c9857f7f",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T21:51:21.568Z"
+  },
   "lease": {
     "owner": "20f2b6af-cbf1-4e97-9afe-0988c44c070d",
-    "expiresAt": "2026-10-14T22:11:18.460Z"
+    "expiresAt": "2026-10-14T22:11:21.569Z"
   }
 }
