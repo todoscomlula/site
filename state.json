@@ -129,9 +129,15 @@
       "publishedAt": "2026-10-14T20:45:07.135Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "0f48cfdda50c6e8eeaf70f8798c97cee942818dc05dd0e82635c83872424fc44",
+    "postId": "storiesig-ptbrasil-9d89f289852a",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T20:45:12.933Z"
+  },
   "lease": {
     "owner": "b9cd7873-7adc-4a74-b632-fd5563626ba3",
-    "expiresAt": "2026-10-14T21:05:10.930Z"
+    "expiresAt": "2026-10-14T21:05:12.933Z"
   }
 }
