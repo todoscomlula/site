@@ -7,15 +7,16 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fingerprintVideo, sameVideo, assignContentGroups, relativeAgeDays } from './storiesig-video-fingerprint.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const options = { 'max-reels': 1, 'max-posts': 1, 'profile-delay': 5, 'max-total-mb': 85 };
+const options = { 'max-reels': 1, 'max-posts': 1, 'additional-reels': 0, 'scan-reels': 6, 'max-age-days': 14, 'max-reel-mb': 2.4, 'profile-delay': 5, 'max-total-mb': 85 };
 for (let index = 2; index < process.argv.length; index += 2) {
   const name = process.argv[index]?.replace(/^--/, '');
   if (!(name in options) && !['seed-metadata', 'source'].includes(name)) throw new Error('Argumento desconhecido.');
   options[name] = name === 'seed-metadata' || name === 'source' ? process.argv[index + 1] : Number(process.argv[index + 1]);
 }
-if (![options['max-reels'], options['max-posts']].every(value => Number.isInteger(value) && value >= 0 && value <= 20) || options['max-reels'] + options['max-posts'] < 1 || !(options['profile-delay'] >= 5 && options['profile-delay'] <= 60) || !(options['max-total-mb'] > 0 && options['max-total-mb'] <= 85)) throw new Error('Limites inválidos.');
+if (![options['max-reels'], options['max-posts'], options['additional-reels']].every(value => Number.isInteger(value) && value >= 0 && value <= 20) || options['max-reels'] + options['max-posts'] + options['additional-reels'] < 1 || !(Number.isInteger(options['scan-reels']) && options['scan-reels'] >= 1 && options['scan-reels'] <= 20) || !(options['max-age-days'] >= 1 && options['max-age-days'] <= 365) || !(options['max-reel-mb'] > 0 && options['max-reel-mb'] <= 2.4) || !(options['profile-delay'] >= 5 && options['profile-delay'] <= 60) || !(options['max-total-mb'] > 0 && options['max-total-mb'] <= 85)) throw new Error('Limites inválidos.');
 const output = path.join(root, 'src/data/storiesig-posts.json');
 const reportPath = path.join(root, 'data/storiesig-import-report.json');
 const staging = path.join(root, '.cache/storiesig');
@@ -48,7 +49,7 @@ const selectedSources = options.source ? [options.source] : sources;
 let records = [];
 try { records = JSON.parse(await fs.readFile(output, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw new Error('Manifesto anterior inválido; nenhuma coleta iniciada.'); }
 if (!Array.isArray(records)) throw new Error('Manifesto anterior inválido.');
-const report = { provider: 'storiesig-public-browser', startedAt: new Date().toISOString(), authenticated: false, maxReelsPerProfile: options['max-reels'], maxPostsPerProfile: options['max-posts'], maxTotalBytes: options['max-total-mb'] * 1024 * 1024, sources: [] };
+const report = { provider: 'storiesig-public-browser', startedAt: new Date().toISOString(), authenticated: false, maxReelsPerProfile: options['max-reels'], additionalReelsPerProfile: options['additional-reels'], maxPostsPerProfile: options['max-posts'], maxRecentAgeDays: options['max-age-days'], maxTotalBytes: options['max-total-mb'] * 1024 * 1024, recordsBefore: records.length, sources: [] };
 let publishedBytes = 0;
 for (const entry of records) {
   if (!safeUsername(entry.source) || !/^storiesig-[a-z0-9_.]+-[a-f0-9]{12}$/.test(entry.id)) throw new Error('Manifesto anterior inválido.');
@@ -62,6 +63,9 @@ try {
   }
 } catch (error) { if (error.code !== 'ENOENT') throw new Error('Não foi possível conferir os arquivos existentes.'); }
 await fs.mkdir(staging, { recursive: true });
+const fingerprintPath = path.join(staging, 'video-fingerprints.json');
+let fingerprints = {};
+try { fingerprints = JSON.parse(await fs.readFile(fingerprintPath, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw new Error('Cache de comparação inválido.'); }
 
 async function atomicJson(filename, data) {
   await fs.mkdir(path.dirname(filename), { recursive: true });
@@ -70,8 +74,16 @@ async function atomicJson(filename, data) {
   await fs.rename(temporary, filename);
 }
 async function persist() {
+  records = assignContentGroups(records, fingerprints);
   await atomicJson(output, records);
   await atomicJson(reportPath, { ...report, finishedAt: new Date().toISOString(), recordsInFeed: records.length, publishedMediaBytes: publishedBytes });
+}
+async function existingVideoFingerprints() {
+  for (const entry of records) {
+    if (entry.kind !== 'video' || fingerprints[entry.id]?.basis === 'published-media') continue;
+    fingerprints[entry.id] = { ...await fingerprintVideo(path.join(root, 'public', entry.mediaUrl)), basis: 'published-media' };
+  }
+  await atomicJson(fingerprintPath, fingerprints);
 }
 async function command(binary, args, capture = false) {
   return new Promise((resolve, reject) => {
@@ -93,15 +105,21 @@ async function importFile(filename, metadata) {
   try { await fs.access(originalArchive); } catch { await fs.copyFile(filename, originalArchive); }
   let prepared = filename;
   const isVideo = extension === '.mp4';
+  let fingerprint = null;
   if (isVideo) {
+    fingerprint = await fingerprintVideo(filename);
+    if (records.some(entry => entry.kind === 'video' && sameVideo(fingerprint, fingerprints[entry.id], metadata.caption, entry.excerpt))) return 'duplicate_content';
     const compressed = path.join(staging, `${username}-${originalHash.slice(0,12)}-web.mp4`);
     const probe = JSON.parse(await command('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'json', filename], true));
     const duration = Number(probe.format?.duration);
     if (!(duration > 0)) return 'unsupported_media';
     const audioBitrate = duration > 180 ? 24000 : 32000;
-    const videoBitrate = Math.max(24000, Math.min(500000, Math.floor(2.4 * 1024 * 1024 * 8 * 0.90 / duration - audioBitrate)));
+    const videoBitrate = Math.max(24000, Math.min(500000, Math.floor(options['max-reel-mb'] * 1024 * 1024 * 8 * 0.90 / duration - audioBitrate)));
     await command('ffmpeg', ['-nostdin', '-y', '-v', 'error', '-i', filename, '-map', '0:v:0', '-map', '0:a?', '-vf', 'scale=w=\'if(gte(iw,ih),854,480)\':h=\'if(gte(iw,ih),480,854)\':force_original_aspect_ratio=decrease:force_divisible_by=2', '-c:v', 'libx264', '-preset', 'veryfast', '-b:v', String(videoBitrate), '-maxrate', String(Math.floor(videoBitrate * 1.15)), '-bufsize', String(videoBitrate * 2), '-c:a', 'aac', '-b:a', String(audioBitrate), '-map_metadata', '-1', '-movflags', '+faststart', compressed]);
     if ((await fs.stat(compressed)).size < (await fs.stat(filename)).size) prepared = compressed;
+    // Container padding can shift frame samples; compare the actual web copy too.
+    fingerprint = { ...await fingerprintVideo(prepared), basis: 'published-media' };
+    if (records.some(entry => entry.kind === 'video' && sameVideo(fingerprint, fingerprints[entry.id], metadata.caption, entry.excerpt))) return 'duplicate_content';
   }
   const bytes = await fs.readFile(prepared);
   const digest = sha256(bytes).slice(0, 12);
@@ -133,9 +151,13 @@ async function importFile(filename, metadata) {
   }
   const kind = isVideo ? 'video' : 'image';
   records.push({ id, source: username, sourceUrl: `https://www.instagram.com/${username}/${metadata.tab === 'reels' ? 'reels/' : ''}`, permalink, title, excerpt: caption.slice(0, 280), publishedAt: null, observedAt: new Date().toISOString(), publishedLabel: metadata.publishedLabel || null, kind, mediaUrl: url, thumbnailUrl, downloadUrl: url, media: [{ kind, url, thumbnailUrl, filename: path.basename(destination) }] });
+  if (fingerprint) { fingerprints[id] = fingerprint; await atomicJson(fingerprintPath, fingerprints); }
   await persist();
   return 'imported';
 }
+
+console.log(`Comparando conteúdo dos ${records.filter(entry => entry.kind === 'video').length} vídeos existentes antes da coleta.`);
+await existingVideoFingerprints();
 
 if (options['seed-metadata']) {
   const seeds = JSON.parse(await fs.readFile(options['seed-metadata'], 'utf8'));
@@ -171,19 +193,20 @@ async function normalSearch(username) {
 }
 async function collectTab(username, tab, maxItems, sourceReport) {
   if (!maxItems) return;
+  const incremental = tab === 'reels' && options['additional-reels'] > 0;
   const priorCount = records.filter(entry => entry.source === username && entry.sourceUrl?.endsWith(tab === 'reels' ? '/reels/' : `/${username}/`)).length;
-  if (priorCount >= maxItems) return;
+  if (!incremental && priorCount >= maxItems) return;
   await page.getByRole('button', { name: tab, exact: true }).click();
   await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
   await sleep(2000);
   await checkAccess();
   const links = page.getByRole('link', { name: 'Baixar', exact: true });
   try { await links.first().waitFor({ state: 'visible', timeout: 15000 }); } catch { await checkAccess(); }
-  const count = Math.min(await links.count(), maxItems + 2);
+  const count = Math.min(await links.count(), incremental ? options['scan-reels'] : maxItems + 2);
   sourceReport.tabs ??= {};
   sourceReport.tabs[tab] = { visibleDownloads: await links.count(), imported: 0 };
   let accepted = 0;
-  for (let index = 0; index < count && accepted + priorCount < maxItems; index++) {
+  for (let index = 0; index < count && (incremental ? accepted < maxItems : accepted + priorCount < maxItems); index++) {
     const link = links.nth(index);
     if (!(await link.isVisible())) continue;
     const metadata = await link.evaluate(element => {
@@ -202,6 +225,14 @@ async function collectTab(username, tab, maxItems, sourceReport) {
     });
     metadata.source = username;
     metadata.tab = tab;
+    if (incremental) {
+      const ageDays = relativeAgeDays(metadata.publishedLabel);
+      if (ageDays === null || ageDays > options['max-age-days']) {
+        const code = ageDays === null ? 'age_unavailable' : 'older_than_window';
+        sourceReport[code] = (sourceReport[code] || 0) + 1;
+        continue;
+      }
+    }
     const [download] = await Promise.all([
       page.waitForEvent('download', { timeout: 30000 }),
       link.click(),
@@ -223,7 +254,7 @@ async function collectTab(username, tab, maxItems, sourceReport) {
     const status = await importFile(saved, metadata);
     sourceReport[status] = (sourceReport[status] || 0) + 1;
     if (status === 'imported') sourceReport.tabs[tab].imported++;
-    if (status === 'imported' || status === 'duplicate') accepted++;
+    if (status === 'imported' || (!incremental && ['duplicate', 'duplicate_content'].includes(status))) accepted++;
     if (status === 'media_budget') break;
   }
 }
@@ -239,12 +270,12 @@ try {
     report.sources.push(sourceReport);
     try {
       const previous = records.filter(entry => entry.source === username);
-      const complete = previous.filter(entry => entry.sourceUrl?.endsWith('/reels/')).length >= options['max-reels'] && previous.filter(entry => entry.sourceUrl?.endsWith(`/${username}/`)).length >= options['max-posts'];
+      const complete = options['additional-reels'] === 0 && previous.filter(entry => entry.sourceUrl?.endsWith('/reels/')).length >= options['max-reels'] && previous.filter(entry => entry.sourceUrl?.endsWith(`/${username}/`)).length >= options['max-posts'];
       if (complete) sourceReport.status = 'preserved';
       else {
         await normalSearch(username);
         await collectTab(username, 'posts', options['max-posts'], sourceReport);
-        await collectTab(username, 'reels', options['max-reels'], sourceReport);
+        await collectTab(username, 'reels', options['additional-reels'] || options['max-reels'], sourceReport);
       }
     } catch {
       sourceReport.status = blocked || 'public_flow_unavailable';

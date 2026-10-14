@@ -201,7 +201,7 @@ test('a real video download returns MP4 headers and a byte-range response withou
   expect(prefix.subarray(4, 8).toString('ascii')).toBe('ftyp');
 });
 
-test('the source directory contains all fifteen profiles and opens the chosen canonical profile', async ({ page, context }) => {
+test('the source directory includes our Instagram and all sixteen canonical profiles', async ({ page, context }) => {
   await context.route('https://www.instagram.com/**', (route) => route.fulfill({
     status: 200,
     contentType: 'text/html',
@@ -209,7 +209,11 @@ test('the source directory contains all fifteen profiles and opens the chosen ca
   }));
   await page.goto('/fontes/');
   const followLinks = page.getByRole('link', { name: /Acompanhar/ });
-  await expect(followLinks).toHaveCount(15);
+  await expect(followLinks).toHaveCount(16);
+  const ownProfile = page.locator('.source-profile').filter({ hasText: '@boraaalula2026' });
+  await expect(ownProfile).toContainText('Nosso Instagram');
+  await expect(ownProfile.getByRole('link', { name: /Acompanhar/ })).toHaveAttribute('href', 'https://www.instagram.com/boraaalula2026/');
+  await expect(page.locator('.site-footer').getByRole('link', { name: 'Nosso Instagram: @boraaalula2026' })).toHaveAttribute('href', 'https://www.instagram.com/boraaalula2026/');
   for (const link of await followLinks.all()) {
     const url = new URL((await link.getAttribute('href'))!);
     expect(url.origin).toBe('https://www.instagram.com');

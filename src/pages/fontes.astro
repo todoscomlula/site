@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Icon from '../components/Icon.astro';
-import { sourceProfiles, posts } from '../lib/content';
+import { sourceProfiles } from '../lib/content';
 ---
-<Layout title="15 perfis para acompanhar — Todos com Lula">
-  <section class="page-heading paper-pattern"><div class="container"><a href="/" class="breadcrumb">Início <span>/</span> Nas redes</a><span class="eyebrow">A AUTORIA FAZ PARTE DA INFORMAÇÃO</span><h1>Muitas vozes.<br /><span class="red-word">Uma conversa.</span></h1><p>Os 15 perfis selecionados para este projeto. Acompanhe cada publicação no seu lugar de origem.</p></div></section>
-  <section class="section container"><div class="source-grid">{sourceProfiles.map((source) => <article class="source-profile"><span class:list={['source-avatar', source.color]}>{source.initials}</span><div><span class="eyebrow">{source.category}</span><h2>{source.name}</h2><span class="source-handle">@{source.username}</span></div><a class="button button-outline" href={`https://www.instagram.com/${source.username}/`} target="_blank" rel="noopener noreferrer"><Icon name="instagram" size={19} /> Acompanhar <Icon name="arrow" size={17} /></a></article>)}</div><p class="sources-note">Os conteúdos e as opiniões pertencem aos respectivos autores. A presença de um perfil nesta lista não significa vínculo, participação ou endosso a este projeto.</p></section>
+<Layout title={`${sourceProfiles.length} perfis para acompanhar — Todos com Lula`}>
+  <section class="page-heading paper-pattern"><div class="container"><a href="/" class="breadcrumb">Início <span>/</span> Nas redes</a><span class="eyebrow">A AUTORIA FAZ PARTE DA INFORMAÇÃO</span><h1>Muitas vozes.<br /><span class="red-word">Uma conversa.</span></h1><p>Nosso Instagram @boraaalula2026 e os demais perfis selecionados para este projeto. Acompanhe cada publicação no seu lugar de origem.</p></div></section>
+  <section class="section container"><div class="source-grid">{sourceProfiles.map((source) => <article class="source-profile"><span class:list={['source-avatar', source.color]}>{source.initials}</span><div><span class="eyebrow">{source.category}</span><h2>{source.name}</h2><span class="source-handle">@{source.username}</span></div><a class="button button-outline" href={`https://www.instagram.com/${source.username}/`} target="_blank" rel="noopener noreferrer"><Icon name="instagram" size={19} /> Acompanhar <Icon name="arrow" size={17} /></a></article>)}</div><p class="sources-note">@boraaalula2026 é o Instagram deste projeto. Os conteúdos e as opiniões dos demais perfis pertencem aos respectivos autores; sua presença nesta lista não significa vínculo, participação ou endosso.</p></section>
 </Layout>

@@ -18,7 +18,7 @@ flowchart LR
     F --> G[Visitantes]
 ```
 
-Os coletores leem os 15 perfis de [sources.json](../src/data/sources.json) e preservam registros anteriores. A coleta principal usa [scrape-storiesig.mjs](../scripts/scrape-storiesig.mjs) e escreve [storiesig-posts.json](../src/data/storiesig-posts.json). A alternativa direta [scrape-instagram.py](../scripts/scrape-instagram.py) escreve [instagram-posts.json](../src/data/instagram-posts.json). A primeira tentativa direta com Instaloader exigiu autenticação e importou zero registros; isso não indica que os perfis estejam vazios. O fluxo público StoriesIG conseguiu importar arquivos reais; a cobertura das fontes deve ser conferida no relatório, sem presumir sucesso nos 15 perfis.
+Os coletores leem nosso @boraaalula2026 e os 15 perfis de [sources.json](../src/data/sources.json), preservando registros anteriores. A coleta principal usa [scrape-storiesig.mjs](../scripts/scrape-storiesig.mjs) e escreve [storiesig-posts.json](../src/data/storiesig-posts.json). A alternativa direta [scrape-instagram.py](../scripts/scrape-instagram.py) escreve [instagram-posts.json](../src/data/instagram-posts.json). A primeira tentativa direta com Instaloader exigiu autenticação e importou zero registros; isso não indica que os perfis estejam vazios. O fluxo público StoriesIG conseguiu importar arquivos reais; a cobertura das fontes deve ser conferida no relatório, sem presumir sucesso em todas as fontes.
 
 As mídias públicas ficam em `public/media/instagram/`. O StoriesIG arquiva originais em `.cache/storiesig/originals/` e usa FFmpeg para criar MP4 menores e capas, removendo metadados da cópia processada. Os cards próprios usam PNG para download e WebP para apresentação em `public/cards/`. Arquivos em `public/` entram no build e são públicos.
 
@@ -132,15 +132,18 @@ O build de produção deve ocorrer após o término da coleta. Publique apenas a
 
 ## Validação e segurança operacional
 
+Vercel Web Analytics está habilitado no projeto. O SDK instalado só inicia no build de produção e envia page views com URLs sem parâmetros, fragmentos ou credenciais de URL. Não há rastreamento personalizado de compartilhamentos, arquivos ou reproduções. Os sinais Do Not Track e Global Privacy Control impedem a inicialização. A política de privacidade do site foi atualizada. A Vercel documenta [50 mil eventos mensais incluídos no Hobby](https://vercel.com/docs/analytics/limits-and-pricing), compartilhados pelos projetos da equipe; não houve upgrade pago. O estado habilitado no painel e a entrega de script/eventos precisam ser verificados no deployment publicado.
+
 Os comandos de verificação do projeto são:
 
 ```sh
 python3 -m unittest discover -s scripts -p 'test_*.py'
 npm run build
 npm test
+npm run test:unit
 ```
 
-Neste ciclo, o build estático foi executado com sucesso, **36 testes Playwright desktop/mobile** passaram e **12 testes offline do coletor direto** passaram. A suíte de navegador verifica galerias, busca, compartilhamento canônico, PNG, foco, fontes e preferências de acessibilidade; também verificou ausência de requisições externas iniciais e erros JavaScript. Os testes de compartilhamento interceptam a chamada nativa para conferir os bytes reais do MP4/PNG, ausência de URL no envio do arquivo, download alternativo, cancelamento, recuperação de falhas e preparo lento com um novo toque. Eles não executam o envio dentro do aplicativo WhatsApp. Os testes Python exercitam contrato, sanitização, deduplicação e backoff sem acessar Instagram. Essas verificações não comprovam sucesso de coleta em todas as fontes, disponibilidade contínua do StoriesIG ou capacidade sob carga. Este documento não registra teste de carga para milhões.
+Neste ciclo, o build estático foi executado com sucesso, **36 testes Playwright desktop/mobile** passaram, **39 verificações Node** de Analytics, publicação e comparação de vídeos passaram e **12 testes offline do coletor direto** passaram. A suíte de navegador verifica galerias, busca, compartilhamento canônico, PNG, foco, fontes e preferências de acessibilidade; também verificou ausência de requisições externas iniciais e erros JavaScript. Os testes de compartilhamento interceptam a chamada nativa para conferir os bytes reais do MP4/PNG, ausência de URL no envio do arquivo, download alternativo, cancelamento, recuperação de falhas e preparo lento com um novo toque. Eles não executam o envio dentro do aplicativo WhatsApp. Os testes Python exercitam contrato, sanitização, deduplicação e backoff sem acessar Instagram. Essas verificações não comprovam sucesso de coleta em todas as fontes, disponibilidade contínua do StoriesIG ou capacidade sob carga. Este documento não registra teste de carga para milhões.
 
 Antes da divulgação para milhões, registre tamanho transferido em dispositivo móvel, headers/cache reais, funcionamento dos downloads, latência e erro em mais de uma região. Faça uma rampa de carga controlada no próprio deployment, com orçamento de teste definido; interrompa ao observar degradação ou gasto inesperado. Acompanhe consumo de CDN e mantenha o último deployment válido disponível para rollback.
 

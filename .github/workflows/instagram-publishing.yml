@@ -1,0 +1,79 @@
+name: Publicar acervo no Instagram
+
+on:
+  # Inativo enquanto INSTAGRAM_AUTOPUBLISH_ENABLED não for exatamente true.
+  # A fila inclui o acervo ainda não publicado e novos conteúdos elegíveis.
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Simular sem publicar no Instagram'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-publishing-boraaalula2026
+  cancel-in-progress: false
+
+jobs:
+  simulate:
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Simular o próximo conteúdo
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          INSTAGRAM_STATE_BACKEND: github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/instagram-publish.mjs --dry-run
+
+  publish:
+    if: >-
+      (github.event_name == 'schedule' && vars.INSTAGRAM_AUTOPUBLISH_ENABLED == 'true') ||
+      (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    environment: instagram-publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verificar o publicador offline
+        run: node --test scripts/test-instagram-publishing.mjs
+      - name: Preparar Gitleaks local para os checkpoints públicos
+        shell: bash
+        run: |
+          set -euo pipefail
+          task_tool_dir="$RUNNER_TEMP/instagram-gitleaks"
+          mkdir -p "$task_tool_dir" .git/tools
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o "$task_tool_dir/gitleaks_8.30.1_linux_x64.tar.gz"
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt -o "$task_tool_dir/gitleaks_8.30.1_checksums.txt"
+          (cd "$task_tool_dir" && sha256sum --check --ignore-missing gitleaks_8.30.1_checksums.txt)
+          tar -xzf "$task_tool_dir/gitleaks_8.30.1_linux_x64.tar.gz" -C .git/tools gitleaks
+      - name: Publicar no máximo um conteúdo
+        env:
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+          INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
+          INSTAGRAM_STATE_BACKEND: github
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/instagram-publish.mjs --publish

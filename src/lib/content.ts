@@ -1,6 +1,18 @@
 import editorial from '../data/editorial.json';
 import instagram from '../data/instagram-posts.json';
 import sources from '../data/sources.json';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+function publicationImages(): Record<string, string> {
+  try {
+    const map = JSON.parse(readFileSync(resolve('public/instagram-publication-assets.json'), 'utf8'));
+    return map.version === 1 && typeof map.assets === 'object' && map.assets ? map.assets : {};
+  } catch {
+    return {};
+  }
+}
+const instagramImages = publicationImages();
 
 export const topics = [
   { id: 'saude', name: 'Saúde', icon: 'heart' },
@@ -22,7 +34,10 @@ export interface Post {
   sourceUrl: string;
   permalink: string | null;
   publishedAt: string | null;
+  observedAt: string | null;
+  contentGroupId: string | null;
   imageUrl: string;
+  instagramImageUrl: string | null;
   mediaUrl: string | null;
   downloadUrl: string | null;
   paragraphs: string[];
@@ -32,7 +47,12 @@ export interface Post {
 export const sourceProfiles = sources;
 const storiesigFiles = import.meta.glob('../data/storiesig-posts.json', { eager: true, import: 'default' });
 const storiesig = (Object.values(storiesigFiles)[0] || []) as Array<Record<string, any>>;
-const imported = [...(instagram as Array<Record<string, any>>), ...storiesig];
+const observedTime = (post: Record<string, any>) => {
+  const timestamp = Date.parse(post.observedAt || '');
+  return Number.isFinite(timestamp) ? timestamp : 0;
+};
+const imported = [...(instagram as Array<Record<string, any>>), ...storiesig]
+  .sort((a, b) => observedTime(b) - observedTime(a));
 export const posts: Post[] = [
   ...imported.map((post): Post => ({
     id: String(post.id),
@@ -45,7 +65,10 @@ export const posts: Post[] = [
     sourceUrl: post.sourceUrl || post.permalink || `https://www.instagram.com/${post.source}/`,
     permalink: post.permalink || null,
     publishedAt: post.publishedAt || null,
+    observedAt: post.observedAt || null,
+    contentGroupId: typeof post.contentGroupId === 'string' ? post.contentGroupId : null,
     imageUrl: post.thumbnailUrl || (post.kind !== 'video' ? post.mediaUrl : '') || '/images/lula-hero.webp',
+    instagramImageUrl: instagramImages[post.id] || post.instagramImageUrl || null,
     mediaUrl: post.mediaUrl || null,
     downloadUrl: post.downloadUrl || null,
     paragraphs: post.excerpt ? [post.excerpt] : [],
@@ -62,7 +85,10 @@ export const posts: Post[] = [
     sourceUrl: post.sourceUrl,
     permalink: '',
     publishedAt: post.publishedAt,
+    observedAt: null,
+    contentGroupId: null,
     imageUrl: post.imageUrl,
+    instagramImageUrl: instagramImages[post.id] || null,
     mediaUrl: null,
     downloadUrl: post.downloadUrl,
     paragraphs: post.paragraphs,

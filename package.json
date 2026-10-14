@@ -3,16 +3,26 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "astro dev --host 127.0.0.1",
-    "prebuild": "node scripts/restore-media.mjs",
+    "prebuild": "node scripts/prepare-build.mjs",
     "build": "astro build",
     "preview": "astro preview --host 127.0.0.1",
     "test": "playwright test",
+    "test:unit": "node --test tests/*.test.mjs scripts/test-*.mjs",
     "scrape:instagram": ".venv/bin/python scripts/scrape-instagram.py --max-posts 5 --max-reels 5",
-    "scrape:storiesig": "node scripts/scrape-storiesig.mjs"
+    "scrape:storiesig": "node scripts/scrape-storiesig.mjs",
+    "scrape:storiesig:update": "node scripts/scrape-storiesig.mjs --max-posts 0 --max-reels 0 --additional-reels 1 --scan-reels 6 --max-age-days 14 --max-reel-mb 2"
   },
-  "dependencies": { "astro": "7.3.8" },
-  "devDependencies": { "@playwright/test": "1.64.0" }
+  "dependencies": {
+    "@vercel/analytics": "2.0.1",
+    "astro": "7.3.8",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
 }

@@ -25,7 +25,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 ## Acervo e compartilhamento
 
 - `src/data/editorial.json`: cards originais e fontes oficiais.
-- `src/data/sources.json`: os 15 perfis selecionados.
+- `src/data/sources.json`: nosso @boraaalula2026 e os 15 perfis selecionados.
 - `src/data/storiesig-posts.json`: publicações obtidas pelo fluxo público do StoriesIG.
 - `src/data/instagram-posts.json`: importações diretas com Instaloader.
 - `public/cards/`: PNG para compartilhar e WebP para apresentação.
@@ -42,6 +42,32 @@ Copiar link e os botões para divulgar o site continuam compartilhando a página
 Horários relativos não são convertidos em datas inventadas. Quando um permalink
 não está disponível, o conteúdo aponta para o perfil de origem.
 
+## Estatísticas de visitas
+
+Vercel Web Analytics está habilitado no projeto. O SDK `@vercel/analytics` é
+carregado somente no build de produção e registra visitas a páginas, sem eventos
+personalizados de compartilhamento ou reprodução. URLs de páginas são enviadas
+sem parâmetros ou fragmentos; Do Not Track e Global Privacy Control desativam a
+medição. A página de privacidade descreve esse uso.
+
+Consulte o [painel do projeto](https://vercel.com/thiago-butignon-claramunts-projects/todos-com-lula/analytics).
+No plano Hobby, o limite é compartilhado pela equipe: 50 mil eventos por mês,
+segundo a [documentação da Vercel](https://vercel.com/docs/analytics/limits-and-pricing).
+Nenhum upgrade pago foi contratado.
+
+Os testes de proteção das estatísticas usam `npm run test:unit`.
+
+## Publicação automática no Instagram
+
+A fila inclui o acervo elegível e novas entradas, sem republicar o mesmo vídeo.
+O workflow consulta o site a cada 15 minutos e publica um item por execução em
+`@boraaalula2026`, respeitando processamento e quota da Meta. A conta ainda precisa
+ser conectada; o agendamento permanece desativado enquanto faltam as credenciais.
+
+A [configuração e operação](docs/instagram-publishing.md) descreve a conexão da
+conta profissional, os Secrets protegidos e a simulação disponível no Actions.
+O build prepara as 11 imagens atuais em JPEG para a API, preservando os originais.
+
 ## Atualizar pelo StoriesIG
 
 O coletor usa Playwright e o formulário público do serviço, com o caminho
@@ -52,6 +78,12 @@ Não necessita de credenciais do Instagram ou de chave da API do serviço.
 npm run scrape:storiesig
 npm run build
 ```
+
+Para buscar um Reel recente ainda ausente por perfil, sem repetir cópias do mesmo
+vídeo, use `npm run scrape:storiesig:update`. A coleta incremental examina até seis
+Reels por fonte, usa os horários relativos informados pelo serviço para uma janela
+de até 14 dias e mantém o limite acumulado de 85 MiB. Não converte esses rótulos em
+datas de publicação. As últimas adições ao acervo aparecem primeiro nas galerias.
 
 Por padrão, coleta até uma postagem e um Reel por perfil, aguarda cinco
 segundos entre fontes e limita a mídia pública a 85 MiB. Preserva importações

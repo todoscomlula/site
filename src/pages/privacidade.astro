@@ -17,8 +17,13 @@ import Icon from '../components/Icon.astro';
     <p>Esta página descreve a versão do site publicada em 14 de outubro de 2026.</p>
 
     <h2>Navegação no site</h2>
-    <p>O site não implementa ferramentas de análise de audiência, rastreadores publicitários ou cookies próprios. Não há cadastro de visitantes, formulário de inscrição ou coleta de senhas de redes sociais.</p>
+    <p>O site utiliza Vercel Web Analytics para medir visitas e páginas acessadas. Não implementamos rastreadores publicitários ou cookies próprios, e não há cadastro de visitantes, formulário de inscrição ou coleta de senhas de redes sociais.</p>
     <p>As imagens dos cards, o retrato e as fontes tipográficas do acervo editorial são servidos pelo próprio site.</p>
+
+    <h2>Estatísticas de audiência</h2>
+    <p>O Vercel Web Analytics apresenta estatísticas agregadas, como páginas acessadas, origem das visitas, navegador, dispositivo e localização aproximada. A ferramenta não utiliza cookies de terceiros para essa medição.</p>
+    <p>Removemos parâmetros de consulta e fragmentos do endereço da página antes do envio das estatísticas. Quando o navegador informa Do Not Track ou Global Privacy Control, o site não inicia a medição de audiência. Não enviamos preferências de acessibilidade ou arquivos compartilhados como eventos de análise.</p>
+    <p>Saiba mais na documentação de <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">privacidade do Vercel Web Analytics</a>.</p>
 
     <h2>Preferências de acessibilidade</h2>
     <p>Quando você altera o tamanho do texto, o contraste ou a preferência por movimento reduzido, essas escolhas podem ser salvas no armazenamento local do seu navegador, chamado <em>localStorage</em>. Elas ficam no seu dispositivo para serem aplicadas nas próximas visitas e não são enviadas a um banco de dados do projeto.</p>

@@ -48,7 +48,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <div class="footer-main container">
         <div><a href="/" class="brand footer-brand"><span class="brand-star">★</span><span class="brand-words">TODOS<span>COM LULA</span></span></a><p>Informação tem força<br />quando a gente compartilha.</p></div>
         <div><span class="footer-label">EXPLORE</span><a href="/cards/">Cards para compartilhar</a><a href="/videos/">Vídeos</a><a href="/fontes/">Perfis nas redes</a></div>
-        <div><span class="footer-label">ACOMPANHE LULA</span><a href="https://www.instagram.com/lulaoficial/" target="_blank" rel="noopener noreferrer">Instagram <Icon name="arrow" size={15} /></a><a href="https://www.gov.br/planalto/pt-br" target="_blank" rel="noopener noreferrer">Presidência da República <Icon name="arrow" size={15} /></a><a href="/sobre/">Sobre este projeto</a></div>
+        <div><span class="footer-label">ACOMPANHE A CONVERSA</span><a href="https://www.instagram.com/boraaalula2026/" target="_blank" rel="noopener noreferrer">Nosso Instagram: @boraaalula2026 <Icon name="arrow" size={15} /></a><a href="https://www.instagram.com/lulaoficial/" target="_blank" rel="noopener noreferrer">Instagram do Lula <Icon name="arrow" size={15} /></a><a href="https://www.gov.br/planalto/pt-br" target="_blank" rel="noopener noreferrer">Presidência da República <Icon name="arrow" size={15} /></a><a href="/sobre/">Sobre este projeto</a></div>
       </div>
       <div class="footer-bottom container"><span>© {new Date().getFullYear()} Todos com Lula. Projeto independente, sem vínculo institucional.</span><a href="/privacidade/">Privacidade</a><a href="/creditos/">Créditos e fontes</a></div>
     </footer>
@@ -63,6 +63,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <ShareDialog />
     <script>
       import '../scripts/site.ts';
+      import '../scripts/analytics.ts';
     </script>
   </body>
 </html>

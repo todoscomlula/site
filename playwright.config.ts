@@ -4,6 +4,7 @@ const baseURL = 'http://127.0.0.1:4321';
 
 export default defineConfig({
   testDir: './tests',
+  testMatch: '**/*.spec.ts',
   fullyParallel: true,
   workers: 2,
   timeout: 30_000,
