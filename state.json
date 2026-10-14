@@ -127,17 +127,17 @@
       "postId": "storiesig-ptbrasil-712ef6e34650",
       "mediaId": "17893294050614736",
       "publishedAt": "2026-10-14T20:45:07.135Z"
+    },
+    {
+      "contentHash": "0f48cfdda50c6e8eeaf70f8798c97cee942818dc05dd0e82635c83872424fc44",
+      "postId": "storiesig-ptbrasil-9d89f289852a",
+      "mediaId": "18106089418972806",
+      "publishedAt": "2026-10-14T20:46:27.978Z"
     }
   ],
-  "pending": {
-    "contentHash": "0f48cfdda50c6e8eeaf70f8798c97cee942818dc05dd0e82635c83872424fc44",
-    "postId": "storiesig-ptbrasil-9d89f289852a",
-    "containerId": "18132181687655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:45:12.933Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "b9cd7873-7adc-4a74-b632-fd5563626ba3",
-    "expiresAt": "2026-10-14T21:06:18.211Z"
+    "expiresAt": "2026-10-14T21:06:27.978Z"
   }
 }
