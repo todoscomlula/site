@@ -2,9 +2,15 @@
   "version": 1,
   "account": "boraaalula2026",
   "published": [],
-  "pending": null,
+  "pending": {
+    "contentHash": "66d8511109093dd67302c63e521a8ab7bfaa0b255639abbe633fd37a31a12833",
+    "postId": "farmacia-popular",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T20:03:24.348Z"
+  },
   "lease": {
     "owner": "2948f278-f532-4388-9a1d-e81119fa1b17",
-    "expiresAt": "2026-10-14T20:23:22.380Z"
+    "expiresAt": "2026-10-14T20:23:24.348Z"
   }
 }
