@@ -231,9 +231,15 @@
       "publishedAt": "2026-10-14T21:48:36.009Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "1e00cca8c5e99dd202efe0e956460d1e1793d6369bac745f763e039ce113b13b",
+    "postId": "storiesig-hilton_erika-68742616ba51",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T21:48:42.181Z"
+  },
   "lease": {
     "owner": "cbd0a521-e1a0-4a85-872e-1cbd6b0e0ac0",
-    "expiresAt": "2026-10-14T22:08:39.746Z"
+    "expiresAt": "2026-10-14T22:08:42.181Z"
   }
 }
