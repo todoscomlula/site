@@ -30,12 +30,12 @@
   "pending": {
     "contentHash": "4775b6a18c0ab2aba86ac5a5cd156c1cfeeee8cb349fa714d4477fda806297d1",
     "postId": "terrabrasilis",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132175912655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T20:25:44.394Z"
   },
   "lease": {
     "owner": "602d5726-5d92-4a37-98ce-0eca5e1b7132",
-    "expiresAt": "2026-10-14T20:45:44.394Z"
+    "expiresAt": "2026-10-14T20:45:50.020Z"
   }
 }
