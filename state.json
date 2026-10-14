@@ -214,5 +214,8 @@
     }
   ],
   "pending": null,
-  "lease": null
+  "lease": {
+    "owner": "9fb0ebbb-e4ed-4e2f-97eb-9dd8bf1952f7",
+    "expiresAt": "2026-10-14T21:20:42.842Z"
+  }
 }
