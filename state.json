@@ -138,12 +138,12 @@
   "pending": {
     "contentHash": "22992f69d7b7a80ea6e7ab1e3f7f55af899d1d82f8693a651aaedb4a3bae3f01",
     "postId": "storiesig-manueladavila-be8b5002adbf",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132182068655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T20:46:34.105Z"
   },
   "lease": {
     "owner": "f9aeae1f-3e05-4a02-9835-df734fd8bbcf",
-    "expiresAt": "2026-10-14T21:06:34.105Z"
+    "expiresAt": "2026-10-14T21:06:36.093Z"
   }
 }
