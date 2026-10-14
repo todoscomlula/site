@@ -259,11 +259,11 @@
     "contentHash": "c6a5f9dcc638782ea1ec26ec52582ff790fd9f79ce1b5cae361f6b6cf54c0571",
     "postId": "storiesig-gleisihoffmann-df958f9b0e35",
     "containerId": "18132196354655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T21:54:00.553Z"
   },
   "lease": {
     "owner": "7ea8f457-dc74-4d55-939a-f0e24fdf45c7",
-    "expiresAt": "2026-10-14T22:14:03.089Z"
+    "expiresAt": "2026-10-14T22:15:05.612Z"
   }
 }
