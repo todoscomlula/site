@@ -31,17 +31,17 @@
       "postId": "terrabrasilis",
       "mediaId": "18166698820488076",
       "publishedAt": "2026-10-14T20:25:56.738Z"
+    },
+    {
+      "contentHash": "95cec6b366eb722e934ce67d91f10de4d101fc3808110a492103816aafa21e11",
+      "postId": "portal-da-transparencia",
+      "mediaId": "17886162690501509",
+      "publishedAt": "2026-10-14T20:26:14.830Z"
     }
   ],
-  "pending": {
-    "contentHash": "95cec6b366eb722e934ce67d91f10de4d101fc3808110a492103816aafa21e11",
-    "postId": "portal-da-transparencia",
-    "containerId": "18132175963655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:26:02.502Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "7f764c05-37fb-42c2-b926-1ec63e538b2d",
-    "expiresAt": "2026-10-14T20:46:10.236Z"
+    "expiresAt": "2026-10-14T20:46:14.830Z"
   }
 }
