@@ -204,12 +204,12 @@
   "pending": {
     "contentHash": "108908c5069558581e6a44232f0018bb3096dff4b1afc48dd490f802756f5d1c",
     "postId": "storiesig-ptsaopaulo-e2e33dfa75a1",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132185404655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T20:58:06.272Z"
   },
   "lease": {
     "owner": "0eef778b-781a-49fc-bb2f-15b4ec1f2ad9",
-    "expiresAt": "2026-10-14T21:18:06.272Z"
+    "expiresAt": "2026-10-14T21:18:08.353Z"
   }
 }
