@@ -217,17 +217,17 @@
       "postId": "storiesig-pragmatismopolitico-d71cfd2f0b10",
       "mediaId": "18033279902889428",
       "publishedAt": "2026-10-14T21:01:58.454Z"
+    },
+    {
+      "contentHash": "3963317ab7557dfc83e8c92780a57242d4d5358e95d9f7451a64ccd9fa344221",
+      "postId": "storiesig-andrejanones-852e105254fd",
+      "mediaId": "17898049053394869",
+      "publishedAt": "2026-10-14T21:03:19.813Z"
     }
   ],
-  "pending": {
-    "contentHash": "3963317ab7557dfc83e8c92780a57242d4d5358e95d9f7451a64ccd9fa344221",
-    "postId": "storiesig-andrejanones-852e105254fd",
-    "containerId": "18132186613655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:02:04.469Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "a7173141-1a9c-4a24-96ed-3f5c21199ca3",
-    "expiresAt": "2026-10-14T21:23:08.862Z"
+    "expiresAt": "2026-10-14T21:23:19.813Z"
   }
 }
