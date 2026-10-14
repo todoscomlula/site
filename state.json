@@ -61,11 +61,11 @@
     "contentHash": "ea2b9fd8ba2efdadffbe2eefd495594e1bb4bcd7f33ff1a5060d3245105e13d9",
     "postId": "storiesig-uneoficial-2bef936dd851",
     "containerId": "18132177139655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:30:20.369Z"
   },
   "lease": {
     "owner": "77e2500a-7683-4d3b-83de-0b3124d61362",
-    "expiresAt": "2026-10-14T20:50:23.031Z"
+    "expiresAt": "2026-10-14T20:51:25.350Z"
   }
 }
