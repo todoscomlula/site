@@ -109,17 +109,17 @@
       "postId": "storiesig-brasilcomlula-9bbc5e3df781",
       "mediaId": "18112903100144918",
       "publishedAt": "2026-10-14T20:40:07.313Z"
+    },
+    {
+      "contentHash": "e352ce78c7d0f9c6b9862382ce37b8efd7869376ddc66988c5c8fbdcfa8f1d73",
+      "postId": "storiesig-brasilcomlula-e177dbaea22c",
+      "mediaId": "18006160985789606",
+      "publishedAt": "2026-10-14T20:41:27.924Z"
     }
   ],
-  "pending": {
-    "contentHash": "e352ce78c7d0f9c6b9862382ce37b8efd7869376ddc66988c5c8fbdcfa8f1d73",
-    "postId": "storiesig-brasilcomlula-e177dbaea22c",
-    "containerId": "18132180481655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:40:13.462Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "9a45aeef-25db-4907-b67a-6aa9082a9eae",
-    "expiresAt": "2026-10-14T21:01:18.138Z"
+    "expiresAt": "2026-10-14T21:01:27.924Z"
   }
 }
