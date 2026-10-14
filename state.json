@@ -247,11 +247,11 @@
     "contentHash": "6d2b6080d8ebd000c0dc095524dd850dd69b9bd6ea824334d932249a13677ace",
     "postId": "storiesig-manueladavila-14c2c9857f7f",
     "containerId": "18132195682655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T21:51:21.568Z"
   },
   "lease": {
     "owner": "20f2b6af-cbf1-4e97-9afe-0988c44c070d",
-    "expiresAt": "2026-10-14T22:11:24.208Z"
+    "expiresAt": "2026-10-14T22:12:26.199Z"
   }
 }
