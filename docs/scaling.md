@@ -20,7 +20,7 @@ flowchart LR
 
 Os coletores leem nosso @boraaalula2026 e os 15 perfis de [sources.json](../src/data/sources.json), preservando registros anteriores. A coleta principal usa [scrape-storiesig.mjs](../scripts/scrape-storiesig.mjs) e escreve [storiesig-posts.json](../src/data/storiesig-posts.json). A alternativa direta [scrape-instagram.py](../scripts/scrape-instagram.py) escreve [instagram-posts.json](../src/data/instagram-posts.json). A primeira tentativa direta com Instaloader exigiu autenticação e importou zero registros; isso não indica que os perfis estejam vazios. O fluxo público StoriesIG conseguiu importar arquivos reais; a cobertura das fontes deve ser conferida no relatório, sem presumir sucesso em todas as fontes.
 
-As mídias públicas ficam em `public/media/instagram/`. O StoriesIG arquiva originais em `.cache/storiesig/originals/` e usa FFmpeg para criar MP4 menores e capas, removendo metadados da cópia processada. Os cards próprios usam PNG para download e WebP para apresentação em `public/cards/`. Arquivos em `public/` entram no build e são públicos.
+As mídias públicas ficam em `public/media/instagram/`. O StoriesIG arquiva originais em `.cache/storiesig/originals/` e usa FFmpeg para preparar MP4 e capas, preservando resolução e qualidade e removendo metadados da cópia processada. Os cards próprios usam PNG para download e WebP para apresentação em `public/cards/`. Arquivos em `public/` entram no build e são públicos.
 
 `publishedAt` permanece `null` quando a data original não está disponível; `observedAt` registra a coleta e não a publicação. Horários relativos podem ser preservados como `publishedLabel`. Sem permalink verificável, `permalink` fica `null` e a fonte aponta para o perfil ou sua aba de Reels. Não reconstrua datas ou URLs de postagem a partir de aproximações.
 
@@ -47,6 +47,8 @@ Mova vídeos e originais pesados para armazenamento de objetos com CDN destinado
 Essa migração requer adaptar a validação do scraper: hoje seu contrato só aceita URLs locais em `/media/instagram/`. Introduzir URLs remotas exige allowlist explícita do domínio próprio, preservação de autoria/permalink e testes dessa validação. Também será preciso ajustar `connect-src` da CSP caso o player faça requisições HLS a outro domínio.
 
 O coletor preserva a resolução e os streams H.264/AAC, prepara MP4 para reprodução progressiva e gera thumbnails com FFmpeg. Outros codecs recebem conversão de compatibilidade com qualidade alta. Não limita cada vídeo a 2 MB: esse orçamento causava blocos nos vídeos longos. Para um acervo grande, evolua para HLS com diferentes bitrates e configure CORS e suporte a intervalos de bytes. Carregue vídeo após interação e preserve a imagem de capa na listagem. HLS e uma CDN de mídia dedicada não estão provisionados atualmente. Assets de release servem como arquivo de restauração durante o build, e os visitantes continuam recebendo os arquivos pela Vercel. Para dezenas de milhares de registros, limite o tamanho das páginas de galeria com paginação e separe o índice de busca; a duração do build e o peso do HTML também devem ser medidos.
+
+Em 14/10/2026, foi mantida a CDN do deployment, conforme escolha do responsável pelo projeto. Vercel Blob pode armazenar e distribuir MP4 diretamente, mas não recupera detalhes perdidos por compressão. O [Hobby inclui 1 GB de armazenamento e 10 GB mensais de transferência de Blob](https://vercel.com/docs/vercel-blob/usage-and-pricing); o acesso ao Blob fica indisponível quando os limites são excedidos, sem cobrança de excedente nesse plano. Migrar o acervo para Blob exige dimensionar tráfego e conferir o plano antes de mudar a distribuição. O [suporte a Git LFS](https://vercel.com/docs/project-configuration/git-settings) apenas baixa objetos LFS usados no repositório durante o deploy. O acervo atual usa assets de release verificados, sem versionar arquivos de vídeo no Git.
 
 ## Orçamento de tráfego: exemplo, não medição
 
@@ -120,15 +122,15 @@ Confira o tamanho de `dist/`, da saída Vercel e do conjunto enviado pelo CLI ap
 
 O build não coleta postagens. Atualize o feed offline, revise origem e direitos de uso do material, execute o build e publique o artefato. A republicação de conteúdo disponível ao público continua exigindo uma fonte e autorização adequadas ao material; registre remoções/correções no acervo e publique novo deployment quando necessário.
 
-Para incorporar as mídias locais ignoradas pelo Git, gere e publique a saída de produção a partir dessa mesma cópia:
+Antes do deploy, publique somente as mídias destinadas ao site como assets de release e fixe seus tamanhos e SHA-256 em `src/data/media-sources.json`. Confira o acervo local e envie o código para o build remoto:
 
 ```sh
-npx vercel@64.0.2 build --prod
-.git/tools/gitleaks dir --redact --no-banner .vercel/output/static
-npx vercel@64.0.2 deploy --prebuilt --prod --yes
+npm run build
+.git/tools/gitleaks dir --redact --no-banner dist
+npx vercel@64.0.2 --prod --yes
 ```
 
-O build de produção deve ocorrer após o término da coleta. Publique apenas a saída destinada ao site; `.vercel/`, `.env.local` e configurações locais continuam ignorados. Faça a primeira publicação dos arquivos novos antes de depender da restauração em um build limpo do Git.
+O build de produção deve ocorrer após o término da coleta. O CLI exclui as mídias do upload de código, e o build remoto restaura os arquivos com verificação de integridade. `.vercel/`, `.env.local` e configurações locais continuam ignorados. A publicação dos assets novos precisa terminar antes de iniciar um build limpo.
 
 ## Validação e segurança operacional
 
@@ -144,6 +146,8 @@ npm run test:unit
 ```
 
 Neste ciclo, o build estático foi executado com sucesso, **36 testes Playwright desktop/mobile** passaram, **39 verificações Node** de Analytics, publicação e comparação de vídeos passaram e **12 testes offline do coletor direto** passaram. A suíte de navegador verifica galerias, busca, compartilhamento canônico, PNG, foco, fontes e preferências de acessibilidade; também verificou ausência de requisições externas iniciais e erros JavaScript. Os testes de compartilhamento interceptam a chamada nativa para conferir os bytes reais do MP4/PNG, ausência de URL no envio do arquivo, download alternativo, cancelamento, recuperação de falhas e preparo lento com um novo toque. Eles não executam o envio dentro do aplicativo WhatsApp. Os testes Python exercitam contrato, sanitização, deduplicação e backoff sem acessar Instagram. Essas verificações não comprovam sucesso de coleta em todas as fontes, disponibilidade contínua do StoriesIG ou capacidade sob carga. Este documento não registra teste de carga para milhões.
+
+Na correção de qualidade, **50 verificações Node** passaram, incluindo fidelidade de cada frame decodificado na cópia H.264, integridade de restauração e checkpoints da fila. O build remoto restaurou os 158 arquivos com validação de tamanho e SHA-256 e gerou 61 páginas. No deployment público, os 47 itens importados apontavam para suas mídias atuais, todas responderam com o tamanho esperado, e um MP4 recuperado teve SHA-256 e resposta de intervalo HTTP 206 confirmados. O navegador reproduziu esse vídeo em 720 × 900 e entregou seu arquivo de 4.554.492 bytes à interface de compartilhamento, sem URL do site nem erros JavaScript. A verificação usa uma interface nativa simulada e não envia uma mensagem real pelo WhatsApp.
 
 Antes da divulgação para milhões, registre tamanho transferido em dispositivo móvel, headers/cache reais, funcionamento dos downloads, latência e erro em mais de uma região. Faça uma rampa de carga controlada no próprio deployment, com orçamento de teste definido; interrompa ao observar degradação ou gasto inesperado. Acompanhe consumo de CDN e mantenha o último deployment válido disponível para rollback.
 
