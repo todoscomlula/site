@@ -7,17 +7,17 @@
       "postId": "farmacia-popular",
       "mediaId": "18136783120629380",
       "publishedAt": "2026-10-14T20:03:39.349Z"
+    },
+    {
+      "contentHash": "1042bb705141686007b43013e30075e69759aa5165f705e893be70d7dc14ab58",
+      "postId": "pe-de-meia",
+      "mediaId": "18446017795134166",
+      "publishedAt": "2026-10-14T20:24:59.932Z"
     }
   ],
-  "pending": {
-    "contentHash": "1042bb705141686007b43013e30075e69759aa5165f705e893be70d7dc14ab58",
-    "postId": "pe-de-meia",
-    "containerId": "18132175660655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:24:45.738Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "ced1f86d-c7d5-4dba-bd5b-1184b503da51",
-    "expiresAt": "2026-10-14T20:44:55.229Z"
+    "expiresAt": "2026-10-14T20:44:59.932Z"
   }
 }
