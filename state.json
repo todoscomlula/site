@@ -25,17 +25,17 @@
       "postId": "minha-casa-minha-vida",
       "mediaId": "17995092576030972",
       "publishedAt": "2026-10-14T20:25:38.736Z"
+    },
+    {
+      "contentHash": "4775b6a18c0ab2aba86ac5a5cd156c1cfeeee8cb349fa714d4477fda806297d1",
+      "postId": "terrabrasilis",
+      "mediaId": "18166698820488076",
+      "publishedAt": "2026-10-14T20:25:56.738Z"
     }
   ],
-  "pending": {
-    "contentHash": "4775b6a18c0ab2aba86ac5a5cd156c1cfeeee8cb349fa714d4477fda806297d1",
-    "postId": "terrabrasilis",
-    "containerId": "18132175912655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:25:44.394Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "602d5726-5d92-4a37-98ce-0eca5e1b7132",
-    "expiresAt": "2026-10-14T20:45:52.304Z"
+    "expiresAt": "2026-10-14T20:45:56.738Z"
   }
 }
