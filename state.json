@@ -91,11 +91,11 @@
     "contentHash": "bc52abf81ca44bba075576378e8bc7dfad3804625cea007f42ade2118b3bbb5d",
     "postId": "storiesig-andrejanones-3f377d54ec15",
     "containerId": "18132178834655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:35:56.265Z"
   },
   "lease": {
     "owner": "8a29824f-2f5c-42d2-ac8f-39a8ff48cb31",
-    "expiresAt": "2026-10-14T20:55:58.198Z"
+    "expiresAt": "2026-10-14T20:57:00.380Z"
   }
 }
