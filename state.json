@@ -223,17 +223,17 @@
       "postId": "storiesig-andrejanones-852e105254fd",
       "mediaId": "17898049053394869",
       "publishedAt": "2026-10-14T21:03:19.813Z"
+    },
+    {
+      "contentHash": "28060135957eb24adc0e480c4e731d0651dfd9b397d00a45c158aa152e0a685a",
+      "postId": "storiesig-seremosresistencia-9f0681289e77",
+      "mediaId": "18111798158065904",
+      "publishedAt": "2026-10-14T21:48:36.009Z"
     }
   ],
-  "pending": {
-    "contentHash": "28060135957eb24adc0e480c4e731d0651dfd9b397d00a45c158aa152e0a685a",
-    "postId": "storiesig-seremosresistencia-9f0681289e77",
-    "containerId": "18132194278655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:47:23.604Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "32aa1b03-1af0-4a2f-ba2f-84ef60f411ac",
-    "expiresAt": "2026-10-14T22:08:28.104Z"
+    "expiresAt": "2026-10-14T22:08:36.009Z"
   }
 }
