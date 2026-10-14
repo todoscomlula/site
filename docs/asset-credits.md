@@ -31,7 +31,7 @@ As referências abaixo fundamentam os textos de `src/data/editorial.json` e as i
 | --- | --- |
 | Farmácia Popular | [Ministério da Saúde — Farmácia Popular](https://www.gov.br/saude/pt-br/composicao/sectics/farmacia-popular) |
 | Pé-de-Meia | [Ministério da Educação — Pé-de-Meia](https://www.gov.br/mec/pt-br/pe-de-meia) |
-| Bolsa Família | [Ministério do Desenvolvimento e Assistência Social — Bolsa Família](https://www.gov.br/mds/pt-br/pt-br/acoes-e-programas/bolsa-familia) |
+| Bolsa Família | [Ministério do Desenvolvimento e Assistência Social — Bolsa Família](https://www.gov.br/mds/pt-br/acoes-e-programas/bolsa-familia) |
 | Minha Casa, Minha Vida | [Ministério das Cidades — Programa Minha Casa, Minha Vida](https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/habitacao/programa-minha-casa-minha-vida) |
 | TerraBrasilis | [INPE — Sobre o TerraBrasilis](https://www.terrabrasilis.dpi.inpe.br/sobre/) |
 | Portal da Transparência | [CGU — Consultar dados no Portal da Transparência do Governo Federal](https://www.gov.br/pt-br/servicos/consultar-dados-no-portal-da-transparencia-do-governo-federal) |
