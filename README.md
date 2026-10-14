@@ -61,8 +61,10 @@ Os testes de proteção das estatísticas usam `npm run test:unit`.
 
 A fila inclui o acervo elegível e novas entradas, sem republicar o mesmo vídeo.
 O workflow consulta o site a cada 15 minutos e publica um item por execução em
-`@boraaalula2026`, respeitando processamento e quota da Meta. A conta ainda precisa
-ser conectada; o agendamento permanece desativado enquanto faltam as credenciais.
+`@boraaalula2026`, respeitando processamento e quota da Meta. Em 14/10/2026, a
+conexão foi validada, o card da Farmácia Popular foi publicado e o agendamento foi
+ativado. A [primeira execução confirmada](https://github.com/todoscomlula/site/actions/runs/38628789905)
+registra a publicação e o checkpoint persistente.
 
 A [configuração e operação](docs/instagram-publishing.md) descreve a conexão da
 conta profissional, os Secrets protegidos e a simulação disponível no Actions.

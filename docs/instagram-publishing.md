@@ -59,7 +59,6 @@ INSTAGRAM_STATE_BACKEND=github
 GITHUB_REPOSITORY=OWNER/REPOSITORY
 GITHUB_TOKEN=GITHUB_CONTENTS_WRITE_TOKEN_PLACEHOLDER
 INSTAGRAM_ACCESS_TOKEN=INSTAGRAM_USER_ACCESS_TOKEN_PLACEHOLDER
-INSTAGRAM_USER_ID=INSTAGRAM_USER_ID_PLACEHOLDER
 ```
 
 O repositório de estado aceito é `todoscomlula/site`. Depois de preencher o arquivo ignorado e manter o Gitleaks local disponível, execute:
@@ -109,3 +108,5 @@ node --test scripts/test-instagram-publishing.mjs scripts/test-instagram-assets.
 Os testes não conectam uma conta nem publicam. Cobrem identidade incorreta, Bearer sem token na URL, erros sem exposição de credenciais, dedupe por grupos e pelo próprio perfil, limite de quota, lease, checkpoints duráveis, timeout, recriação limitada de contêiner expirado, resposta incerta, preservação de imagens e preparo dos manifestos StoriesIG. O teste local também executa o Gitleaks real sobre um estado sanitizado.
 
 Valide a conexão pelo workflow antes de ativar o agendamento. A confirmação de leitura da conta e da quota não representa uma publicação ao vivo; confira também o resultado da primeira execução de publicação.
+
+Em 14/10/2026, a [validação da conexão](https://github.com/todoscomlula/site/actions/runs/38628630783) confirmou a conta esperada e a quota da Meta. A [primeira publicação](https://github.com/todoscomlula/site/actions/runs/38628789905) confirmou o card `farmacia-popular`, persistiu o histórico sem pendência e liberou o lease. Depois disso, `INSTAGRAM_AUTOPUBLISH_ENABLED` foi configurado como `true`.
