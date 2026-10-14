@@ -259,17 +259,17 @@
       "postId": "storiesig-gleisihoffmann-df958f9b0e35",
       "mediaId": "18460848457137223",
       "publishedAt": "2026-10-14T21:55:14.427Z"
+    },
+    {
+      "contentHash": "112d13cef3c0d74dcdbf906f5695b506be0249fa090a7217a9116a03397274b8",
+      "postId": "storiesig-theinterceptbrasil-8001a34a9f20",
+      "mediaId": "18167745505473825",
+      "publishedAt": "2026-10-14T21:57:33.664Z"
     }
   ],
-  "pending": {
-    "contentHash": "112d13cef3c0d74dcdbf906f5695b506be0249fa090a7217a9116a03397274b8",
-    "postId": "storiesig-theinterceptbrasil-8001a34a9f20",
-    "containerId": "18132196801655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:55:20.621Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "f92e5e40-b8c2-4b0c-95df-0b5f51942e06",
-    "expiresAt": "2026-10-14T22:17:25.068Z"
+    "expiresAt": "2026-10-14T22:17:33.664Z"
   }
 }
