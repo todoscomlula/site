@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+project_root=$(git rev-parse --show-toplevel)
+scanner=$(git rev-parse --git-path tools/gitleaks)
+if [ ! -x "$scanner" ]; then
+    scanner=$(command -v gitleaks || true)
+fi
+if [ -z "$scanner" ] || [ ! -x "$scanner" ]; then
+    printf '%s\n' 'Commit bloqueado: Gitleaks não está disponível.' >&2
+    exit 1
+fi
+
+exec "$scanner" git --pre-commit --staged --redact --no-banner --no-color \
+    --ignore-gitleaks-allow "$project_root"

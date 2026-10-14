@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+project_root=$(git rev-parse --show-toplevel)
+scanner=$(git rev-parse --git-path tools/gitleaks)
+if [ ! -x "$scanner" ]; then
+    scanner=$(command -v gitleaks || true)
+fi
+if [ -z "$scanner" ] || [ ! -x "$scanner" ]; then
+    printf '%s\n' 'Push bloqueado: Gitleaks não está disponível.' >&2
+    exit 1
+fi
+
+exec "$scanner" git --log-opts=--all --redact --no-banner --no-color \
+    --ignore-gitleaks-allow "$project_root"
