@@ -181,17 +181,17 @@
       "postId": "storiesig-hilton_erika-f4965976b623",
       "mediaId": "18114467057137072",
       "publishedAt": "2026-10-14T20:55:03.363Z"
+    },
+    {
+      "contentHash": "76bb1fb91c40ba3c875ad2261153304c83dce1f467ec6c85ba0608e756e417d5",
+      "postId": "storiesig-gleisihoffmann-7df80435df71",
+      "mediaId": "18119588782988740",
+      "publishedAt": "2026-10-14T20:56:23.947Z"
     }
   ],
-  "pending": {
-    "contentHash": "76bb1fb91c40ba3c875ad2261153304c83dce1f467ec6c85ba0608e756e417d5",
-    "postId": "storiesig-gleisihoffmann-7df80435df71",
-    "containerId": "18132184660655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:55:08.816Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "12a7e624-ae37-4000-9fd6-be7dd61a8357",
-    "expiresAt": "2026-10-14T21:16:13.165Z"
+    "expiresAt": "2026-10-14T21:16:23.947Z"
   }
 }
