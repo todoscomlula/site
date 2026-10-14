@@ -1,16 +1,17 @@
 {
   "version": 1,
   "account": "boraaalula2026",
-  "published": [],
-  "pending": {
-    "contentHash": "66d8511109093dd67302c63e521a8ab7bfaa0b255639abbe633fd37a31a12833",
-    "postId": "farmacia-popular",
-    "containerId": "18132171832655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:03:24.348Z"
-  },
+  "published": [
+    {
+      "contentHash": "66d8511109093dd67302c63e521a8ab7bfaa0b255639abbe633fd37a31a12833",
+      "postId": "farmacia-popular",
+      "mediaId": "18136783120629380",
+      "publishedAt": "2026-10-14T20:03:39.349Z"
+    }
+  ],
+  "pending": null,
   "lease": {
     "owner": "2948f278-f532-4388-9a1d-e81119fa1b17",
-    "expiresAt": "2026-10-14T20:23:34.064Z"
+    "expiresAt": "2026-10-14T20:23:39.349Z"
   }
 }
