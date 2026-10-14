@@ -76,11 +76,31 @@ const posts = new Map((JSON.parse(data) as Content[]).map((post) => [post.id, po
 const dialog = $<HTMLDialogElement>('#share-dialog');
 let activePost: Content | null = null;
 let opener: HTMLElement | null = null;
+let preparedFile: File | null = null;
+let preparationController: AbortController | null = null;
+let sharing = false;
+let shareSession = 0;
+const sharingInstructions = 'No celular, escolha WhatsApp, Instagram, TikTok ou outro aplicativo no menu de compartilhamento. Você também pode baixar o arquivo e publicar pelo seu app.';
+function resetFileShare() {
+  shareSession++;
+  preparationController?.abort();
+  preparationController = null;
+  preparedFile = null;
+  sharing = false;
+}
+function shareButtonsBusy(busy: boolean) {
+  document.querySelectorAll<HTMLButtonElement>('#dialog-whatsapp, #dialog-native-share').forEach((button) => {
+    button.disabled = busy;
+    button.setAttribute('aria-busy', String(busy));
+  });
+}
 const publicOrigin = new URL($<HTMLLinkElement>('link[rel="canonical"]')?.href || location.origin).origin;
 const contentUrl = (post: Content) => new URL(`/conteudo/${encodeURIComponent(post.id)}/`, publicOrigin).href;
 function setText(selector: string, value: string) { const element = $(selector); if (element) element.textContent = value; }
 function openPost(post: Content, trigger: HTMLElement) {
   if (!dialog) return;
+  resetFileShare();
+  shareButtonsBusy(false);
   opener = trigger;
   activePost = post;
   const media = $('#dialog-media')!;
@@ -106,7 +126,7 @@ function openPost(post: Content, trigger: HTMLElement) {
   setText('#dialog-description', post.excerpt);
   $<HTMLAnchorElement>('#dialog-original')!.href = post.sourceUrl;
   $<HTMLAnchorElement>('#dialog-detail')!.href = `/conteudo/${encodeURIComponent(post.id)}/`;
-  $<HTMLAnchorElement>('#dialog-whatsapp')!.href = `https://wa.me/?text=${encodeURIComponent(`${post.title}\n${contentUrl(post)}`)}`;
+  setText('#dialog-whatsapp [data-share-label]', post.downloadUrl ? `Mandar ${post.kind === 'video' ? 'vídeo' : 'card'} no WhatsApp` : 'Mandar link no WhatsApp');
   const download = $<HTMLAnchorElement>('#dialog-download')!;
   download.hidden = !post.downloadUrl;
   if (post.downloadUrl) {
@@ -115,7 +135,8 @@ function openPost(post: Content, trigger: HTMLElement) {
   } else {
     download.removeAttribute('href');
   }
-  setText('#dialog-native-share', post.downloadUrl ? 'Compartilhar no Instagram / TikTok' : 'Compartilhar link');
+  setText('#dialog-native-share [data-share-label]', post.downloadUrl ? 'Compartilhar no Instagram / TikTok' : 'Compartilhar link');
+  setText('#dialog-sharing-status', sharingInstructions);
   document.body.classList.add('dialog-open');
   dialog.showModal();
 }
@@ -131,6 +152,7 @@ dialog?.addEventListener('click', (event) => {
   if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
 });
 dialog?.addEventListener('close', () => {
+  resetFileShare();
   $('#dialog-media')?.querySelector('video')?.pause();
   $('#dialog-media')?.replaceChildren();
   document.body.classList.remove('dialog-open');
@@ -147,35 +169,87 @@ async function copy(text: string) {
   }
 }
 $('#dialog-copy')?.addEventListener('click', () => { if (activePost) void copy(contentUrl(activePost)); });
-$('#dialog-native-share')?.addEventListener('click', async () => {
+type ShareTarget = 'whatsapp' | 'native';
+function downloadForSharing(post: Content, target: ShareTarget) {
+  $<HTMLAnchorElement>('#dialog-download')?.click();
+  const message = `Este navegador não envia arquivos diretamente. Baixe o ${post.kind === 'video' ? 'vídeo' : 'card'} e anexe ${target === 'whatsapp' ? 'no WhatsApp' : 'no aplicativo escolhido'}.`;
+  setText('#dialog-sharing-status', message);
+  notify(message);
+}
+function askToSendPreparedFile(post: Content, target: ShareTarget) {
+  const message = `${post.kind === 'video' ? 'Vídeo' : 'Card'} pronto. Toque novamente em ${target === 'whatsapp' ? 'Mandar no WhatsApp' : 'Compartilhar no Instagram / TikTok'} para abrir o menu e escolher o aplicativo.`;
+  setText('#dialog-sharing-status', message);
+  notify(message);
+}
+async function shareContent(target: ShareTarget) {
   const post = activePost;
-  if (!post) return;
-  const button = $<HTMLButtonElement>('#dialog-native-share')!;
-  if (!navigator.share) {
-    notify(post.downloadUrl ? 'Baixe o arquivo e publique pelo Instagram, TikTok ou outro app.' : 'Use o link copiado para compartilhar.');
-    if (!post.downloadUrl) await copy(contentUrl(post));
-    return;
-  }
-  button.disabled = true;
+  if (!post || sharing) return;
+  const session = shareSession;
+  sharing = true;
+  shareButtonsBusy(true);
   try {
-    if (post.downloadUrl) {
-      const response = await fetch(post.downloadUrl);
+    if (!post.downloadUrl) {
+      if (target === 'whatsapp') {
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${post.title}\n${contentUrl(post)}`)}`, '_blank', 'noopener,noreferrer');
+      } else if (navigator.share) {
+        await navigator.share({ title: post.title, url: contentUrl(post) });
+      } else {
+        await copy(contentUrl(post));
+      }
+      return;
+    }
+    const filename = post.downloadUrl.split('/').pop() || `${post.id}.${post.kind === 'video' ? 'mp4' : 'png'}`;
+    const mimeTypes: Record<string, string> = { mp4: 'video/mp4', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp' };
+    const mimeType = mimeTypes[filename.split('.').pop()?.toLowerCase() || ''];
+    const probe = preparedFile || new File([], filename, { type: mimeType });
+    if (!navigator.share || !navigator.canShare?.({ files: [probe] })) {
+      downloadForSharing(post, target);
+      return;
+    }
+    if (!preparedFile) {
+      setText('#dialog-sharing-status', `Preparando ${post.kind === 'video' ? 'vídeo' : 'card'} para enviar…`);
+      preparationController = new AbortController();
+      const response = await fetch(post.downloadUrl, { signal: preparationController.signal });
       if (!response.ok) throw new Error('Media unavailable');
       const blob = await response.blob();
-      const filename = post.downloadUrl.split('/').pop() || `${post.id}.png`;
-      const file = new File([blob], filename, { type: blob.type || (post.kind === 'video' ? 'video/mp4' : 'image/png') });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: post.title, text: `Fonte: ${post.sourceName}` });
+      if (shareSession !== session) return;
+      if (!blob.size || blob.type.split(';')[0] !== mimeType) throw new Error('Invalid media');
+      preparedFile = new File([blob], filename, { type: mimeType });
+      if (!navigator.canShare({ files: [preparedFile] })) {
+        downloadForSharing(post, target);
+        return;
+      }
+      // Downloading can outlive the browser's click permission. Keep the file
+      // ready and use the next click to open the native menu without another fetch.
+      if (navigator.userActivation?.isActive === false) {
+        askToSendPreparedFile(post, target);
         return;
       }
     }
-    await navigator.share({ title: post.title, text: post.title, url: contentUrl(post) });
+    setText('#dialog-sharing-status', `Escolha ${target === 'whatsapp' ? 'WhatsApp' : 'o aplicativo'} no menu para enviar o arquivo.`);
+    await navigator.share({ files: [preparedFile] });
   } catch (error) {
-    if (!(error instanceof Error) || error.name !== 'AbortError') notify('Baixe o arquivo para publicar no seu aplicativo.');
+    if (shareSession !== session) return;
+    const errorName = error instanceof Error || error instanceof DOMException ? error.name : '';
+    if (errorName === 'AbortError') {
+      setText('#dialog-sharing-status', sharingInstructions);
+    } else if (preparedFile && errorName === 'NotAllowedError') {
+      askToSendPreparedFile(post, target);
+    } else {
+      const message = 'Não foi possível enviar o arquivo. Tente novamente ou use Baixar para publicar e anexe no aplicativo.';
+      setText('#dialog-sharing-status', message);
+      notify(message);
+    }
   } finally {
-    button.disabled = false;
+    if (shareSession === session) {
+      sharing = false;
+      shareButtonsBusy(false);
+      preparationController = null;
+    }
   }
-});
+}
+$('#dialog-whatsapp')?.addEventListener('click', () => { void shareContent('whatsapp'); });
+$('#dialog-native-share')?.addEventListener('click', () => { void shareContent('native'); });
 document.querySelectorAll('[data-share-site]').forEach((trigger) => trigger.addEventListener('click', () => {
   const url = new URL('/', publicOrigin).href;
   window.open(`https://wa.me/?text=${encodeURIComponent(`Todos com Lula: informação para compartilhar.\n${url}`)}`, '_blank', 'noopener,noreferrer');

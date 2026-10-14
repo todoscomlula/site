@@ -92,18 +92,13 @@ test('topic URLs, search, empty state and clear filters update the gallery', asy
   await expect(page.getByRole('heading', { name: 'Vamos tentar outra busca?' })).toBeHidden();
 });
 
-test('card sharing uses the canonical link and a valid local PNG, then Escape restores focus', async ({ page }) => {
+test('card dialog offers file sharing and a valid local PNG, then Escape restores focus', async ({ page }) => {
   const { dialog, trigger } = await openFirstCard(page);
-  const expectedLink = await canonicalPostUrl(page);
   await expect(dialog.locator('#dialog-original')).toHaveAttribute('href', firstSource);
   await expect(dialog.locator('#dialog-detail')).toHaveAttribute('href', `/conteudo/${firstPostId}/`);
 
-  const whatsappHref = await dialog.locator('#dialog-whatsapp').getAttribute('href');
-  const whatsapp = new URL(whatsappHref!);
-  expect(whatsapp.origin).toBe('https://wa.me');
-  expect(whatsapp.searchParams.get('text')).toContain(expectedLink);
-  expect(whatsappHref).toContain('text=');
-  expect(whatsappHref).toMatch(/%3A%2F%2F/i);
+  await expect(dialog.getByRole('button', { name: 'Mandar card no WhatsApp' })).toBeEnabled();
+  expect(await dialog.locator('#dialog-whatsapp').getAttribute('href')).toBeNull();
 
   const download = dialog.getByRole('link', { name: 'Baixar para publicar' });
   await expect(download).toHaveAttribute('href', '/cards/farmacia-popular.png');
@@ -131,7 +126,7 @@ test('copy link writes the public content URL without needing OS clipboard permi
   const expectedLink = await canonicalPostUrl(page);
   await dialog.getByRole('button', { name: 'Copiar link', exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as Window & { __copiedLinks: string[] }).__copiedLinks)).toEqual([expectedLink]);
-  await expect(page.getByRole('status')).toContainText(/copiado/i);
+  await expect(page.locator('#toast')).toContainText(/copiado/i);
 });
 
 test('content deep link presents its source and downloadable file directly', async ({ page }) => {

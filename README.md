@@ -33,6 +33,12 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 
 Cada conteúdo tem página própria, link da fonte, WhatsApp, download e
 compartilhamento nativo de arquivos quando o navegador e os apps oferecem suporte.
+O botão do WhatsApp prepara o MP4 ou a imagem e abre o menu do celular para
+escolher o WhatsApp. Ele não substitui o arquivo pelo link da página. Em downloads
+lentos, pode ser necessário tocar novamente depois que o arquivo estiver pronto;
+esse segundo toque abre o menu sem baixar o arquivo outra vez. Sem suporte a
+arquivos, o botão oferece o download e orienta a anexar pelo aplicativo.
+Copiar link e os botões para divulgar o site continuam compartilhando a página.
 Horários relativos não são convertidos em datas inventadas. Quando um permalink
 não está disponível, o conteúdo aponta para o perfil de origem.
 
