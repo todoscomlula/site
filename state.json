@@ -228,12 +228,12 @@
   "pending": {
     "contentHash": "28060135957eb24adc0e480c4e731d0651dfd9b397d00a45c158aa152e0a685a",
     "postId": "storiesig-seremosresistencia-9f0681289e77",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132186940655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T21:03:26.578Z"
   },
   "lease": {
     "owner": "3f14942e-85af-418a-a95b-7da046fbb22c",
-    "expiresAt": "2026-10-14T21:23:26.578Z"
+    "expiresAt": "2026-10-14T21:23:29.096Z"
   }
 }
