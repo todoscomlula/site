@@ -241,17 +241,17 @@
       "postId": "storiesig-ptbrasil-565cc41834a4",
       "mediaId": "18119453320758351",
       "publishedAt": "2026-10-14T21:51:14.229Z"
+    },
+    {
+      "contentHash": "6d2b6080d8ebd000c0dc095524dd850dd69b9bd6ea824334d932249a13677ace",
+      "postId": "storiesig-manueladavila-14c2c9857f7f",
+      "mediaId": "18144613696609763",
+      "publishedAt": "2026-10-14T21:52:34.588Z"
     }
   ],
-  "pending": {
-    "contentHash": "6d2b6080d8ebd000c0dc095524dd850dd69b9bd6ea824334d932249a13677ace",
-    "postId": "storiesig-manueladavila-14c2c9857f7f",
-    "containerId": "18132195682655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:51:21.568Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "20f2b6af-cbf1-4e97-9afe-0988c44c070d",
-    "expiresAt": "2026-10-14T22:12:26.199Z"
+    "expiresAt": "2026-10-14T22:12:34.588Z"
   }
 }
