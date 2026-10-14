@@ -151,11 +151,11 @@
     "contentHash": "1bf93e670f382bb020a16de835587e6295be5b68d6e08a9cc6f0de948f46b2ef",
     "postId": "storiesig-renatofreitasumdenos-a7c510673b97",
     "containerId": "18132182704655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:49:13.616Z"
   },
   "lease": {
     "owner": "69e3041a-e37f-4b2c-ada8-4795b8905692",
-    "expiresAt": "2026-10-14T21:09:15.809Z"
+    "expiresAt": "2026-10-14T21:10:18.280Z"
   }
 }
