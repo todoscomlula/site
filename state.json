@@ -36,12 +36,12 @@
   "pending": {
     "contentHash": "95cec6b366eb722e934ce67d91f10de4d101fc3808110a492103816aafa21e11",
     "postId": "portal-da-transparencia",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132175963655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T20:26:02.502Z"
   },
   "lease": {
     "owner": "7f764c05-37fb-42c2-b926-1ec63e538b2d",
-    "expiresAt": "2026-10-14T20:46:02.502Z"
+    "expiresAt": "2026-10-14T20:46:08.107Z"
   }
 }
