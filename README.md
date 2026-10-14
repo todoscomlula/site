@@ -69,6 +69,9 @@ registra a publicação e o checkpoint persistente.
 A [configuração e operação](docs/instagram-publishing.md) descreve a conexão da
 conta profissional, os Secrets protegidos e a simulação disponível no Actions.
 O build prepara as 11 imagens atuais em JPEG para a API, preservando os originais.
+As próximas legendas incluem até cinco hashtags por assunto e uma chamada para
+seguir a conta. O modo manual `publish_all=true`, com `dry_run=false`, permite
+consumir todo o acervo pendente respeitando a quota e o histórico de publicações.
 
 ## Atualizar pelo StoriesIG
 

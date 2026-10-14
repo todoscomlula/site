@@ -1,6 +1,6 @@
 # Publicação automática em @boraaalula2026
 
-A automação prepara a fila do acervo e publica **no máximo um conteúdo por execução** na conta `boraaalula2026`. O workflow verifica a fila a cada 15 minutos quando `INSTAGRAM_AUTOPUBLISH_ENABLED=true`. Inclui o acervo elegível que ainda não foi publicado e as novas adições, na ordem de chegada ao acervo. `observedAt` serve para ordenar a coleta; não é apresentado como data original de publicação.
+A automação prepara a fila do acervo e, no modo padrão, publica **no máximo um conteúdo por execução** na conta `boraaalula2026`. O workflow verifica a fila a cada 15 minutos quando `INSTAGRAM_AUTOPUBLISH_ENABLED=true`. Inclui o acervo elegível que ainda não foi publicado e as novas adições, na ordem de chegada ao acervo. `observedAt` serve para ordenar a coleta; não é apresentado como data original de publicação.
 
 A publicação já está autorizada pelo responsável pelo projeto. A fila deve ser ativada somente depois de validar a autenticação da conta.
 
@@ -41,6 +41,8 @@ Para validar localmente com o token em um arquivo ignorado, execute `node --env-
 
 Em **Actions → Publicar acervo no Instagram → Run workflow**, `dry_run=true` mostra o ID e o tipo do próximo conteúdo disponível, sem chamar a Meta ou modificar o estado. O padrão é simulação. Escolher `dry_run=false` executa a publicação com a autenticação configurada; não é necessário digitar uma confirmação adicional. O agendamento usa somente a variável operacional `INSTAGRAM_AUTOPUBLISH_ENABLED`.
 
+Para enviar todo o acervo pendente já autorizado, escolha `dry_run=false`, `check_connection=false` e `publish_all=true`. Esse modo continua a fila sem apagar posts ou histórico e usa os mesmos checkpoints, lease, quota e verificações de conta. Para ao terminar o acervo, atingir a quota, completar 100 ciclos ou alcançar 45 minutos; o agendamento pode continuar o restante. Erros de publicação interrompem o lote e preservam a operação pendente para inspeção ou retomada. O runner reserva 60 minutos para concluir com segurança o último processamento. Localmente, esse modo corresponde a `--publish-all`.
+
 O workflow não precisa instalar as dependências do site para publicar. O publicador usa Node.js e `fetch` nativo, lendo `/feed.json` e verificando os arquivos diretamente no domínio público. Ele não depende das mídias ignoradas pelo Git estarem presentes no runner.
 
 Para simular localmente, substitua o domínio de exemplo:
@@ -73,6 +75,8 @@ Vídeos MP4 disponíveis no domínio do site são enviados completos como **Reel
 
 A API de imagens aceita JPEG. O prebuild do site já restaura as mídias e executa `prepareImages()` automaticamente. O preparo lê os manifestos editorial, Instagram e StoriesIG, gera JPEGs em sRGB e conserva os JPEGs que já atendem aos requisitos. Imagens muito altas ou largas recebem padding para preservar o quadro inteiro, sem recorte e sem sobrescrever o original. O mapa público `/instagram-publication-assets.json` fornece o `instagramImageUrl` exportado no feed.
 
+As legendas reservam espaço para a atribuição, o link do conteúdo, uma chamada para seguir `@boraaalula2026` e até cinco hashtags relacionadas ao assunto. `#Lula` e `#TodosComLula` identificam o projeto; os demais temas são escolhidos a partir do título e resumo, como `#FarmaciaPopular`, `#SUS`, `#PeDeMeia` e `#MEI`. Vídeos podem incluir `#ReelsBrasil`. Tags antigas são removidas do texto antes de compor o conjunto, e título e resumo idênticos aparecem uma só vez. Essa seleção temática não representa um ranking de tendências em tempo real nem uma garantia de alcance.
+
 O publicador exige arquivos HTTPS públicos e permanentes no mesmo domínio, com tipo `image/jpeg` ou `video/mp4`. Ele rejeita URLs assinadas, com query ou credenciais e URLs de CDN externa. Novos itens com mídia indisponível ou incompatível são pulados para permitir que a fila continue. Carrosséis não são publicados por esta versão. As legendas incluem o título, o resumo, a fonte e o link do conteúdo, respeitando o limite da API e preservando a atribuição. Referência: [publicação de conteúdo da Meta](https://developers.facebook.com/documentation/instagram-platform/content-publishing).
 
 ## Evitar republicações
@@ -97,7 +101,7 @@ Se uma chamada de publicação perder a resposta, o estado permanece `publishing
 
 Para resolver uma operação incerta, mantenha o agendamento desligado, confira o contêiner e a conta e preserve todos os registros já concluídos. Somente quando estiver confirmado que a operação não publicou o conteúdo, remova aquele `pending` no estado para permitir uma nova tentativa. Não apague a branch ou o histórico para resolver um erro. Revise a alteração e execute Gitleaks com `--redact` antes de publicar qualquer commit manual.
 
-O cron representa uma fila periódica, não publicação instantânea: processamento, quota e atrasos do agendador podem manter itens aguardando. Cada execução publica no máximo um item, inclusive ao consumir o backlog.
+O cron representa uma fila periódica, não publicação instantânea: processamento, quota e atrasos do agendador podem manter itens aguardando. Cada execução agendada publica no máximo um item. O modo manual `publish_all=true` pode consumir vários itens do backlog.
 
 ## Verificação offline
 

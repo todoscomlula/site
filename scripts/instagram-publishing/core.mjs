@@ -129,16 +129,40 @@ function queueOrder(posts) {
   });
 }
 
-const cleanText = (value) => String(value || '').replace(/\r/g, '').replace(/@(?=\w)/g, '＠').trim();
+const cleanText = (value) => String(value || '').replace(/\r/g, '').replace(/#[\p{L}\p{N}_]+/gu, '')
+  .replace(/@(?=\w)/g, '＠').replace(/[ \t]+/g, ' ').trim();
 const shorten = (value, maximum) => Array.from(value).slice(0, maximum).join('');
+
+/** Select relevant subjects from the actual post; these are not a live trend ranking. */
+export function publicationHashtags(post) {
+  const text = [post.id, post.title, post.excerpt].filter(Boolean).join(' ').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  const rules = [
+    [/farmacia[\s-]+popular/, ['FarmaciaPopular', 'SUS']],
+    [/pe[\s-]?de[\s-]?meia/, ['PeDeMeia', 'Educacao']],
+    [/bolsa[\s-]+familia/, ['BolsaFamilia', 'PoliticasPublicas']],
+    [/minha[\s-]+casa[\s-]+minha[\s-]+vida/, ['MinhaCasaMinhaVida', 'Moradia']],
+    [/amazonia|desmatamento|meio ambiente/, ['Amazonia', 'MeioAmbiente']],
+    [/\bmei\b|prospera|desenrola/, ['MEI', 'Economia']],
+    [/6[\s-]?x[\s-]?1/, ['FimDaEscala6x1', 'Trabalho']],
+    [/trabalh|emprego/, ['Trabalho', 'Economia']],
+    [/debate/, ['Debate', 'Eleicoes2026']],
+    [/eleic|reeleic|urnas?|virada|bota pra virar/, ['Eleicoes2026', 'Democracia']],
+    [/\bmpb\b|cinema|artistas?|cultura|milton nascimento/, ['Cultura', 'CulturaBrasileira']],
+    [/jornalismo|denunci|investigacao/, ['Jornalismo', 'Informacao']],
+  ];
+  const subjects = rules.filter(([pattern]) => pattern.test(text)).flatMap(([, tags]) => tags);
+  const context = post.kind === 'video' ? 'ReelsBrasil' : 'Brasil';
+  return [...new Set(['Lula', 'TodosComLula', ...subjects.slice(0, 2), context])].slice(0, 5).map((tag) => `#${tag}`);
+}
 
 export function makeCaption(post, site) {
   const source = externalSource(post.sourceUrl);
   if (!source) throw new PublishingError('MISSING_SOURCE_ATTRIBUTION');
-  const suffix = `Fonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.`;
+  const suffix = `Siga @${TARGET_ACCOUNT} para acompanhar os próximos conteúdos.\n\nFonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.\n\n${publicationHashtags(post).join(' ')}`;
   const available = 2_200 - Array.from(suffix).length - 2;
   if (available < 1) throw new PublishingError('SOURCE_ATTRIBUTION_TOO_LONG');
-  const opening = [shorten(cleanText(post.title), 600), shorten(cleanText(post.excerpt), 900)].filter(Boolean).join('\n\n');
+  const title = cleanText(post.title); const excerpt = cleanText(post.excerpt);
+  const opening = [shorten(title, 600), excerpt.toLowerCase() !== title.toLowerCase() ? shorten(excerpt, 900) : ''].filter(Boolean).join('\n\n');
   return `${shorten(opening, available)}\n\n${suffix}`;
 }
 
@@ -294,4 +318,25 @@ export async function runPublisher({ posts, siteUrl, publish = false, graph, sto
     try { await store.save(validateState(state)); }
     catch { log({ mode: 'lease-release-pending', account: TARGET_ACCOUNT }); }
   }
+}
+
+/** Drain an authorized backlog with the same quota checks, lease and durable checkpoints. */
+export async function runPublishingQueue(options, { maximum = 100, budgetMs = 45 * 60_000, clock = Date.now } = {}) {
+  if (!options.publish || !Number.isInteger(maximum) || maximum < 1 || maximum > 100 || !Number.isFinite(budgetMs) || budgetMs < 1) {
+    throw new PublishingError('INVALID_PUBLISHING_QUEUE_CONFIGURATION');
+  }
+  const started = clock(); let published = 0; let recovered = 0;
+  const finish = (mode, reason) => {
+    const result = { mode, account: TARGET_ACCOUNT, published, recovered, ...(reason && { reason }) };
+    options.log?.(result);
+    return result;
+  };
+  for (let attempt = 0; attempt < maximum; attempt += 1) {
+    if (clock() - started >= budgetMs) return finish('queue-paused', 'time-budget');
+    const result = await runPublisher(options);
+    if (result.published) published += 1;
+    else if (result.recovered) recovered += 1;
+    else return finish(result.quotaWait ? 'queue-paused' : 'queue-complete', result.quotaWait ? 'quota' : null);
+  }
+  return finish('queue-paused', 'execution-limit');
 }

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import { pathToFileURL } from 'node:url';
-import { API_VERSION, PublishingError, publicSiteUrl, runPublisher } from './instagram-publishing/core.mjs';
+import { API_VERSION, PublishingError, publicSiteUrl, runPublisher, runPublishingQueue } from './instagram-publishing/core.mjs';
 import { MetaClient } from './instagram-publishing/meta-client.mjs';
 import { GithubStateStore, LocalReadOnlyState } from './instagram-publishing/state-store.mjs';
 
 export async function main(args = process.argv.slice(2), env = process.env) {
   const flags = new Set(args);
-  if (args.some((arg) => !['--publish', '--dry-run', '--check-connection'].includes(arg)) || flags.size > 1) {
+  if (args.some((arg) => !['--publish', '--publish-all', '--dry-run', '--check-connection'].includes(arg)) || flags.size > 1) {
     throw new PublishingError('USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH');
   }
   if (flags.has('--check-connection')) {
@@ -20,7 +20,8 @@ export async function main(args = process.argv.slice(2), env = process.env) {
     console.log(JSON.stringify(result));
     return result;
   }
-  const publish = flags.has('--publish');
+  const publishAll = flags.has('--publish-all');
+  const publish = flags.has('--publish') || publishAll;
   const site = publicSiteUrl(env.PUBLIC_SITE_URL);
   let feed;
   try {
@@ -38,9 +39,10 @@ export async function main(args = process.argv.slice(2), env = process.env) {
     : new LocalReadOnlyState();
   const graph = publish ? new MetaClient({ accessToken: env.INSTAGRAM_ACCESS_TOKEN, userId: env.INSTAGRAM_USER_ID, version: env.INSTAGRAM_API_VERSION || API_VERSION }) : null;
 
-  return runPublisher({ posts: feed, siteUrl: site.href, publish, graph, store,
+  const options = { posts: feed, siteUrl: site.href, publish, graph, store,
     log: (event) => console.log(JSON.stringify(event)),
-  });
+  };
+  return publishAll ? runPublishingQueue(options) : runPublisher(options);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

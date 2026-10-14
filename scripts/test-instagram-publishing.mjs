@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { contentKey, emptyState, makeCaption, publicationCandidate, publicSiteUrl, PublishingError, runPublisher, TARGET_ACCOUNT, validateState } from './instagram-publishing/core.mjs';
+import { contentKey, emptyState, makeCaption, publicationCandidate, publicationHashtags, publicSiteUrl, PublishingError, runPublisher, runPublishingQueue, TARGET_ACCOUNT, validateState } from './instagram-publishing/core.mjs';
 import { MetaClient } from './instagram-publishing/meta-client.mjs';
 import { GithubStateStore, LocalReadOnlyState } from './instagram-publishing/state-store.mjs';
 import { scanPublicState } from './instagram-publishing/secret-scan.mjs';
@@ -214,6 +214,78 @@ test('caption preserves attribution within 2200 code points and avoids automatic
   const value = makeCaption(post({ title: 'á'.repeat(3000), excerpt: '@someone ' + '😀'.repeat(3000), sourceName: '@source' }), site);
   assert.ok(Array.from(value).length <= 2200); assert.match(value, /Fonte: ＠source/);
   assert.match(value, /https:\/\/example\.org\/source\//); assert.equal(value.includes('@someone'), false);
+});
+
+test('caption reserves space for relevant hashtags, attribution and the target-account follow link', () => {
+  const value = makeCaption(post({ id: 'farmacia-popular', title: 'Farmácia Popular #antiga ' + '😀'.repeat(3000), excerpt: '#maisUma #spam', sourceName: 'Fonte #antiga' }), site);
+  assert.ok(Array.from(value).length <= 2200);
+  const hashtags = value.match(/#[\p{L}\p{N}_]+/gu);
+  assert.deepEqual(hashtags, ['#Lula', '#TodosComLula', '#FarmaciaPopular', '#SUS', '#Brasil']);
+  assert.match(value, /Siga @boraaalula2026/);
+  assert.match(value, /Fonte: Fonte/);
+  assert.match(value, /https:\/\/example\.org\/source\//);
+});
+
+test('hashtags reflect each post subject without adding unrelated trend labels', () => {
+  const health = publicationHashtags(post({ title: 'Farmácia Popular' }));
+  const education = publicationHashtags(post({ title: 'Pé-de-Meia', kind: 'video' }));
+  const economy = publicationHashtags(post({ title: 'O Prospera MEI chegou', kind: 'video' }));
+  assert.ok(health.includes('#SUS')); assert.equal(health.includes('#MEI'), false);
+  assert.ok(education.includes('#PeDeMeia')); assert.ok(education.includes('#Educacao')); assert.ok(education.includes('#ReelsBrasil'));
+  assert.ok(economy.includes('#MEI')); assert.ok(economy.includes('#Economia'));
+  assert.ok(publicationHashtags(post({ title: 'Quem acorda cedo para trabalhar' })).includes('#Trabalho'));
+  assert.ok([health, education, economy].every((tags) => tags.length <= 5 && new Set(tags).size === tags.length));
+});
+
+test('identical imported title and excerpt appear once in the caption', () => {
+  const value = makeCaption(post({ title: 'Um conteúdo com fonte #antiga', excerpt: 'Um conteúdo com fonte #outra' }), site);
+  assert.equal(value.match(/Um conteúdo com fonte/g).length, 1);
+});
+
+test('backlog publishing drains distinct items and preserves the existing publication history', async () => {
+  const state = emptyState();
+  state.published.push({ contentHash: contentKey(post()), postId: 'sample-card', mediaId: '333333', publishedAt: new Date(instant).toISOString() });
+  const data = fixture({ state, posts: [post(), post({ id: 'second-card' }), post({ id: 'third-card' })] });
+  const result = await runPublishingQueue(data.options);
+  assert.deepEqual(result, { mode: 'queue-complete', account: TARGET_ACCOUNT, published: 2, recovered: 0 });
+  assert.deepEqual(data.state().published.map((entry) => entry.postId), ['sample-card', 'second-card', 'third-card']);
+  assert.equal(data.calls.filter((call) => call === 'publish').length, 2);
+  assert.equal(data.state().pending, null); assert.equal(data.state().lease, null);
+});
+
+test('backlog publishing pauses at the live quota without reserving the next item', async () => {
+  const data = fixture({ posts: [post(), post({ id: 'second-card' })] });
+  data.graph.quota = async () => ({ used: data.calls.filter((call) => call === 'publish').length, maximum: 1 });
+  const result = await runPublishingQueue(data.options);
+  assert.equal(result.mode, 'queue-paused'); assert.equal(result.reason, 'quota'); assert.equal(result.published, 1);
+  assert.equal(data.state().published.length, 1); assert.equal(data.state().pending, null); assert.equal(data.state().lease, null);
+});
+
+test('backlog publishing stops before runner exhaustion and respects its execution limit', async () => {
+  const posts = [post(), post({ id: 'second-card' }), post({ id: 'third-card' })];
+  const bounded = fixture({ posts });
+  const limitResult = await runPublishingQueue(bounded.options, { maximum: 2 });
+  assert.equal(limitResult.reason, 'execution-limit'); assert.equal(limitResult.published, 2);
+  let tick = 0;
+  const timed = fixture({ posts });
+  const timeResult = await runPublishingQueue(timed.options, { budgetMs: 2, clock: () => tick++ });
+  assert.equal(timeResult.reason, 'time-budget'); assert.equal(timeResult.published, 1);
+  assert.equal(timed.state().lease, null);
+});
+
+test('backlog publishing retains an uncertain result and does not continue to another item', async () => {
+  const data = fixture({ posts: [post(), post({ id: 'second-card' })], publishError: new PublishingError('META_REQUEST_INTERRUPTED') });
+  await assert.rejects(runPublishingQueue(data.options), { code: 'META_REQUEST_INTERRUPTED' });
+  assert.equal(data.calls.filter((call) => call === 'publish').length, 1);
+  assert.equal(data.state().pending.stage, 'publishing'); assert.equal(data.state().published.length, 0);
+});
+
+test('backlog mode requires durable GitHub state and cannot override connection checks', async (t) => {
+  const requests = [];
+  t.mock.method(globalThis, 'fetch', async (url) => { requests.push(String(url)); return Response.json([post()]); });
+  await assert.rejects(main(['--publish-all'], { PUBLIC_SITE_URL: siteUrl }), { code: 'PUBLISH_REQUIRES_DURABLE_GITHUB_STATE' });
+  assert.deepEqual(requests, ['https://example.com/feed.json']);
+  await assert.rejects(main(['--check-connection', '--publish-all'], {}), { code: 'USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH' });
 });
 
 test('wrong API username fails before any state mutation or content write', async () => {
