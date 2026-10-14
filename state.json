@@ -109,11 +109,11 @@
     "contentHash": "1e4f8e329347762bbba1b74bc2ff598ff4b8b9c96e50e554137d924f76551cdd",
     "postId": "storiesig-brasilcomlula-9bbc5e3df781",
     "containerId": "18132180418655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:39:53.646Z"
   },
   "lease": {
     "owner": "934a8d65-d264-4090-8788-4c18999a99ab",
-    "expiresAt": "2026-10-14T21:00:00.311Z"
+    "expiresAt": "2026-10-14T21:00:02.731Z"
   }
 }
