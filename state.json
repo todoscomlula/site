@@ -145,17 +145,17 @@
       "postId": "storiesig-manueladavila-8b20608999fe",
       "mediaId": "17966420559197196",
       "publishedAt": "2026-10-14T20:49:07.623Z"
+    },
+    {
+      "contentHash": "1bf93e670f382bb020a16de835587e6295be5b68d6e08a9cc6f0de948f46b2ef",
+      "postId": "storiesig-renatofreitasumdenos-a7c510673b97",
+      "mediaId": "18163679224517454",
+      "publishedAt": "2026-10-14T20:50:26.056Z"
     }
   ],
-  "pending": {
-    "contentHash": "1bf93e670f382bb020a16de835587e6295be5b68d6e08a9cc6f0de948f46b2ef",
-    "postId": "storiesig-renatofreitasumdenos-a7c510673b97",
-    "containerId": "18132182704655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:49:13.616Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "69e3041a-e37f-4b2c-ada8-4795b8905692",
-    "expiresAt": "2026-10-14T21:10:18.280Z"
+    "expiresAt": "2026-10-14T21:10:26.057Z"
   }
 }
