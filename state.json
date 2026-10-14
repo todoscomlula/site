@@ -157,17 +157,17 @@
       "postId": "storiesig-lulaoficial-8ec91be044e2",
       "mediaId": "18453191068126222",
       "publishedAt": "2026-10-14T20:50:43.791Z"
+    },
+    {
+      "contentHash": "f2dc2fe8d05bbd31e3a07fd429e7f17f8ffb9aa4f9a045a1161de37c642de96f",
+      "postId": "storiesig-hilton_erika-7fe295a80d97",
+      "mediaId": "18022300949722404",
+      "publishedAt": "2026-10-14T20:52:04.740Z"
     }
   ],
-  "pending": {
-    "contentHash": "f2dc2fe8d05bbd31e3a07fd429e7f17f8ffb9aa4f9a045a1161de37c642de96f",
-    "postId": "storiesig-hilton_erika-7fe295a80d97",
-    "containerId": "18132183541655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:50:49.109Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "72aa88c0-3814-43a6-8ee5-53bc0c1bf0f2",
-    "expiresAt": "2026-10-14T21:11:53.724Z"
+    "expiresAt": "2026-10-14T21:12:04.740Z"
   }
 }
