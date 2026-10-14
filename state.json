@@ -271,17 +271,14 @@
       "postId": "storiesig-fernandohaddadoficial-4973cb164170",
       "mediaId": "18105960911254357",
       "publishedAt": "2026-10-14T21:59:53.761Z"
+    },
+    {
+      "contentHash": "3bcbf05e705a2d91c41f8733d2a54220db8239026695d5ce5428353d02a14a1d",
+      "postId": "storiesig-ptsaopaulo-c883e8d800a0",
+      "mediaId": "18103387361456676",
+      "publishedAt": "2026-10-14T22:02:14.528Z"
     }
   ],
-  "pending": {
-    "contentHash": "3bcbf05e705a2d91c41f8733d2a54220db8239026695d5ce5428353d02a14a1d",
-    "postId": "storiesig-ptsaopaulo-c883e8d800a0",
-    "containerId": "18132197989655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T22:00:00.263Z"
-  },
-  "lease": {
-    "owner": "3a9c5dd9-c672-4339-bfd6-4c0b4f463464",
-    "expiresAt": "2026-10-14T22:22:05.575Z"
-  }
+  "pending": null,
+  "lease": null
 }
