@@ -229,17 +229,17 @@
       "postId": "storiesig-seremosresistencia-9f0681289e77",
       "mediaId": "18111798158065904",
       "publishedAt": "2026-10-14T21:48:36.009Z"
+    },
+    {
+      "contentHash": "1e00cca8c5e99dd202efe0e956460d1e1793d6369bac745f763e039ce113b13b",
+      "postId": "storiesig-hilton_erika-68742616ba51",
+      "mediaId": "18137111203642161",
+      "publishedAt": "2026-10-14T21:49:55.181Z"
     }
   ],
-  "pending": {
-    "contentHash": "1e00cca8c5e99dd202efe0e956460d1e1793d6369bac745f763e039ce113b13b",
-    "postId": "storiesig-hilton_erika-68742616ba51",
-    "containerId": "18132194746655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:48:42.181Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "cbd0a521-e1a0-4a85-872e-1cbd6b0e0ac0",
-    "expiresAt": "2026-10-14T22:09:46.545Z"
+    "expiresAt": "2026-10-14T22:09:55.181Z"
   }
 }
