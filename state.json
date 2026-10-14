@@ -189,9 +189,15 @@
       "publishedAt": "2026-10-14T20:56:23.947Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "f0f8031f510cab53762478bc2a26d506dcee7a1510fab9fa8d9e4582946dacfc",
+    "postId": "storiesig-theinterceptbrasil-7879e4f57cd1",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T20:56:29.333Z"
+  },
   "lease": {
     "owner": "defc2fd4-71b5-4bc0-bef8-38f0cf467a35",
-    "expiresAt": "2026-10-14T21:16:27.367Z"
+    "expiresAt": "2026-10-14T21:16:29.333Z"
   }
 }
