@@ -235,17 +235,17 @@
       "postId": "storiesig-hilton_erika-68742616ba51",
       "mediaId": "18137111203642161",
       "publishedAt": "2026-10-14T21:49:55.181Z"
+    },
+    {
+      "contentHash": "60683df8177e0d7b139bfd4bdc312e3ec1043f9f7959e4024cd7fe01777a74f4",
+      "postId": "storiesig-ptbrasil-565cc41834a4",
+      "mediaId": "18119453320758351",
+      "publishedAt": "2026-10-14T21:51:14.229Z"
     }
   ],
-  "pending": {
-    "contentHash": "60683df8177e0d7b139bfd4bdc312e3ec1043f9f7959e4024cd7fe01777a74f4",
-    "postId": "storiesig-ptbrasil-565cc41834a4",
-    "containerId": "18132195052655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:50:01.541Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "2cd6dea5-2bf3-4914-8056-8366d6db0302",
-    "expiresAt": "2026-10-14T22:11:06.246Z"
+    "expiresAt": "2026-10-14T22:11:14.229Z"
   }
 }
