@@ -73,11 +73,11 @@
     "contentHash": "55454e20cea381025f1ec626d972ef45668a0ed5d4d2bc158ad66af7ffae9e60",
     "postId": "storiesig-pragmatismopolitico-86357f3121c2",
     "containerId": "18132177499655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-14T20:31:58.915Z"
   },
   "lease": {
     "owner": "7f2aa54d-978d-495b-ae13-941ec14b2432",
-    "expiresAt": "2026-10-14T20:52:01.310Z"
+    "expiresAt": "2026-10-14T20:53:03.225Z"
   }
 }
