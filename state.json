@@ -253,17 +253,17 @@
       "postId": "storiesig-renatofreitasumdenos-c67beeb1075f",
       "mediaId": "18218698573348423",
       "publishedAt": "2026-10-14T21:53:54.208Z"
+    },
+    {
+      "contentHash": "c6a5f9dcc638782ea1ec26ec52582ff790fd9f79ce1b5cae361f6b6cf54c0571",
+      "postId": "storiesig-gleisihoffmann-df958f9b0e35",
+      "mediaId": "18460848457137223",
+      "publishedAt": "2026-10-14T21:55:14.427Z"
     }
   ],
-  "pending": {
-    "contentHash": "c6a5f9dcc638782ea1ec26ec52582ff790fd9f79ce1b5cae361f6b6cf54c0571",
-    "postId": "storiesig-gleisihoffmann-df958f9b0e35",
-    "containerId": "18132196354655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:54:00.553Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "7ea8f457-dc74-4d55-939a-f0e24fdf45c7",
-    "expiresAt": "2026-10-14T22:15:05.612Z"
+    "expiresAt": "2026-10-14T22:15:14.427Z"
   }
 }
