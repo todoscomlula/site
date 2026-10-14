@@ -213,9 +213,15 @@
       "publishedAt": "2026-10-14T21:00:39.025Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "3065666dd7b0fb86225c5e2e6f4ef4a13ff4ac36fa795a057b8146d4bee9179b",
+    "postId": "storiesig-pragmatismopolitico-d71cfd2f0b10",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T21:00:45.132Z"
+  },
   "lease": {
     "owner": "9fb0ebbb-e4ed-4e2f-97eb-9dd8bf1952f7",
-    "expiresAt": "2026-10-14T21:20:42.842Z"
+    "expiresAt": "2026-10-14T21:20:45.132Z"
   }
 }
