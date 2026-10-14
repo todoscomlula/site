@@ -6,8 +6,19 @@ import { GithubStateStore, LocalReadOnlyState } from './instagram-publishing/sta
 
 export async function main(args = process.argv.slice(2), env = process.env) {
   const flags = new Set(args);
-  if (args.some((arg) => !['--publish', '--dry-run'].includes(arg)) || (flags.has('--publish') && flags.has('--dry-run'))) {
-    throw new PublishingError('USE_DRY_RUN_OR_PUBLISH');
+  if (args.some((arg) => !['--publish', '--dry-run', '--check-connection'].includes(arg)) || flags.size > 1) {
+    throw new PublishingError('USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH');
+  }
+  if (flags.has('--check-connection')) {
+    const graph = new MetaClient({ accessToken: env.INSTAGRAM_ACCESS_TOKEN, userId: env.INSTAGRAM_USER_ID, version: env.INSTAGRAM_API_VERSION || API_VERSION });
+    const identity = await graph.verifyAccount();
+    const quota = await graph.quota();
+    if (!Number.isInteger(quota.used) || quota.used < 0 || !Number.isInteger(quota.maximum) || quota.maximum < 1) {
+      throw new PublishingError('INVALID_PUBLISHING_QUOTA');
+    }
+    const result = { mode: 'connection-verified', account: identity.username, userId: identity.userId, quota };
+    console.log(JSON.stringify(result));
+    return result;
   }
   const publish = flags.has('--publish');
   const site = publicSiteUrl(env.PUBLIC_SITE_URL);

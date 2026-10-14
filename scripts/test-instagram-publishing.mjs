@@ -4,6 +4,7 @@ import { contentKey, emptyState, makeCaption, publicationCandidate, publicSiteUr
 import { MetaClient } from './instagram-publishing/meta-client.mjs';
 import { GithubStateStore, LocalReadOnlyState } from './instagram-publishing/state-store.mjs';
 import { scanPublicState } from './instagram-publishing/secret-scan.mjs';
+import { main } from './instagram-publish.mjs';
 
 const siteUrl = 'https://example.com';
 const site = publicSiteUrl(siteUrl);
@@ -220,6 +221,74 @@ test('wrong API username fails before any state mutation or content write', asyn
   const data = fixture();
   await assert.rejects(runPublisher({ ...data.options, graph }), { code: 'WRONG_INSTAGRAM_ACCOUNT' });
   assert.equal(data.saved.length, 0);
+});
+
+test('token-only discovery verifies the target and uses user_id rather than the app-scoped id', async () => {
+  const requests = [];
+  const graph = new MetaClient({ accessToken: 'PLACEHOLDER_FOR_OFFLINE_TEST', fetchImpl: async (url, options) => {
+    requests.push({ url: new URL(url), options });
+    return Response.json(requests.length === 1
+      ? { id: '999999', user_id: '123456', username: TARGET_ACCOUNT }
+      : { username: TARGET_ACCOUNT });
+  } });
+  assert.deepEqual(await graph.verifyAccount(), { userId: '123456', username: TARGET_ACCOUNT });
+  await graph.verifyAccount();
+  assert.equal(requests[0].url.pathname, '/v26.0/me');
+  assert.equal(requests[0].url.searchParams.get('fields'), 'user_id,username');
+  assert.equal(requests[1].url.pathname, '/v26.0/123456');
+  assert.equal(requests[0].url.searchParams.has('access_token'), false);
+  assert.equal(requests[0].options.headers.Authorization, 'Bearer PLACEHOLDER_FOR_OFFLINE_TEST');
+});
+
+test('token-only discovery supports the single-account data envelope documented by Meta', async () => {
+  const graph = new MetaClient({ accessToken: 'PLACEHOLDER_FOR_OFFLINE_TEST', fetchImpl: async () => Response.json({
+    data: [{ user_id: '123456', username: TARGET_ACCOUNT.toUpperCase() }],
+  }) });
+  assert.deepEqual(await graph.verifyAccount(), { userId: '123456', username: TARGET_ACCOUNT });
+});
+
+test('token-only discovery for another account stops before public state or media writes', async () => {
+  const graph = new MetaClient({ accessToken: 'PLACEHOLDER_FOR_OFFLINE_TEST', fetchImpl: async () => Response.json({ user_id: '123456', username: 'another-account' }) });
+  const data = fixture();
+  await assert.rejects(runPublisher({ ...data.options, graph }), { code: 'WRONG_INSTAGRAM_ACCOUNT' });
+  assert.equal(graph.userId, null);
+  assert.equal(data.saved.length, 0);
+});
+
+test('discovery rejects absent, malformed or ambiguous account identities', async () => {
+  for (const response of [
+    { id: '999999', username: TARGET_ACCOUNT },
+    { user_id: 123456, username: TARGET_ACCOUNT },
+    { user_id: '../other-account', username: TARGET_ACCOUNT },
+    { data: [{ user_id: '123456', username: TARGET_ACCOUNT }, { user_id: '654321', username: TARGET_ACCOUNT }] },
+    null,
+  ]) {
+    const graph = new MetaClient({ accessToken: 'PLACEHOLDER_FOR_OFFLINE_TEST', fetchImpl: async () => Response.json(response) });
+    await assert.rejects(graph.verifyAccount(), (error) => error instanceof PublishingError);
+    assert.equal(graph.userId, null);
+  }
+});
+
+test('connection checking needs only the token and makes GET requests without publishing or exporting provider data', async (t) => {
+  const requests = []; const logs = []; const placeholder = 'PLACEHOLDER_FOR_OFFLINE_TEST';
+  t.mock.method(console, 'log', (value) => logs.push(value));
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    requests.push({ url: new URL(url), options });
+    return Response.json(requests.length === 1
+      ? { user_id: '123456', username: TARGET_ACCOUNT, access_token: placeholder }
+      : { data: [{ quota_usage: 0, config: { quota_total: 50 }, access_token: placeholder }] });
+  });
+  const result = await main(['--check-connection'], { INSTAGRAM_ACCESS_TOKEN: placeholder });
+  assert.deepEqual(result, { mode: 'connection-verified', account: TARGET_ACCOUNT, userId: '123456', quota: { used: 0, maximum: 50 } });
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(({ url, options }) => url.hostname === 'graph.instagram.com' && options.method === 'GET' && !options.body));
+  assert.equal(logs.length, 1);
+  assert.equal(logs[0].includes(placeholder), false);
+});
+
+test('connection checking cannot be combined with a publishing flag', async () => {
+  await assert.rejects(main(['--check-connection', '--publish'], {}), { code: 'USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH' });
+  await assert.rejects(main(['--check-connection', '--dry-run'], {}), { code: 'USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH' });
 });
 
 test('Meta uses Bearer headers, permanent full video URLs and no token query parameters', async () => {

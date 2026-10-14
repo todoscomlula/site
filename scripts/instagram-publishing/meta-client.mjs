@@ -2,11 +2,11 @@ import { API_VERSION, PublishingError, TARGET_ACCOUNT } from './core.mjs';
 
 export class MetaClient {
   constructor({ accessToken, userId, version = API_VERSION, fetchImpl = fetch }) {
-    if (!accessToken || !/^\d{1,40}$/.test(userId || '') || !/^v\d{1,2}\.\d{1,2}$/.test(version)) {
+    if (!accessToken || (userId && !/^\d{1,40}$/.test(userId)) || !/^v\d{1,2}\.\d{1,2}$/.test(version)) {
       throw new PublishingError('MISSING_INSTAGRAM_CONFIGURATION');
     }
     this.accessToken = accessToken;
-    this.userId = userId;
+    this.userId = userId || null;
     this.base = `https://graph.instagram.com/${version}/`;
     this.fetch = fetchImpl;
   }
@@ -30,8 +30,21 @@ export class MetaClient {
   }
 
   async verifyAccount() {
-    const data = await this.request(this.userId, { query: { fields: 'username' } });
-    if (data.username?.toLowerCase() !== TARGET_ACCOUNT) throw new PublishingError('WRONG_INSTAGRAM_ACCOUNT');
+    const discovering = this.userId === null;
+    const response = await this.request(discovering ? 'me' : this.userId, {
+      query: { fields: discovering ? 'user_id,username' : 'username' },
+    });
+    const data = Array.isArray(response?.data) && response.data.length === 1 ? response.data[0] : response;
+    if (typeof data?.username !== 'string' || data.username.toLowerCase() !== TARGET_ACCOUNT) {
+      throw new PublishingError('WRONG_INSTAGRAM_ACCOUNT');
+    }
+    if (discovering) {
+      if (typeof data.user_id !== 'string' || !/^\d{1,40}$/.test(data.user_id)) {
+        throw new PublishingError('INVALID_INSTAGRAM_USER_ID');
+      }
+      this.userId = data.user_id;
+    }
+    return { userId: this.userId, username: TARGET_ACCOUNT };
   }
 
   async quota() {

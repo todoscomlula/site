@@ -2,7 +2,7 @@
 
 A automação prepara a fila do acervo e publica **no máximo um conteúdo por execução** na conta `boraaalula2026`. O workflow verifica a fila a cada 15 minutos quando `INSTAGRAM_AUTOPUBLISH_ENABLED=true`. Inclui o acervo elegível que ainda não foi publicado e as novas adições, na ordem de chegada ao acervo. `observedAt` serve para ordenar a coleta; não é apresentado como data original de publicação.
 
-A publicação já está autorizada pelo responsável pelo projeto. O fluxo continua desativado enquanto não houver autenticação válida configurada. Nenhuma conta foi conectada, nenhum token foi criado e nenhuma publicação real foi realizada durante a implementação.
+A publicação já está autorizada pelo responsável pelo projeto. A fila deve ser ativada somente depois de validar a autenticação da conta.
 
 ## Conectar a conta
 
@@ -15,7 +15,9 @@ Configure os valores privados no GitHub, em **Settings → Environments → inst
 | Segredo | Valor necessário |
 | --- | --- |
 | `INSTAGRAM_ACCESS_TOKEN` | Token de usuário obtido pela autorização oficial da conta |
-| `INSTAGRAM_USER_ID` | ID da conta profissional obtido no mesmo fluxo |
+| `INSTAGRAM_USER_ID` | Opcional: ID da conta profissional obtido no mesmo fluxo. Sem esse segredo, o publicador consulta `/me?fields=user_id,username` e descobre o ID depois de confirmar a conta |
+
+Para gerar o token no painel da Meta, abra **Instagram → Configuração da API com login empresarial no Instagram → Gere tokens de acesso**. Adicione a conta como **Testador do Instagram**, aceite o convite no Instagram em **Apps and Websites** e volte ao painel para gerar o token ao lado da conta. O ID do aplicativo e o ID do app do Instagram mostrados no topo do painel não são o ID da conta.
 
 O `GITHUB_TOKEN` é fornecido automaticamente pelo GitHub Actions; o job de publicação tem permissão `contents: write` para manter o estado. Não é necessário adicionar um token pessoal do GitHub para executar o workflow.
 
@@ -32,6 +34,10 @@ Guarde credenciais somente em Secrets ou em arquivo local ignorado, como `.env.i
 Os tokens de longa duração do Instagram têm validade e precisam ser renovados conforme o [fluxo oficial da Meta](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login). Esta implementação não realiza troca OAuth ou renovação automática de tokens. Ao renovar, atualize o segredo protegido sem publicar seu valor.
 
 ## Operar a fila
+
+Em **Actions → Publicar acervo no Instagram → Run workflow**, marque `check_connection=true` para validar o token, confirmar `boraaalula2026`, descobrir o ID da conta e consultar a quota da Meta. Esse modo usa apenas consultas GET; não carrega o acervo, não escreve estado e não publica, independentemente do valor de `dry_run`. Os logs contêm somente a conta confirmada, seu ID público e a quota; erros do provedor são sanitizados.
+
+Para validar localmente com o token em um arquivo ignorado, execute `node --env-file=.env.instagram.local scripts/instagram-publish.mjs --check-connection`.
 
 Em **Actions → Publicar acervo no Instagram → Run workflow**, `dry_run=true` mostra o ID e o tipo do próximo conteúdo disponível, sem chamar a Meta ou modificar o estado. O padrão é simulação. Escolher `dry_run=false` executa a publicação com a autenticação configurada; não é necessário digitar uma confirmação adicional. O agendamento usa somente a variável operacional `INSTAGRAM_AUTOPUBLISH_ENABLED`.
 
@@ -102,4 +108,4 @@ node --test scripts/test-instagram-publishing.mjs scripts/test-instagram-assets.
 
 Os testes não conectam uma conta nem publicam. Cobrem identidade incorreta, Bearer sem token na URL, erros sem exposição de credenciais, dedupe por grupos e pelo próprio perfil, limite de quota, lease, checkpoints duráveis, timeout, recriação limitada de contêiner expirado, resposta incerta, preservação de imagens e preparo dos manifestos StoriesIG. O teste local também executa o Gitleaks real sobre um estado sanitizado.
 
-Nenhuma publicação ao vivo foi validada, porque o token e o ID ainda não foram fornecidos. A integração fica pronta para ativar após a configuração da conexão profissional.
+Valide a conexão pelo workflow antes de ativar o agendamento. A confirmação de leitura da conta e da quota não representa uma publicação ao vivo; confira também o resultado da primeira execução de publicação.

@@ -11,6 +11,10 @@ on:
         description: 'Simular sem publicar no Instagram'
         type: boolean
         default: true
+      check_connection:
+        description: 'Validar token, conta e quota sem publicar'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,8 +24,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check-connection:
+    if: github.event_name == 'workflow_dispatch' && inputs.check_connection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: instagram-publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Validar a conexão com a conta autorizada
+        env:
+          INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+        run: node scripts/instagram-publish.mjs --check-connection
+
   simulate:
-    if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run && !inputs.check_connection
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -42,7 +66,7 @@ jobs:
   publish:
     if: >-
       (github.event_name == 'schedule' && vars.INSTAGRAM_AUTOPUBLISH_ENABLED == 'true') ||
-      (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+      (github.event_name == 'workflow_dispatch' && !inputs.dry_run && !inputs.check_connection)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
