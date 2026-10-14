@@ -211,17 +211,17 @@
       "postId": "storiesig-lulaoficial-1db4f38b65d8",
       "mediaId": "17984762124080989",
       "publishedAt": "2026-10-14T21:00:39.025Z"
+    },
+    {
+      "contentHash": "3065666dd7b0fb86225c5e2e6f4ef4a13ff4ac36fa795a057b8146d4bee9179b",
+      "postId": "storiesig-pragmatismopolitico-d71cfd2f0b10",
+      "mediaId": "18033279902889428",
+      "publishedAt": "2026-10-14T21:01:58.454Z"
     }
   ],
-  "pending": {
-    "contentHash": "3065666dd7b0fb86225c5e2e6f4ef4a13ff4ac36fa795a057b8146d4bee9179b",
-    "postId": "storiesig-pragmatismopolitico-d71cfd2f0b10",
-    "containerId": "18132186136655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:00:45.132Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "9fb0ebbb-e4ed-4e2f-97eb-9dd8bf1952f7",
-    "expiresAt": "2026-10-14T21:21:49.766Z"
+    "expiresAt": "2026-10-14T21:21:58.454Z"
   }
 }
