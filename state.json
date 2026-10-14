@@ -265,17 +265,17 @@
       "postId": "storiesig-theinterceptbrasil-8001a34a9f20",
       "mediaId": "18167745505473825",
       "publishedAt": "2026-10-14T21:57:33.664Z"
+    },
+    {
+      "contentHash": "743e2ae7a1d34e68eb54652f2ab6fded685685c3fe4516613f3ddfe656dbd13e",
+      "postId": "storiesig-fernandohaddadoficial-4973cb164170",
+      "mediaId": "18105960911254357",
+      "publishedAt": "2026-10-14T21:59:53.761Z"
     }
   ],
-  "pending": {
-    "contentHash": "743e2ae7a1d34e68eb54652f2ab6fded685685c3fe4516613f3ddfe656dbd13e",
-    "postId": "storiesig-fernandohaddadoficial-4973cb164170",
-    "containerId": "18132197341655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T21:57:39.893Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "67fc93f9-7974-421c-be36-920b3d7e72fc",
-    "expiresAt": "2026-10-14T22:19:45.367Z"
+    "expiresAt": "2026-10-14T22:19:53.761Z"
   }
 }
