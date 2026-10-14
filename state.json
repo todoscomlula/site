@@ -252,12 +252,12 @@
   "pending": {
     "contentHash": "ad8c1481ecd3f8968f3a81744219ccbf6a1c16094493d4ffe97a8ccdec73e550",
     "postId": "storiesig-renatofreitasumdenos-c67beeb1075f",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132196108655634",
+    "stage": "processing",
     "createdAt": "2026-10-14T21:52:40.884Z"
   },
   "lease": {
     "owner": "c79e9ed4-c657-4fd4-baf3-5599a0ca5ee4",
-    "expiresAt": "2026-10-14T22:12:40.884Z"
+    "expiresAt": "2026-10-14T22:12:43.767Z"
   }
 }
