@@ -21,9 +21,15 @@
       "publishedAt": "2026-10-14T20:25:19.635Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "5b813e53e229ad2104322404ed2037fdf2abe26b1231602dfa9064375f88a4f3",
+    "postId": "minha-casa-minha-vida",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-14T20:25:26.365Z"
+  },
   "lease": {
     "owner": "763496f7-be36-4229-ab67-21315de0585e",
-    "expiresAt": "2026-10-14T20:45:24.349Z"
+    "expiresAt": "2026-10-14T20:45:26.365Z"
   }
 }
