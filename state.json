@@ -199,17 +199,17 @@
       "postId": "storiesig-ptsaopaulo-7be07c999cf1",
       "mediaId": "17919985452449813",
       "publishedAt": "2026-10-14T20:58:00.637Z"
+    },
+    {
+      "contentHash": "108908c5069558581e6a44232f0018bb3096dff4b1afc48dd490f802756f5d1c",
+      "postId": "storiesig-ptsaopaulo-e2e33dfa75a1",
+      "mediaId": "18117612074061441",
+      "publishedAt": "2026-10-14T20:59:19.854Z"
     }
   ],
-  "pending": {
-    "contentHash": "108908c5069558581e6a44232f0018bb3096dff4b1afc48dd490f802756f5d1c",
-    "postId": "storiesig-ptsaopaulo-e2e33dfa75a1",
-    "containerId": "18132185404655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-14T20:58:06.272Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "0eef778b-781a-49fc-bb2f-15b4ec1f2ad9",
-    "expiresAt": "2026-10-14T21:19:10.709Z"
+    "expiresAt": "2026-10-14T21:19:19.854Z"
   }
 }
