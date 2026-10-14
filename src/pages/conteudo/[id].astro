@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Icon from '../../components/Icon.astro';
+import PostCard from '../../components/PostCard.astro';
+import { posts, topicName, formatDate, type Post } from '../../lib/content';
+export function getStaticPaths() { return posts.map((post) => ({ params: { id: post.id }, props: { post } })); }
+const { post } = Astro.props as { post: Post };
+const related = posts.filter((item) => item.id !== post.id && item.kind !== 'video').slice(0, 3);
+---
+<Layout title={`${post.title} — Todos com Lula`} description={post.excerpt} image={post.imageUrl}>
+  <section class="detail-section container"><a href={post.kind === 'video' ? '/videos/' : '/cards/'} class="breadcrumb">Início <span>/</span> {post.kind === 'video' ? 'Vídeos' : 'Cards'} <span>/</span> {topicName(post.category)}</a><div class="detail-grid"><div class="detail-visual">{post.kind === 'video' && post.mediaUrl ? <video controls playsinline preload="none" poster={post.imageUrl}><source src={post.mediaUrl} type="video/mp4" /></video> : <img src={post.imageUrl} width="1080" height="1350" alt={post.title} fetchpriority="high" />}</div><div class="detail-content"><span class="eyebrow">{topicName(post.category)}</span><h1>{post.title}</h1><span class="detail-byline">{post.sourceName} · {post.publishedAt ? formatDate(post.publishedAt) : post.origin === 'instagram' ? 'Publicação no Instagram' : 'Conheça o programa'}</span>{post.paragraphs.map((paragraph) => <p>{paragraph}</p>)}<a href={post.sourceUrl} class="text-link" target="_blank" rel="noopener noreferrer">Consultar fonte original <Icon name="arrow" size={18} /></a><div class="detail-share"><button class="button button-red" type="button" data-open-post={post.id}><Icon name="share" /> Compartilhar este conteúdo</button>{post.downloadUrl && <a class="button button-yellow" href={post.downloadUrl} download><Icon name="download" /> Baixar {post.kind === 'video' ? 'vídeo' : 'card'}</a>}</div><p class="sharing-note">Envie para o WhatsApp ou baixe o arquivo para publicar no Instagram, TikTok e nas suas redes.</p></div></div></section>
+  <section class="section container"><div class="section-top"><h2>A conversa<br />continua.</h2><a class="text-link" href="/cards/">Mais conteúdos <Icon name="arrow" size={19} /></a></div><div class="post-grid">{related.map((item) => <PostCard post={item} />)}</div></section>
+</Layout>

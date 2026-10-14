@@ -53,6 +53,12 @@ coverage/
 .turbo/
 .vercel/
 .netlify/
+.astro/
+test-results/
+playwright-report/
+public/media/instagram/
+data/instagram-import-report.json
+data/storiesig-import-report.json
 .venv/
 venv/
 __pycache__/
@@ -61,3 +67,5 @@ __pycache__/
 *.tsbuildinfo
 .DS_Store
 Thumbs.db
+.vercel
+.env*

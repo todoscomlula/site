@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-labelledby="title desc">
+<title id="title">Portal da Transparência: acompanhe o uso dos recursos federais</title>
+<desc id="desc">Qualquer pessoa pode consultar informações sobre receitas, gastos e outros dados da Administração Pública Federal. Fonte: Controladoria-Geral da União — CGU. https://www.gov.br/pt-br/servicos/consultar-dados-no-portal-da-transparencia-do-governo-federal. Card original da iniciativa independente Todos com Lula.</desc>
+<style>.headline{font-family:'Barlow Condensed',sans-serif;font-weight:900;letter-spacing:-1.5px}.body{font-family:Inter,sans-serif;font-weight:500;font-size:33px}.label{font-family:Inter,sans-serif;font-weight:700}.source{font-family:Inter,sans-serif;font-weight:500}</style>
+<rect width="1080" height="1350" fill="#181916"/>
+<g stroke="#FAF6EF" opacity=".06" fill="none"><path d="M18 16H1060V1330H18Z"/><path d="M35 0V1350M1046 0V1350"/></g>
+<g fill="#FAF6EF">
+<text x="72" y="99" class="label" font-size="28" letter-spacing="2.4">TODOS COM LULA</text>
+<text x="1003" y="99" text-anchor="end" class="label" font-size="24">06 / 06</text>
+<path d="M70 134H1008" stroke="#FAF6EF" stroke-width="2" opacity=".36"/>
+<text x="73" y="197" class="label" font-size="26" letter-spacing="3">DIREITOS</text>
+<text x="70" y="366.0" class="headline" font-size="132">INFORMAÇÃO</text><text x="70" y="502.79999999999995" class="headline" font-size="132">PÚBLICA.</text><text x="70" y="639.5999999999999" class="headline" font-size="132">ACESSE.</text>
+<text x="73" y="765" class="body">Acompanhe receitas, gastos</text><text x="73" y="813" class="body">e outros dados federais</text><text x="73" y="861" class="body">no Portal da Transparência.</text>
+</g>
+<circle cx="841" cy="1018" r="176" fill="#F4CE47"/>
+<g transform="translate(841 1018) scale(.94)" fill="none" stroke="#181916" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><circle cx="-26" cy="-26" r="89"/><path d="M37 37L129 129M-67 -26H15M-26 -67V15"/></g>
+<g transform="translate(160 1030) rotate(-14)" fill="none" stroke="#FAF6EF" stroke-width="2" opacity=".36"><path d="M0 -60L15 -18L60 -18L24 8L38 52L0 26L-38 52L-24 8L-60 -18L-15 -18Z"/></g>
+<g transform="translate(266 970) scale(.4) rotate(17)" fill="#FAF6EF" opacity=".25"><path d="M0 -60L15 -18L60 -18L24 8L38 52L0 26L-38 52L-24 8L-60 -18L-15 -18Z"/></g>
+<g fill="#FAF6EF">
+<text x="72" y="1177" class="source" font-size="22">Fonte: Controladoria-Geral da União — CGU</text>
+<text x="72" y="1211" class="source" font-size="21" opacity=".78">gov.br · Portal da Transparência · consulte as informações atualizadas</text>
+<path d="M70 1244H1008" stroke="#FAF6EF" stroke-width="2" opacity=".36"/>
+<text x="72" y="1296" class="label" font-size="19" letter-spacing="1.2">INICIATIVA INDEPENDENTE · INFORMAÇÃO COM FONTE</text>
+</g>
+</svg>

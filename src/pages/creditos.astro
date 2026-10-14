@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { editorialPosts, postUrl } from '../lib/content';
+---
+
+<Layout title="Créditos e fontes — Todos com Lula" description="Autoria, licenças e fontes primárias dos materiais publicados no Todos com Lula.">
+  <section class="page-heading paper-pattern">
+    <div class="container">
+      <a href="/" class="breadcrumb">Início <span>/</span> Créditos e fontes</a>
+      <span class="eyebrow">A ORIGEM FAZ PARTE DO CONTEÚDO</span>
+      <h1>Autoria presente.<br /><span class="red-word">Fonte aberta.</span></h1>
+      <p>Quem criou os materiais e onde consultar as informações do acervo.</p>
+    </div>
+  </section>
+
+  <section class="section container prose">
+    <h2>Retrato de Lula</h2>
+    <p>A fotografia do presidente Lula é de <strong>Ricardo Stuckert/PR</strong>, publicada pelo Palácio do Planalto e disponibilizada no <a href="https://commons.wikimedia.org/wiki/File:Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_(estreita).jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a> sob a licença <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">Creative Commons Atribuição 2.0 — CC BY 2.0</a>.</p>
+    <p>O arquivo foi redimensionado proporcionalmente e convertido para WebP. O enquadramento disponível no Commons foi preservado. A publicação original está no <a href="https://www.flickr.com/photos/palaciodoplanalto/52715235994/" target="_blank" rel="noopener noreferrer">perfil do Palácio do Planalto no Flickr</a>. A utilização da imagem não implica endosso do fotógrafo ou da instituição ao projeto.</p>
+
+    <h2>Tipografia</h2>
+    <p><strong>Barlow Condensed</strong> é uma fonte do projeto Barlow, de Jeremy Tribby e The Barlow Project Authors. Conheça o <a href="https://github.com/jpt/barlow" target="_blank" rel="noopener noreferrer">projeto original</a> e consulte a <a href="/fonts/barlow-condensed-OFL.txt">licença SIL Open Font License 1.1</a> distribuída com os arquivos.</p>
+    <p><strong>Inter</strong> é uma fonte de Rasmus Andersson e The Inter Project Authors. Conheça o <a href="https://github.com/rsms/inter" target="_blank" rel="noopener noreferrer">projeto original</a> e consulte sua <a href="/fonts/inter-OFL.txt">licença SIL Open Font License 1.1</a>.</p>
+    <p>As fontes utilizadas na interface são distribuídas localmente pelo site.</p>
+
+    <h2>Cards e referências</h2>
+    <p>Os cards editoriais possuem desenho, composição, ícones vetoriais e redação originais deste projeto. Suas explicações são baseadas nas fontes primárias abaixo, consultadas em 14 de outubro de 2026. Cada página de conteúdo também apresenta o link correspondente.</p>
+    <ul>
+      {editorialPosts.map((post) => <li><a href={postUrl(post.id)}>{post.title}</a><br /><a href={post.sourceUrl} target="_blank" rel="noopener noreferrer">{post.sourceName} — consultar a fonte original</a></li>)}
+    </ul>
+
+    <h2>Publicações nas redes</h2>
+    <p>As publicações, fotografias, vídeos e opiniões das redes sociais pertencem aos respectivos autores. O perfil e o endereço de cada publicação identificam a origem dos materiais presentes no acervo. Listar uma fonte ou um perfil não significa participação, vínculo ou endosso a este projeto.</p>
+
+    <a class="text-link" href="/fontes/">Conhecer os perfis de origem <Icon name="arrow" size={18} /></a>
+  </section>
+</Layout>

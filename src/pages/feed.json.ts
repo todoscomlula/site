@@ -1,0 +1,27 @@
+import type { APIRoute } from 'astro';
+import { posts, postUrl } from '../lib/content';
+
+export const prerender = true;
+
+export const GET: APIRoute = () => {
+  const feed = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    excerpt: post.excerpt,
+    category: post.category,
+    kind: post.kind,
+    source: post.source,
+    sourceName: post.sourceName,
+    sourceUrl: post.sourceUrl,
+    permalink: post.permalink,
+    publishedAt: post.publishedAt,
+    imageUrl: post.imageUrl,
+    mediaUrl: post.mediaUrl,
+    downloadUrl: post.downloadUrl,
+    url: postUrl(post.id),
+  }));
+
+  return new Response(JSON.stringify(feed), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  });
+};

@@ -1,0 +1,21 @@
+---
+import Icon from './Icon.astro';
+import { postUrl, topicName, type Post } from '../lib/content';
+interface Props { post: Post; variant?: 'card' | 'video'; }
+const { post, variant = 'card' } = Astro.props;
+---
+<article class:list={['post-card', variant === 'video' && 'video-card']} data-post data-kind={post.kind} data-category={post.category} data-source={post.source} data-search={`${post.title} ${post.excerpt} ${post.sourceName}`.toLocaleLowerCase('pt-BR')}>
+  <a class="post-visual" href={postUrl(post.id)} data-open-post={post.id} aria-label={`Abrir ${post.title}`}>
+    <img src={post.imageUrl} alt={post.title} loading="lazy" width="540" height={variant === 'video' ? '960' : '675'} decoding="async" />
+    {variant === 'video' && <span class="play-mark"><Icon name="play" size={26} /></span>}
+    <span class="visual-tag">{variant === 'video' ? 'Vídeo' : topicName(post.category)}</span>
+  </a>
+  <div class="post-info">
+    <span class="post-source">{post.origin === 'instagram' ? `@${post.source}` : post.sourceName}</span>
+    <h3><a href={postUrl(post.id)}>{post.title}</a></h3>
+    <div class="post-actions">
+      <button class="action-button" data-open-post={post.id} type="button"><Icon name="share" size={17} /> Compartilhar</button>
+      {post.downloadUrl && <a class="icon-button" href={post.downloadUrl} download aria-label={`Baixar ${post.title}`}><Icon name="download" size={19} /></a>}
+    </div>
+  </div>
+</article>

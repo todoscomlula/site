@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import PostCard from '../components/PostCard.astro';
+import { cards, videos, editorialPosts, sourceProfiles, topics, postUrl, topicName } from '../lib/content';
+const homeCards = [...editorialPosts, ...cards.filter((post) => post.origin === 'instagram')].slice(0, 9);
+---
+<Layout>
+  <section class="hero paper-pattern">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow hero-eyebrow"><span class="small-star">✦</span> UM BRASIL DE TODOS</span>
+        <h1><span>TODOS</span><span class="hero-sticker">COM</span><span class="hero-lula">LULA<span class="title-dot">.</span></span></h1>
+        <p class="hero-description">Informação tem força.<br />Compartilhar também.</p>
+        <p class="hero-support">Conteúdos, vídeos e fontes para colocar<br class="desktop-break" /> o Brasil na conversa.</p>
+        <div class="hero-buttons"><a class="button button-red" href="#assuntos">Escolha um assunto <Icon name="down" size={19} /></a><a class="button button-yellow" href="/cards/">Bora compartilhar <Icon name="right" size={20} /></a></div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-green-block"></div>
+        <div class="portrait-frame"><img src="/images/lula-hero.webp" width="1000" height="1400" alt="Retrato oficial de Luiz Inácio Lula da Silva, com a faixa presidencial" fetchpriority="high" decoding="async" /><span class="portrait-caption">LUIZ INÁCIO LULA DA SILVA</span></div>
+        <div class="hero-seal" aria-hidden="true"><span>INFORMAÇÃO<br />QUE CIRCULA</span><b>★</b><span>BRASIL · DE TODOS</span></div>
+        <div class="hero-badge"><Icon name="check" size={20} /> A GENTE COMPARTILHA.</div>
+        <span class="hero-spark" aria-hidden="true">✦</span>
+        <p class="portrait-credit">Foto: <a href="https://commons.wikimedia.org/wiki/File:Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_(estreita).jpg" target="_blank" rel="noopener noreferrer">Ricardo Stuckert/PR</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a></p>
+      </div>
+    </div>
+  </section>
+  <div class="marquee" aria-hidden="true"><div>{Array.from({ length: 4 }, () => <span>INFORMAÇÃO <b>✦</b> PARTICIPAÇÃO <b>✦</b> TODOS COM LULA <b>✦</b> BRASIL <b>✦</b></span>)}</div></div>
+  <section id="assuntos" class="section topics-section container">
+    <div class="section-top"><div><span class="eyebrow">O BRASIL, ASSUNTO POR ASSUNTO</span><h2>Vamos conversar<br /><span class="outline-word">sobre o quê?</span></h2></div><p>Comece pelo assunto que você quer entender.<br />Conheça as fontes. Leve a conversa adiante.</p></div>
+    <div class="topic-grid">{topics.map((topic, index) => <a href={`/cards/?tema=${topic.id}`} class="topic-pill"><span class="topic-number">0{index + 1}</span><Icon name={topic.icon} size={21} /><span>{topic.name}</span><Icon name="arrow" size={18} /></a>)}</div>
+    <div class="fact-grid">{editorialPosts.slice(0, 4).map((post, index) => <article class="fact-card"><div class="fact-meta"><span>0{index + 1}</span><span>{topicName(post.category)}</span><Icon name="sparkle" size={21} /></div><h3>{post.title}</h3><p>{post.excerpt}</p><a href={postUrl(post.id)} class="text-link">Conhecer o assunto <Icon name="arrow" size={19} /></a></article>)}</div>
+  </section>
+  <section id="cards" class="section cards-section">
+    <div class="container" data-gallery>
+      <div class="section-top"><div><span class="eyebrow">INFORMAÇÃO BOA NÃO FICA PARADA</span><h2>É pra salvar.<br /><span>É pra compartilhar.</span></h2></div><div class="gallery-intro"><p>Escolha um card. Baixe, mande no grupo<br />ou publique nas suas redes.</p><a href="/cards/" class="text-link">Ver todos os cards <Icon name="arrow" size={19} /></a></div></div>
+      <div class="filter-row" aria-label="Filtrar cards por assunto"><button class="filter-button active" data-filter="all" type="button" aria-pressed="true">Todos <span>{cards.length}</span></button>{topics.map((topic) => <button class="filter-button" data-filter={topic.id} type="button" aria-pressed="false">{topic.name}</button>)}</div>
+      <div class="post-grid">{homeCards.map((post) => <PostCard post={post} />)}</div>
+      <p class="gallery-empty" data-gallery-empty hidden>Nenhum card neste assunto por enquanto. Experimente outro filtro.</p>
+      <p class="gallery-caption">Todo card tem uma fonte. Toda conversa pode ir mais longe. <Icon name="sparkle" size={16} /></p>
+    </div>
+  </section>
+  <section id="videos" class="section videos-section">
+    <div class="container"><div class="section-top"><div><span class="eyebrow">DO PLAY PRA CONVERSA</span><h2>Vídeos pra<br /><span class="yellow-word">passar adiante.</span></h2></div><a href="/videos/" class="button button-yellow">Explorar vídeos <Icon name="right" size={20} /></a></div>
+      {videos.length ? <div class="video-grid">{videos.slice(0, 4).map((post) => <PostCard post={post} variant="video" />)}</div> : <div class="video-sources"><a class="video-source-link" href="https://www.instagram.com/lulaoficial/reels/" target="_blank" rel="noopener noreferrer"><span class="source-big-initial">L<span>★</span></span><div><span class="eyebrow">@LULAOFICIAL</span><h3>O Lula nas redes.</h3><p>Acompanhe os vídeos no perfil de origem.</p></div><span class="play-mark"><Icon name="play" size={24} /></span><Icon name="arrow" size={24} /></a><div class="video-source-copy"><span class="little-label">PRONTO PARA COMPARTILHAR</span><p>Baixe os cards do nosso acervo ou acompanhe os vídeos nas páginas que fazem parte dessa conversa.</p><a href="/fontes/" class="text-link">Conhecer os 15 perfis <Icon name="arrow" size={19} /></a></div></div>}
+    </div>
+  </section>
+  <section class="section network-section container"><div class="section-top"><div><span class="eyebrow">MUITAS VOZES. UMA CONVERSA.</span><h2>Acontece<br /><span class="outline-word">nas redes.</span></h2></div><div><p>15 perfis para acompanhar.<br />Autoria e fonte sempre à vista.</p><a href="/fontes/" class="text-link">Conhecer todas as fontes <Icon name="arrow" size={19} /></a></div></div><div class="source-strip">{sourceProfiles.slice(0, 5).map((source) => <a class="source-small" href={`https://www.instagram.com/${source.username}/`} target="_blank" rel="noopener noreferrer"><span class:list={['source-avatar', source.color]}>{source.initials}</span><b>{source.name}</b><span>@{source.username}</span><Icon name="arrow" size={17} /></a>)}</div></section>
+  <section class="share-cta"><div class="container"><span class="eyebrow">A CONVERSA COMEÇA COM UM ENVIO</span><h2>Informação é de todos.<br />Faça circular<span>★</span></h2><button class="button button-ink" type="button" data-share-site><Icon name="whatsapp" size={21} /> Mande o site no WhatsApp <Icon name="right" size={20} /></button></div><span class="cta-star" aria-hidden="true">✦</span></section>
+</Layout>

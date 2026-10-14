@@ -1,0 +1,38 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Layout title="Privacidade — Todos com Lula" description="Como este site utiliza preferências de acessibilidade, serviços de hospedagem e links para outras plataformas.">
+  <section class="page-heading paper-pattern">
+    <div class="container">
+      <a href="/" class="breadcrumb">Início <span>/</span> Privacidade</a>
+      <span class="eyebrow">TRANSPARÊNCIA NO SEU ACESSO</span>
+      <h1>Seu acesso.<br /><span class="red-word">Suas escolhas.</span></h1>
+      <p>Informações sobre a navegação e os serviços que fazem este site funcionar.</p>
+    </div>
+  </section>
+
+  <section class="section container prose">
+    <p>Esta página descreve a versão do site publicada em 14 de outubro de 2026.</p>
+
+    <h2>Navegação no site</h2>
+    <p>O site não implementa ferramentas de análise de audiência, rastreadores publicitários ou cookies próprios. Não há cadastro de visitantes, formulário de inscrição ou coleta de senhas de redes sociais.</p>
+    <p>As imagens dos cards, o retrato e as fontes tipográficas do acervo editorial são servidos pelo próprio site.</p>
+
+    <h2>Preferências de acessibilidade</h2>
+    <p>Quando você altera o tamanho do texto, o contraste ou a preferência por movimento reduzido, essas escolhas podem ser salvas no armazenamento local do seu navegador, chamado <em>localStorage</em>. Elas ficam no seu dispositivo para serem aplicadas nas próximas visitas e não são enviadas a um banco de dados do projeto.</p>
+    <p>Você pode remover essas preferências usando “Restaurar preferências” no painel de acessibilidade ou apagando os dados deste site nas configurações do navegador.</p>
+
+    <h2>Links, redes sociais e compartilhamento</h2>
+    <p>Ao abrir um link externo ou escolher compartilhar no WhatsApp, Instagram, TikTok ou outra plataforma, você acessa serviços de terceiros. Esses serviços podem receber informações da conexão e aplicar suas próprias políticas de privacidade.</p>
+    <p>Se você escolher carregar uma publicação incorporada do Instagram, seu navegador fará solicitações à plataforma. Essa escolha pode permitir o uso de cookies e outros recursos do Instagram, conforme as configurações da plataforma e do seu navegador.</p>
+    <p>O compartilhamento de arquivos pelo menu do dispositivo utiliza os aplicativos que você escolher. Baixar um arquivo do acervo não exige entrar em uma conta deste projeto.</p>
+
+    <h2>Hospedagem e registros técnicos</h2>
+    <p>O site é hospedado na Vercel. A entrega das páginas e a operação da infraestrutura podem envolver o processamento de dados técnicos de conexão, como endereço IP e informações da requisição, além de registros para funcionamento e segurança do serviço. Esses registros são administrados pelo provedor de hospedagem.</p>
+    <p>As práticas do provedor estão descritas no <a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noopener noreferrer">aviso de privacidade da Vercel</a>.</p>
+
+    <a class="text-link" href="/sobre/">Conhecer o projeto <Icon name="arrow" size={18} /></a>
+  </section>
+</Layout>

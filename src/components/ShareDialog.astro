@@ -1,0 +1,26 @@
+---
+import Icon from './Icon.astro';
+import { posts } from '../lib/content';
+---
+<dialog id="share-dialog" class="share-dialog" aria-labelledby="dialog-title">
+  <div class="dialog-top"><span>FAÇA A INFORMAÇÃO CIRCULAR</span><button class="icon-button dialog-close" aria-label="Fechar conteúdo" type="button"><Icon name="close" /></button></div>
+  <div class="dialog-body">
+    <div id="dialog-media" class="dialog-media"></div>
+    <div class="dialog-content">
+      <span id="dialog-source" class="eyebrow"></span>
+      <h2 id="dialog-title"></h2>
+      <p id="dialog-description"></p>
+      <a id="dialog-original" class="text-link" target="_blank" rel="noopener noreferrer">Ver fonte original <Icon name="arrow" size={17} /></a>
+      <div class="dialog-actions">
+        <a id="dialog-whatsapp" class="button button-green" target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" /> Mandar no WhatsApp</a>
+        <button id="dialog-native-share" class="button button-yellow" type="button"><Icon name="share" /> Compartilhar arquivo</button>
+        <a id="dialog-download" class="button button-outline" download><Icon name="download" /> Baixar para publicar</a>
+        <button id="dialog-copy" class="button button-outline" type="button"><Icon name="copy" /> Copiar link</button>
+      </div>
+      <p class="sharing-note">No celular, escolha Instagram, TikTok ou outro aplicativo no menu de compartilhamento. Você também pode baixar o arquivo e publicar pelo seu app.</p>
+      <a id="dialog-detail" class="text-link">Abrir página deste conteúdo <Icon name="arrow" size={17} /></a>
+    </div>
+  </div>
+</dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="post-data" data-posts={JSON.stringify(posts)} hidden></div>

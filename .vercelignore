@@ -1,0 +1,17 @@
+/.git/
+/.agents/
+/.githooks/
+/.venv/
+/.cache/
+/.vercel/
+/node_modules/
+/dist/
+/.astro/
+__pycache__
+/docs/
+/tests/
+/data/
+/test-results/
+/playwright-report/
+.env*
+requirements-scraper.txt

@@ -1,0 +1,107 @@
+[
+  {
+    "username": "lulaoficial",
+    "name": "Lula",
+    "category": "Oficial",
+    "initials": "L",
+    "color": "red"
+  },
+  {
+    "username": "uneoficial",
+    "name": "UNE",
+    "category": "Organização",
+    "initials": "UNE",
+    "color": "green"
+  },
+  {
+    "username": "pragmatismopolitico",
+    "name": "Pragmatismo Político",
+    "category": "Jornalismo",
+    "initials": "PP",
+    "color": "yellow"
+  },
+  {
+    "username": "andrejanones",
+    "name": "André Janones",
+    "category": "Pessoa pública",
+    "initials": "AJ",
+    "color": "red"
+  },
+  {
+    "username": "seremosresistencia",
+    "name": "Seremos Resistência",
+    "category": "Comunidade",
+    "initials": "SR",
+    "color": "green"
+  },
+  {
+    "username": "hilton_erika",
+    "name": "Erika Hilton",
+    "category": "Pessoa pública",
+    "initials": "EH",
+    "color": "yellow"
+  },
+  {
+    "username": "brasilcomlula",
+    "name": "Brasil com Lula",
+    "category": "Comunidade",
+    "initials": "BL",
+    "color": "red"
+  },
+  {
+    "username": "ptbrasil",
+    "name": "PT Brasil",
+    "category": "Organização",
+    "initials": "PT",
+    "color": "red"
+  },
+  {
+    "username": "manueladavila",
+    "name": "Manuela d’Ávila",
+    "category": "Pessoa pública",
+    "initials": "MD",
+    "color": "green"
+  },
+  {
+    "username": "renatofreitasumdenos",
+    "name": "Renato Freitas",
+    "category": "Pessoa pública",
+    "initials": "RF",
+    "color": "yellow"
+  },
+  {
+    "username": "gleisihoffmann",
+    "name": "Gleisi Hoffmann",
+    "category": "Pessoa pública",
+    "initials": "GH",
+    "color": "red"
+  },
+  {
+    "username": "theinterceptbrasil",
+    "name": "The Intercept Brasil",
+    "category": "Jornalismo",
+    "initials": "IB",
+    "color": "green"
+  },
+  {
+    "username": "fernandohaddadoficial",
+    "name": "Fernando Haddad",
+    "category": "Pessoa pública",
+    "initials": "FH",
+    "color": "yellow"
+  },
+  {
+    "username": "ptsaopaulo",
+    "name": "PT São Paulo",
+    "category": "Organização",
+    "initials": "PT",
+    "color": "red"
+  },
+  {
+    "username": "jeanwyllys_real",
+    "name": "Jean Wyllys",
+    "category": "Pessoa pública",
+    "initials": "JW",
+    "color": "green"
+  }
+]

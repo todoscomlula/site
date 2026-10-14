@@ -1,0 +1,104 @@
+[
+  {
+    "id": "farmacia-popular",
+    "title": "Farmácia Popular: medicamentos gratuitos e informação oficial",
+    "excerpt": "Consulte os itens oferecidos, as farmácias credenciadas e os documentos necessários na página do Ministério da Saúde.",
+    "category": "saude",
+    "sourceName": "Ministério da Saúde",
+    "sourceUrl": "https://www.gov.br/saude/pt-br/composicao/sectics/farmacia-popular",
+    "publishedAt": null,
+    "imageUrl": "/cards/farmacia-popular.webp",
+    "downloadUrl": "/cards/farmacia-popular.png",
+    "paragraphs": [
+      "O Farmácia Popular oferece gratuitamente medicamentos e insumos previstos no programa por meio de estabelecimentos credenciados da rede privada. A página do Ministério da Saúde apresenta os tratamentos e itens incluídos.",
+      "Para retirar medicamentos, a orientação oficial é apresentar documento com foto e CPF, além de receita médica válida. Receitas do SUS e de serviços particulares podem ser utilizadas.",
+      "Confira a lista, os requisitos de cada item e o endereço dos estabelecimentos na fonte oficial antes de ir à farmácia."
+    ],
+    "type": "card"
+  },
+  {
+    "id": "pe-de-meia",
+    "title": "Pé-de-Meia: apoio à permanência no ensino médio",
+    "excerpt": "O programa de incentivo financeiro-educacional busca apoiar estudantes do ensino médio público na continuidade e conclusão dos estudos.",
+    "category": "educacao",
+    "sourceName": "Ministério da Educação",
+    "sourceUrl": "https://www.gov.br/mec/pt-br/pe-de-meia",
+    "publishedAt": null,
+    "imageUrl": "/cards/pe-de-meia.webp",
+    "downloadUrl": "/cards/pe-de-meia.png",
+    "paragraphs": [
+      "O Pé-de-Meia é um incentivo financeiro-educacional na modalidade de poupança destinado a estudantes do ensino médio público que atendem às regras do programa.",
+      "Os incentivos estão vinculados a condições como matrícula, frequência e conclusão escolar. As redes de ensino informam os dados ao Ministério da Educação, que verifica os requisitos.",
+      "O portal do MEC reúne a consulta para estudantes, perguntas frequentes e o calendário de pagamentos. Consulte sua situação diretamente no canal oficial."
+    ],
+    "type": "card"
+  },
+  {
+    "id": "bolsa-familia",
+    "title": "Bolsa Família: confira as regras e os canais de atendimento",
+    "excerpt": "O Cadastro Único reúne informações utilizadas para o acesso ao programa. A orientação começa nos postos de assistência social.",
+    "category": "renda",
+    "sourceName": "Ministério do Desenvolvimento e Assistência Social",
+    "sourceUrl": "https://www.gov.br/mds/pt-br/pt-br/acoes-e-programas/bolsa-familia",
+    "publishedAt": null,
+    "imageUrl": "/cards/bolsa-familia.webp",
+    "downloadUrl": "/cards/bolsa-familia.png",
+    "paragraphs": [
+      "O Bolsa Família é um programa social federal com gestão compartilhada entre União, estados e municípios. Sua atuação envolve assistência social, saúde e educação.",
+      "O acesso ocorre por meio do Cadastro Único, que reúne informações socioeconômicas das famílias. Os municípios realizam a coleta dessas informações nos postos de atendimento da assistência social.",
+      "A página oficial do Ministério do Desenvolvimento e Assistência Social apresenta regras, benefícios e informações de pagamento. Use esses canais para conferir os requisitos e esclarecer dúvidas."
+    ],
+    "type": "card"
+  },
+  {
+    "id": "minha-casa-minha-vida",
+    "title": "Minha Casa, Minha Vida: saiba onde buscar orientação",
+    "excerpt": "O caminho de acesso depende da modalidade de habitação. O Ministério das Cidades explica os canais de cadastramento.",
+    "category": "moradia",
+    "sourceName": "Ministério das Cidades",
+    "sourceUrl": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/habitacao/programa-minha-casa-minha-vida",
+    "publishedAt": null,
+    "imageUrl": "/cards/minha-casa-minha-vida.webp",
+    "downloadUrl": "/cards/minha-casa-minha-vida.png",
+    "paragraphs": [
+      "O Minha Casa, Minha Vida reúne linhas de habitação subsidiada e financiada. A página do Ministério das Cidades apresenta as modalidades e o guia para beneficiários.",
+      "Para unidades subsidiadas, o cadastramento pode ocorrer pelo ente local, geralmente a prefeitura, ou pela entidade organizadora, conforme a modalidade. Para unidades financiadas, o atendimento é feito por instituição financeira que opera o programa.",
+      "Confira na fonte oficial qual modalidade se aplica ao seu caso e procure o canal responsável. Este site compartilha informações e não realiza inscrições no programa."
+    ],
+    "type": "card"
+  },
+  {
+    "id": "terrabrasilis",
+    "title": "TerraBrasilis: dados públicos para acompanhar a vegetação nativa",
+    "excerpt": "A plataforma do INPE oferece acesso a mapas e dados produzidos pelos projetos de monitoramento ambiental do instituto.",
+    "category": "meio-ambiente",
+    "sourceName": "Instituto Nacional de Pesquisas Espaciais — INPE",
+    "sourceUrl": "https://www.terrabrasilis.dpi.inpe.br/sobre/",
+    "publishedAt": null,
+    "imageUrl": "/cards/terrabrasilis.webp",
+    "downloadUrl": "/cards/terrabrasilis.png",
+    "paragraphs": [
+      "O TerraBrasilis é uma plataforma do Instituto Nacional de Pesquisas Espaciais para consultar e analisar dados geográficos de monitoramento da vegetação nativa, incluindo os projetos PRODES e DETER.",
+      "Os dados apoiam o planejamento e a formulação de políticas públicas. Também podem ser utilizados pela sociedade para acompanhar informações sobre os biomas brasileiros.",
+      "O INPE ressalta que esses mapeamentos quantificam e localizam ocorrências de supressão ou degradação da vegetação; eles não determinam sua legalidade. Consulte a documentação ao interpretar os mapas."
+    ],
+    "type": "card"
+  },
+  {
+    "id": "portal-da-transparencia",
+    "title": "Portal da Transparência: acompanhe o uso dos recursos federais",
+    "excerpt": "Qualquer pessoa pode consultar informações sobre receitas, gastos e outros dados da Administração Pública Federal.",
+    "category": "economia",
+    "sourceName": "Controladoria-Geral da União — CGU",
+    "sourceUrl": "https://www.gov.br/pt-br/servicos/consultar-dados-no-portal-da-transparencia-do-governo-federal",
+    "publishedAt": null,
+    "imageUrl": "/cards/portal-da-transparencia.webp",
+    "downloadUrl": "/cards/portal-da-transparencia.png",
+    "paragraphs": [
+      "O Portal da Transparência é mantido pela Controladoria-Geral da União. Ele permite acompanhar a utilização de recursos federais e consultar informações sobre a Administração Pública Federal.",
+      "As consultas incluem gastos, receitas, convênios e dados de servidores. O serviço é gratuito, pode ser utilizado por qualquer pessoa e não exige apresentação de documentos para consultar as informações.",
+      "A página de serviço do governo reúne o acesso ao portal e orientações para começar a consulta. Ao compartilhar dados, preserve o contexto e indique a origem."
+    ],
+    "type": "card"
+  }
+]

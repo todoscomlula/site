@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import PostCard from '../components/PostCard.astro';
+import { cards, topics } from '../lib/content';
+---
+<Layout title="Cards para compartilhar — Todos com Lula">
+  <section class="page-heading paper-pattern"><div class="container"><a href="/" class="breadcrumb">Início <span>/</span> Cards</a><span class="eyebrow">O CONTEÚDO É NOSSO. A CONVERSA É DE TODOS.</span><h1>Salve. Publique.<br /><span class="red-word">Compartilhe.</span></h1><p>Cards com fontes à vista. Escolha o seu, baixe e leve para as redes.</p></div></section>
+  <section class="section gallery-page container" data-gallery>
+    <div class="search-row"><label class="search-box"><Icon name="search" size={21} /><input type="search" data-search-input placeholder="Buscar um assunto ou conteúdo" aria-label="Buscar cards" /></label><span data-gallery-count>{cards.length} conteúdos</span></div>
+    <div class="filter-row" aria-label="Filtrar por assunto"><button class="filter-button active" data-filter="all" type="button" aria-pressed="true">Todos</button>{topics.map((topic) => <button class="filter-button" data-filter={topic.id} type="button" aria-pressed="false">{topic.name}</button>)}</div>
+    <div class="post-grid">{cards.map((post) => <PostCard post={post} />)}</div>
+    <div class="gallery-empty empty-panel" data-gallery-empty hidden><Icon name="search" size={36} /><h2>Vamos tentar outra busca?</h2><p>Nenhum conteúdo combina com esses filtros.</p><button type="button" class="button button-red" data-clear-filters>Limpar filtros</button></div>
+  </section>
+</Layout>
