@@ -40,7 +40,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     if(['worker/caption','worker/status','worker/deepseek'].includes(action)&&request.method==='POST'){
       if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new AdminError('WORKER_NOT_CONFIGURED',503);
       if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
-      if(action==='worker/deepseek')return json(await checkCaptionProvider({env,fetchImpl}));
+      if(action==='worker/deepseek'){const input=await readJson(request);if(Object.keys(input).some(key=>!['mode','model'].includes(key))||('mode'in input&&!['metadata','probe'].includes(input.mode))||('model'in input&&typeof input.model!=='string'))throw new AdminError('INVALID_REQUEST');return json(await checkCaptionProvider({env,fetchImpl,metadata:input.mode==='metadata',model:input.model||null}));}
       if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});
       const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
       await makeCaptionForItem(input.id,{store,env,fetchImpl});return json({ok:true});

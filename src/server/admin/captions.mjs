@@ -14,10 +14,14 @@ export function captionMessages(candidate) {
   return [{role:'system',content:policy+'\n\nREFERÊNCIAS EDITORIAIS:\n'+guidance.documents.map(document=>`[${document.name}]\n${document.text}`).join('\n\n')},
     {role:'user',content:JSON.stringify({source:candidate.source,sourceName:candidate.sourceName,sourceUrl:candidate.sourceUrl,title:candidate.originalTitle,originalCaption:candidate.originalCaption,editorNotes:candidate.notes})}];
 }
-export async function checkCaptionProvider({env=process.env,fetchImpl=fetch}={}){
+export async function checkCaptionProvider({env=process.env,fetchImpl=fetch,metadata=false,model:requestedModel=null}={}){
   const key=env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API;if(!key)throw new AdminError('DEEPSEEK_NOT_CONFIGURED',503);
-  const model=env.DEEPSEEK_MODEL||'deepseek-flash';const started=Date.now();
+  const model=requestedModel||env.DEEPSEEK_MODEL||'deepseek-flash';if(!/^deepseek-[a-z0-9._-]{1,70}$/.test(model))throw new AdminError('INVALID_DEEPSEEK_MODEL');const started=Date.now();
   try{
+    if(metadata){
+      const results=await Promise.all(['models','user/balance'].map(async path=>{const response=await fetchImpl(`https://api.deepseek.com/${path}`,{redirect:'error',signal:AbortSignal.timeout(15000),headers:{Authorization:`Bearer ${key}`}});if(!response.ok)throw new AdminError(response.status===401?'DEEPSEEK_INVALID_KEY':'DEEPSEEK_UNAVAILABLE',502);const raw=await response.text();if(raw.length>100000)throw new AdminError('DEEPSEEK_UNAVAILABLE',502);return JSON.parse(raw);}));
+      return{ok:true,model,models:results[0].data?.map(item=>item.id).filter(value=>typeof value==='string'&&/^deepseek-[a-z0-9._-]{1,70}$/.test(value)).slice(0,20)||[],balanceAvailable:results[1].is_available===true,elapsedMs:Date.now()-started};
+    }
     const response=await fetchImpl('https://api.deepseek.com/chat/completions',{method:'POST',redirect:'error',signal:AbortSignal.timeout(20000),headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},body:JSON.stringify({model,messages:[{role:'user',content:'Return only this json object: {"ok":true}'}],thinking:{type:'disabled'},response_format:{type:'json_object'},max_tokens:32,stream:false})});
     if(!response.ok)throw new AdminError(response.status===401?'DEEPSEEK_INVALID_KEY':response.status===402?'DEEPSEEK_BALANCE_REQUIRED':response.status===429?'DEEPSEEK_RATE_LIMIT':'DEEPSEEK_UNAVAILABLE',502);
     const raw=await response.text();if(raw.length>20000)throw new AdminError('INVALID_AI_CAPTION',502);const body=JSON.parse(raw);const content=JSON.parse(body.choices?.[0]?.message?.content);
