@@ -300,12 +300,12 @@
   "pending": {
     "contentHash": "9e3cb597d42380895357808f50abd09dbcadde412494968e0092d75d64c0cd61",
     "postId": "storiesig-fernandohaddadoficial-3d8df1c0b299",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132271306655634",
+    "stage": "processing",
     "createdAt": "2026-10-15T04:00:48.771Z"
   },
   "lease": {
     "owner": "7f0d27a8-61cb-47d5-895f-baca457a91d3",
-    "expiresAt": "2026-10-15T04:20:48.771Z"
+    "expiresAt": "2026-10-15T04:20:50.697Z"
   }
 }
