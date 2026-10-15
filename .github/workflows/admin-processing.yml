@@ -32,7 +32,7 @@ jobs:
           package-manager-cache: false
       - run: npm ci --ignore-scripts
       - name: Validar a implementação da administração
-        run: node --test tests/admin.test.mjs
+        run: node --test tests/admin.test.mjs tests/apify.test.mjs
       - name: Verificar a fila privada
         if: inputs.check_only
         env:
@@ -40,12 +40,16 @@ jobs:
           ADMIN_VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          COLLECTION_PROVIDER: apify
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: node scripts/admin/worker.mjs --check
       - name: Identificar trabalho antes de preparar ferramentas
         id: plan
         if: '!inputs.check_only'
         env:
           ADMIN_BLOB_READ_WRITE_TOKEN: ${{ secrets.ADMIN_BLOB_READ_WRITE_TOKEN }}
+          COLLECTION_PROVIDER: apify
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: node scripts/admin/worker.mjs --plan
       - name: Preparar verificação das publicações aprovadas
         # Uma aprovação pode chegar depois da leitura inicial da fila.
@@ -59,12 +63,17 @@ jobs:
           curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt -o "$task_tool_dir/gitleaks_8.30.1_checksums.txt"
           (cd "$task_tool_dir" && sha256sum --check --ignore-missing gitleaks_8.30.1_checksums.txt)
           tar -xzf "$task_tool_dir/gitleaks_8.30.1_linux_x64.tar.gz" -C .git/tools gitleaks
-      - name: Preparar coleta com o navegador disponível
+      - name: Preparar processamento de vídeo
         if: steps.plan.outputs.collect == 'true'
         shell: bash
         run: |
           set -euo pipefail
           command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+      - name: Preparar navegador para coleta local legada
+        if: steps.plan.outputs.collect == 'true' && steps.plan.outputs.browser == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
           task_chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
           if [ -n "$task_chrome" ]; then
             printf 'CHROME_EXECUTABLE_PATH=%s\n' "$task_chrome" >> "$GITHUB_ENV"
@@ -82,4 +91,6 @@ jobs:
           ADMIN_VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          COLLECTION_PROVIDER: apify
+          APIFY_API_TOKEN: ${{ secrets.APIFY_API_TOKEN }}
         run: node scripts/admin/worker.mjs

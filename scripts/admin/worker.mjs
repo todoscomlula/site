@@ -8,6 +8,7 @@ import { createBlobStore } from '../../src/server/admin/blob.mjs';
 import { AdminError } from '../../src/server/admin/auth.mjs';
 import { addActivity, cleanText, MAX_CANDIDATES, MAX_PENDING_BYTES, pendingBytes, validUsername, validateAdminState } from '../../src/server/admin/state.mjs';
 import { contentKey, publicSiteUrl, validateState } from '../instagram-publishing/core.mjs';
+import { collectorProvider, collectorConfiguration, createApifyCollector, stageApifyReels } from './apify.mjs';
 
 const root=process.cwd();const cache=resolve(root,'.cache/admin-worker');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -44,9 +45,12 @@ export function candidateToPublic(item,assets){
 }
 export async function workerCheck({store=createBlobStore(),env=process.env}={}){
   const state=validateAdminState(await store.load());let deploymentCredential='missing';
+  const collection=await saveCollectorConfiguration(store,env);
+  const collectionCredential=collection.provider==='apify'?(collection.configured?await createApifyCollector({env,store}).check():'missing'):'browser';
   if(env.ADMIN_VERCEL_TOKEN&&env.VERCEL_PROJECT_ID&&env.VERCEL_ORG_ID){const response=await fetch(`https://api.vercel.com/v9/projects/${encodeURIComponent(env.VERCEL_PROJECT_ID)}?teamId=${encodeURIComponent(env.VERCEL_ORG_ID)}`,{headers:{Authorization:`Bearer ${env.ADMIN_VERCEL_TOKEN}`},redirect:'error',signal:AbortSignal.timeout(20000)});if(!response.ok)throw new AdminError('DEPLOYMENT_CREDENTIAL_INVALID',503);const project=await response.json();if(project.id!==env.VERCEL_PROJECT_ID)throw new AdminError('DEPLOYMENT_CREDENTIAL_INVALID',503);deploymentCredential='verified';}
-  const now=Date.now();return {deploymentCredential,sources:state.sources.length,requestedSources:state.sources.filter(source=>source.enabled&&(source.requestedAt||(source.autoCollect&&source.nextCollectAt&&Date.parse(source.nextCollectAt)<=now))).length,pending:state.candidates.filter(item=>item.status==='pending').length,approved:state.candidates.filter(item=>['approved','generating','ready','publishing'].includes(item.status)).length};
+  const now=Date.now();return {deploymentCredential,collectionProvider:collection.provider,collectionCredential,sources:state.sources.length,requestedSources:state.sources.filter(source=>source.enabled&&(source.requestedAt||(source.autoCollect&&source.nextCollectAt&&Date.parse(source.nextCollectAt)<=now))).length,pending:state.candidates.filter(item=>item.status==='pending').length,approved:state.candidates.filter(item=>['approved','generating','ready','publishing'].includes(item.status)).length};
 }
+async function saveCollectorConfiguration(store,env){const configuration=collectorConfiguration(env);const old=await store.readJson('queue/collector-status.json');if(!old||old.provider!==configuration.provider||old.configured!==configuration.configured||Date.now()-Date.parse(old.checkedAt)>3600000)await store.putJson('queue/collector-status.json',configuration);return configuration;}
 async function reconcile(store,env){
   const file=await github('contents/state.json?ref=instagram-publishing-state',{env});const published=validateState(JSON.parse(Buffer.from(file.content,'base64').toString('utf8'))).published;const keys=new Set(published.map(post=>post.contentHash));const state=await store.load();const updates=state.candidates.filter(item=>item.status!=='published'&&item.approvedAt&&keys.has(contentKey(item)));
   if(updates.length)await store.mutate(current=>{for(const original of updates){const item=current.candidates.find(item=>item.id===original.id);if(item){item.status='published';item.publishedAt=new Date().toISOString();item.lastError=null;addActivity(current,'published',`Vídeo de @${item.source} confirmado no Instagram.`);}}});
@@ -73,7 +77,12 @@ async function collectSource(source,{store,env,timeout=8*60_000}){
   await saveJson(resolve(root,'src/data/storiesig-posts.json'),previous);
   await saveJson(resolve(root,'src/data/sources.json'),snapshot.sources.map(item=>({username:item.username,name:item.name,category:'Comunidade',initials:item.username.slice(0,2).toUpperCase(),color:'green'})));
   const fingerprints=await store.readJson('queue/video-fingerprints.json');if(!fingerprints)throw new AdminError('FINGERPRINTS_NOT_INITIALIZED',503);await saveJson(resolve(root,'.cache/storiesig/video-fingerprints.json'),fingerprints);
-  const result=await run('node',['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'],{allowFailure:true,env:{...env,ADMIN_COLLECTION_DIAGNOSTICS:'1'},timeout});
+  const args=['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'];
+  let apiRun=null;let staged=null;let result;
+  try{
+    if(collectorProvider(env)==='apify'){apiRun=await createApifyCollector({env,store}).collect(source.username,{timeout:Math.min(timeout,240000)});staged=await stageApifyReels(apiRun.reels);args.push('--seed-only','1','--seed-metadata',staged.metadataPath);}
+    result=await run('node',args,{allowFailure:true,env:{...env,ADMIN_COLLECTION_DIAGNOSTICS:'1'},timeout});
+  }finally{await staged?.cleanup();}
   const records=await readJson(resolve(root,'src/data/storiesig-posts.json'));const added=records.filter(item=>item.kind==='video'&&!known.has(item.id));
   const report=await readJson(resolve(root,'data/storiesig-import-report.json'));const entry=report.sources?.find(item=>item.source===source.username);const status=entry?.status||report.status||'public_flow_unavailable';
   // Keep diagnostics private, with fixed fields and no provider URLs or headers.
@@ -89,6 +98,7 @@ async function collectSource(source,{store,env,timeout=8*60_000}){
     await store.mutate(current=>{if(current.candidates.some(item=>item.id===candidate.id))return;if(current.candidates.length>=MAX_CANDIDATES){const index=current.candidates.findIndex(item=>['published','rejected'].includes(item.status)&&item.mediaRemoved);if(index>=0)current.candidates.splice(index,1);else throw new AdminError('REVIEW_QUEUE_FULL',422);}current.candidates.unshift(candidate);addActivity(current,'collected',`Vídeo de @${source.username} disponível para revisão.`);});imported++;
   }
   await store.putJson('queue/video-fingerprints.json',await readJson(resolve(root,'.cache/storiesig/video-fingerprints.json')));
+  if(!result.code)await apiRun?.complete();
   await store.mutate(state=>{const item=state.sources.find(item=>item.username===source.username);if(!item)return;item.lastCollectedAt=new Date().toISOString();item.lastStatus=result.code&&!imported?'error':'success';item.lastError=item.lastStatus==='error'?(status==='service_unavailable'?'COLLECTION_PROVIDER_UNAVAILABLE':safeCodes.has(status)?'SOURCE_ACCESS_RESTRICTED':'COLLECTION_UNAVAILABLE'):null;if(status==='service_unavailable')state.worker.lastError='COLLECTION_PROVIDER_UNAVAILABLE';item.nextCollectAt=item.enabled&&item.autoCollect?new Date(Date.now()+(item.lastError?24:6)*60*60_000).toISOString():null;addActivity(state,'collect',item.lastError?`Coleta de @${source.username} indisponível neste momento.`:`Coleta de @${source.username}: ${imported} vídeo(s) para revisar.`);});
   return safeCodes.has(status);
 }
@@ -130,6 +140,7 @@ async function publishApproved(items,{store,env}){
   return prepared.length;
 }
 export async function runAdminWorker({env=process.env,store=createBlobStore(env),log=event=>console.log(JSON.stringify(event))}={}){
+  await saveCollectorConfiguration(store,env);
   const now=Date.now();const initial=validateAdminState(await store.load());const due=dueSources(initial,now);
   const approved=initial.candidates.filter(item=>['approved','generating','ready','publishing','awaiting_instagram'].includes(item.status));const cleanup=initial.candidates.some(item=>['rejected','published'].includes(item.status)&&!item.mediaRemoved);
   if(!due.length&&!approved.length&&!cleanup){log({mode:'admin-idle'});return;}
@@ -150,17 +161,18 @@ export async function runAdminWorker({env=process.env,store=createBlobStore(env)
     const ready=(await store.load()).candidates.filter(item=>['ready','publishing'].includes(item.status)).slice(0,5);if(ready.length){const count=await publishApproved(ready,{store,env});log({mode:'site-published',count});}
     const collectionDeadline=Date.now()+12*60_000;
     for(const source of due.slice(0,8)){
+      if(collectorProvider(env)==='apify'&&!env.APIFY_API_TOKEN){await store.mutate(state=>{state.worker.lastError='APIFY_NOT_CONFIGURED';});log({mode:'collection-awaiting-key',provider:'apify'});break;}
       const state=await store.load();const currentSource=state.sources.find(item=>item.username===source.username);
       const remaining=collectionDeadline-Date.now();if(pendingBytes(state)>=MAX_PENDING_BYTES||remaining<30000)break;
       if(!currentSource||!dueSources(state).some(item=>item.username===source.username))continue;
       try{const restricted=await collectSource(currentSource,{store,env,timeout:Math.min(8*60_000,remaining)});const current=(await store.load()).sources.find(item=>item.username===source.username);log({mode:'collection-finished',source:source.username,status:current?.lastStatus,code:current?.lastError});if(restricted)break;}
-      catch(error){const code=error instanceof AdminError?error.code:'COLLECTION_UNAVAILABLE';await store.mutate(current=>{const item=current.sources.find(value=>value.username===source.username);if(item){item.lastStatus='error';item.lastError=code;item.requestedAt=null;item.lastCollectedAt=new Date().toISOString();item.nextCollectAt=item.autoCollect?new Date(Date.now()+24*60*60_000).toISOString():null;}});log({mode:'collection-error',source:source.username,code});}
+      catch(error){const code=error instanceof AdminError?error.code:'COLLECTION_UNAVAILABLE';const retry=['APIFY_RUN_PENDING','APIFY_INVALID_KEY','APIFY_CREDITS_REQUIRED','APIFY_RATE_LIMIT','APIFY_BUDGET_REACHED'].includes(code);await store.mutate(current=>{const item=current.sources.find(value=>value.username===source.username);if(item){item.lastStatus=retry?'queued':'error';item.lastError=code;item.requestedAt=retry?source.requestedAt||new Date().toISOString():null;item.lastCollectedAt=new Date().toISOString();item.nextCollectAt=item.autoCollect?new Date(Date.now()+24*60*60_000).toISOString():null;}if(code.startsWith('APIFY_'))current.worker.lastError=code;});log({mode:'collection-error',source:source.username,code});if(code.startsWith('APIFY_'))break;}
     }
   }catch(error){const code=error instanceof AdminError?error.code:'ADMIN_WORKER_FAILED';await store.mutate(state=>{state.worker.lastError=code;});throw error instanceof AdminError?error:new AdminError('ADMIN_WORKER_FAILED',503);}
   finally{await store.mutate(state=>{if(state.worker.lease?.owner===owner)state.worker.lease=null;});}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   const mode=process.argv.slice(2).join(' ');
-  const task=mode==='--plan'?createBlobStore().load().then(async state=>{const plan=workerPlan(state);if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,Object.entries(plan).map(([key,value])=>`${key}=${value}`).join('\n')+'\n');console.log(JSON.stringify({mode:'admin-plan',...plan}));}):mode==='--check'?workerCheck().then(report=>console.log(JSON.stringify({mode:'admin-check',...report}))):mode===''?runAdminWorker():Promise.reject(new AdminError('INVALID_WORKER_MODE'));
+  const task=mode==='--plan'?(async()=>{const store=createBlobStore();const state=await store.load();const collection=await saveCollectorConfiguration(store,process.env);const plan={...workerPlan(state),browser:collection.provider==='storiesig'};if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,Object.entries(plan).map(([key,value])=>`${key}=${value}`).join('\n')+'\n');console.log(JSON.stringify({mode:'admin-plan',provider:collection.provider,...plan}));})():mode==='--check'?workerCheck().then(report=>console.log(JSON.stringify({mode:'admin-check',...report}))):mode===''?runAdminWorker():Promise.reject(new AdminError('INVALID_WORKER_MODE'));
   task.catch(error=>{console.error(JSON.stringify({error:error instanceof AdminError?error.code:'ADMIN_WORKER_FAILED'}));process.exitCode=1;});
 }

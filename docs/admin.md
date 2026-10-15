@@ -12,8 +12,8 @@ incluída neste repositório público.
 2. Use **Coletar** para uma fonte ou **Coletar novos vídeos** para todas as fontes
    ativas. A opção de coleta a cada seis horas pode ser ativada por perfil.
 3. Os novos Reels ficam em **Para revisar**, com capa e vídeo privados. O coletor
-   usa o fluxo público já existente do StoriesIG, depende da disponibilidade do
-   serviço e interrompe tentativas quando o acesso é restringido.
+   usa a API do Apify no GitHub Actions; nenhuma máquina pessoal precisa ficar ligada.
+   A consulta depende da disponibilidade do provedor e de créditos na conta.
 4. Abra o vídeo e acrescente contexto, se necessário. **Gerar prévia com IA**
    prepara a legenda sem aprovar o vídeo. **Aprovar e publicar** autoriza o fluxo
    completo. Também é possível selecionar vários vídeos para aprovação.
@@ -61,7 +61,7 @@ cada vídeo a 90 MiB. Arquivos rejeitados ou já confirmados no Instagram são
 removidos da fila privada nos ciclos seguintes. Os vídeos públicos aprovados
 continuam na CDN atual, com integridade SHA-256 e origem em releases públicas.
 
-O coletor processa até oito perfis por ciclo, priorizando os pedidos mais antigos, com orçamento de doze minutos para a etapa de coleta. A execução verifica se há trabalho antes de preparar ferramentas e reutiliza o Chrome do executor quando disponível.
+O coletor processa até oito perfis por ciclo, priorizando os pedidos mais antigos, com orçamento de doze minutos para a etapa de coleta. A execução verifica se há trabalho antes de preparar ferramentas. A API do Apify dispensa navegador no executor; FFmpeg verifica os arquivos e preserva a qualidade da fonte.
 
 ## GitHub Actions
 
@@ -73,6 +73,7 @@ No ambiente protegido **instagram-publishing**, configure **Environment secrets*
 | `ADMIN_WORKER_SECRET` | Mesmo valor configurado na Vercel. |
 | `ADMIN_VERCEL_TOKEN` | Token para fazer deploy do projeto autorizado. |
 | `INSTAGRAM_ACCESS_TOKEN` | Token existente da conta profissional autorizada. |
+| `APIFY_API_TOKEN` | Chave privada do Apify para coletar Reels na nuvem. |
 
 Crie o token de deploy em [Vercel Account Tokens](https://vercel.com/account/settings/tokens),
 selecionando o projeto desta aplicação no escopo da equipe correspondente.
@@ -119,3 +120,33 @@ e atualizações concorrentes do armazenamento. O build mantém as páginas púb
 pré-renderizadas e cria funções apenas para a administração.
 
 Se o StoriesIG informar que está indisponível, a execução interrompe o lote sem esperar a busca de cada perfil. O painel informa a falha do provedor. Os diagnósticos de falha ficam apenas no Blob privado, com uma captura atual por perfil, sem credenciais ou URLs de API.
+
+## Coleta com Apify
+
+Gere a chave em [Apify Integrations](https://console.apify.com/settings/integrations)
+e salve-a como **Environment secret** `APIFY_API_TOKEN` no ambiente
+`instagram-publishing` do GitHub. Não é necessário colocar essa chave na Vercel
+ou em arquivos do repositório. O próximo ciclo recebe o Secret automaticamente.
+A validação `check_only=true` consulta a conta sem iniciar uma coleta cobrada.
+
+A integração usa o [Instagram Reel Scraper mantido pelo Apify](https://apify.com/apify/instagram-reel-scraper),
+com dois resultados por perfil, janela de quatorze dias, sem Reels fixados e sem
+extras pagos de transcrição, compartilhamentos ou armazenamento do vídeo no
+provedor. Os arquivos são baixados imediatamente da CDN do Instagram, validados,
+comparados com o acervo e enviados somente à fila privada. Legendas e publicação
+ainda dependem da aprovação no painel.
+
+Cada execução informa `maxTotalChargeUsd=0.02` e `timeout=180` na API. Antes de
+iniciar, o worker reserva US$ 0,02 em `queue/apify-budget.json`, com limite fixo
+de US$ 4 por mês UTC. Reservas não são reembolsadas automaticamente: a margem
+conservadora evita novas consultas além desse limite. Isso não contabiliza outros
+usos da sua conta Apify, nem custos de GitHub, Blob ou Vercel. O esgotamento de
+créditos interrompe a coleta e mantém a fila. Nenhum plano pago é contratado.
+
+O identificador de uma consulta fica em `queue/apify-runs/<perfil>.json`, no Blob
+privado. Se o processamento parar, ele retoma a mesma consulta antes de abrir
+outra. Se o início não receber confirmação, o erro `APIFY_START_UNCERTAIN` exige
+conferir os runs na conta Apify; não repita o POST nem apague o checkpoint sem
+verificar se existe uma execução correspondente. Nenhuma chave ou URL assinada
+é registrada nesses arquivos ou nos logs. O coletor antigo do StoriesIG continua
+disponível para uso local, sem `COLLECTION_PROVIDER=apify` e sem a chave do Apify.

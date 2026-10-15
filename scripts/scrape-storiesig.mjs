@@ -11,7 +11,7 @@ import { fingerprintVideo, sameVideo, assignContentGroups, relativeAgeDays } fro
 import { prepareVideoQuality } from './video-quality.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const options = { 'max-reels': 1, 'max-posts': 1, 'additional-reels': 0, 'scan-reels': 6, 'max-age-days': 14, 'max-reel-mb': 90, 'profile-delay': 5, 'max-total-mb': 1024, 'archive-only': 0 };
+const options = { 'max-reels': 1, 'max-posts': 1, 'additional-reels': 0, 'scan-reels': 6, 'max-age-days': 14, 'max-reel-mb': 90, 'profile-delay': 5, 'max-total-mb': 1024, 'archive-only': 0, 'seed-only': 0 };
 for (let index = 2; index < process.argv.length; index += 2) {
   const name = process.argv[index]?.replace(/^--/, '');
   if (!(name in options) && !['seed-metadata', 'source'].includes(name)) throw new Error('Argumento desconhecido.');
@@ -47,6 +47,7 @@ const sources = JSON.parse(await fs.readFile(path.join(root, 'src/data/sources.j
 if (!sources.every(safeUsername)) throw new Error('Lista de fontes inválida.');
 if (options.source && !sources.includes(options.source)) throw new Error('Fonte não configurada.');
 const selectedSources = options.source ? [options.source] : sources;
+if (![0,1].includes(options['seed-only']) || (options['seed-only']&&!options['seed-metadata'])) throw new Error('Capturas não configuradas.');
 let records = [];
 try { records = JSON.parse(await fs.readFile(output, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw new Error('Manifesto anterior inválido; nenhuma coleta iniciada.'); }
 if (!Array.isArray(records)) throw new Error('Manifesto anterior inválido.');
@@ -163,11 +164,19 @@ await existingVideoFingerprints();
 
 if (options['seed-metadata']) {
   const seeds = JSON.parse(await fs.readFile(options['seed-metadata'], 'utf8'));
+  if (!Array.isArray(seeds) || (options['seed-only']&&seeds.length>2)) throw new Error('Lista de capturas inválida.');
+  if (options['seed-only']) report.provider='apify-api';
   for (const entry of seeds) {
     if (!entry.path || !path.resolve(entry.path).startsWith('/tmp/lula-storiesig/')) throw new Error('Local de captura inválido.');
+    if (!selectedSources.includes(entry.source)) throw new Error('Fonte de captura inválida.');
     const status = await importFile(entry.path, entry);
     console.log(`@${entry.source}: captura anterior ${status}`);
   }
+}
+if (options['seed-only']) {
+  report.sources=selectedSources.map(source=>({source,status:'ok'}));
+  await persist();
+  process.exit(0);
 }
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME_EXECUTABLE_PATH || (process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : undefined), headless: true });
