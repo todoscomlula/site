@@ -295,17 +295,17 @@
       "postId": "storiesig-jeanwyllys_real-39571fbe88fe",
       "mediaId": "17947722051070984",
       "publishedAt": "2026-10-15T04:00:43.077Z"
+    },
+    {
+      "contentHash": "9e3cb597d42380895357808f50abd09dbcadde412494968e0092d75d64c0cd61",
+      "postId": "storiesig-fernandohaddadoficial-3d8df1c0b299",
+      "mediaId": "18146651707605434",
+      "publishedAt": "2026-10-15T04:01:59.236Z"
     }
   ],
-  "pending": {
-    "contentHash": "9e3cb597d42380895357808f50abd09dbcadde412494968e0092d75d64c0cd61",
-    "postId": "storiesig-fernandohaddadoficial-3d8df1c0b299",
-    "containerId": "18132271306655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-15T04:00:48.771Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "7f0d27a8-61cb-47d5-895f-baca457a91d3",
-    "expiresAt": "2026-10-15T04:21:52.663Z"
+    "expiresAt": "2026-10-15T04:21:59.236Z"
   }
 }
