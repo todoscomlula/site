@@ -295,11 +295,11 @@
     "contentHash": "f5b9d47ad0f2ba6e2b410486b09fa0725ae3a4e10bd561bfe6787f8498f4e9ff",
     "postId": "storiesig-jeanwyllys_real-39571fbe88fe",
     "containerId": "18132270880655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-15T03:59:32.198Z"
   },
   "lease": {
     "owner": "520f22bd-c033-417d-aef8-6acd47157ef4",
-    "expiresAt": "2026-10-15T04:19:34.091Z"
+    "expiresAt": "2026-10-15T04:20:36.644Z"
   }
 }
