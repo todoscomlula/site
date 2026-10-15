@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { AdminError, hashPassword, checkCredentials, createSession, readSession, sessionCookie, SESSION_COOKIE } from '../src/server/admin/auth.mjs';
 import { emptyAdminState, selectMentions, validateAdminState } from '../src/server/admin/state.mjs';
 import { handleAdminRequest } from '../src/server/admin/service.mjs';
-import { generateCaption, captionMessages, GUIDANCE_REVISION } from '../src/server/admin/captions.mjs';
+import { generateCaption, sourceCaption, captionMessages, GUIDANCE_REVISION, SOURCE_CAPTION_MODEL } from '../src/server/admin/captions.mjs';
 import { candidateToPublic, workerPlan, dueSources } from '../scripts/admin/worker.mjs';
 import { makeCaption } from '../scripts/instagram-publishing/core.mjs';
 import { BlobPreconditionFailedError } from '@vercel/blob';
@@ -56,17 +56,47 @@ test('Vercel approval starts caption generation after the response and refuses a
   const repeated=await handleAdminRequest(workerRequest,options);assert.equal(repeated.status,200);assert.equal(calls,1);
 });
 
-test('truncated AI output records a private report, preserves approval and releases its generation claim',async()=>{
+test('truncated AI output falls back to source text, preserves approval and releases its generation claim',async()=>{
   const state=emptyAdminState();const item=fixtureCandidate();state.candidates.push(item);const store=memoryStore(state);const tasks=[];
   const response=await handleAdminRequest(request(`candidates/${item.id}/approve`,{method:'POST',body:{}}),{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},store,background:task=>tasks.push(task),fetchImpl:async()=>new Response(JSON.stringify({choices:[{finish_reason:'length',message:{content:'{"title":"incomplete',reasoning_content:'reasoning'}}]}))});
-  assert.equal(response.status,202);await Promise.all(tasks);const result=(await store.load()).candidates[0];assert.equal(result.status,'approved');assert.equal(result.lastError,'AI_CAPTION_TRUNCATED');assert.equal(result.caption,null);
-  const report=await store.readJson(`queue/caption-reports/${item.id}.json`);assert.equal(report.finishReason,'length');assert.equal(report.reasoningCharacters,9);assert.equal((await store.readJson(`queue/caption-runs/${item.id}.json`)).owner,null);
+  assert.equal(response.status,202);await Promise.all(tasks);const result=(await store.load()).candidates[0];assert.equal(result.status,'ready');assert.equal(result.lastError,null);assert.equal(result.caption.model,SOURCE_CAPTION_MODEL);assert.equal(result.mentionProfiles.length,5);assert.ok(result.approvedAt);assert.equal(result.sitePublishedAt,null);
+  const report=await store.readJson(`queue/caption-reports/${item.id}.json`);assert.equal(report.finishReason,'length');assert.equal(report.reasoningCharacters,9);assert.equal(report.fallback.reason,'AI_CAPTION_TRUNCATED');assert.equal((await store.readJson(`queue/caption-runs/${item.id}.json`)).owner,null);
 });
 
-test('a timeout while reading the AI response is reported as timeout rather than malformed caption',async()=>{
+test('a timeout while reading the AI response uses source text and records the actual timeout',async()=>{
   let report;const fetchImpl=async()=>new Response(new ReadableStream({start(controller){controller.error(new DOMException('operation aborted','AbortError'));}}));
-  await assert.rejects(generateCaption(fixtureCandidate(),{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl,recordResponse:async value=>{report=value;}}),{code:'DEEPSEEK_TIMEOUT'});
-  assert.equal(report.stage,'response-body');assert.equal(report.error,'timeout');
+  const caption=await generateCaption(fixtureCandidate(),{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl,recordResponse:async value=>{report=value;}});
+  assert.equal(caption.model,SOURCE_CAPTION_MODEL);assert.match(caption.text,/Lula conversa sobre educação pública/);assert.equal(report.stage,'response-body');assert.equal(report.error,'timeout');assert.equal(report.fallback.reason,'DEEPSEEK_TIMEOUT');
+});
+
+test('a short caption and empty optional notes reach the AI with the existing title and source',async()=>{
+  const item={...fixtureCandidate(),originalTitle:'Emocionante',originalCaption:'Emocionante',notes:''};let input;
+  const caption=await generateCaption(item,{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl:async(url,options)=>{input=JSON.parse(JSON.parse(options.body).messages[1].content);return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({title:'Registro compartilhado',caption:'Um registro compartilhado pelo perfil de origem.',hashtags:['Reels','Video','Registro']})}}]}));}});
+  assert.equal(input.title,'Emocionante');assert.equal(input.editorNotes,'');assert.equal(input.source,item.source);assert.equal(caption.model,'deepseek-flash');
+});
+
+test('the AI asking for context produces a neutral caption instead of blocking an approved short post',async()=>{
+  const item={...fixtureCandidate(),originalTitle:'Vitória! ❤️',originalCaption:'Vitória! ❤️',notes:''};let report;
+  const caption=await generateCaption(item,{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl:async()=>new Response(JSON.stringify({choices:[{message:{content:'{"insufficient_context":true}'}}]})),recordResponse:async value=>{report=value;}});
+  assert.equal(caption.model,SOURCE_CAPTION_MODEL);assert.equal(caption.title,item.originalTitle);assert.equal(caption.text,'Descrição da publicação original:\n\nVitória! ❤️');assert.equal(caption.hashtags.length,3);assert.equal(report.fallback.reason,'CAPTION_NEEDS_CONTEXT');
+});
+
+test('source captions work with title only or no description and retain only safe text and valid hashtags',()=>{
+  const titleOnly=sourceCaption({...fixtureCandidate(),originalTitle:'Registro da visita',originalCaption:'',notes:''});assert.match(titleOnly.text,/Registro da visita/);
+  const empty=sourceCaption({...fixtureCandidate(),source:'a',originalTitle:'',originalCaption:'',notes:''});assert.equal(empty.title,'Vídeo compartilhado');assert.equal(empty.hashtags.length,3);assert.ok(empty.text.length>=15);
+  const sanitized=sourceCaption({...fixtureCandidate(),originalCaption:'<b>Registro</b> @perfil https://example.test/ #Educacao #Educacao #Brasil #Escola',notes:''});assert.doesNotMatch(sanitized.text,/<|@|https:|#/);assert.deepEqual(sanitized.hashtags,['Educacao','Brasil','Escola']);
+});
+
+test('unavailable AI uses source text but invalid credentials and missing balance still report configuration errors',async()=>{
+  const options={env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')}};
+  for(const status of [429,503])assert.equal((await generateCaption(fixtureCandidate(),{...options,fetchImpl:async()=>new Response('',{status})})).model,SOURCE_CAPTION_MODEL);
+  for(const [status,code]of [[401,'DEEPSEEK_INVALID_KEY'],[402,'DEEPSEEK_BALANCE_REQUIRED']])await assert.rejects(generateCaption(fixtureCandidate(),{...options,fetchImpl:async()=>new Response('',{status})}),{code});
+});
+
+test('source text fallback reaches public publishing with honest provenance, attribution and five approved mentions',()=>{
+  const item=fixtureCandidate();item.status='ready';item.approvedAt=instant;item.mentionProfiles=selectMentions(emptyAdminState().sources,item);item.caption=sourceCaption(item,{now:Date.parse(instant)});
+  const post=candidateToPublic(item,{video:{publicPath:'/media/video.mp4'},poster:{publicPath:'/media/poster.jpg'}});assert.equal(post.captionProvider,'source-text');assert.equal(post.captionModel,SOURCE_CAPTION_MODEL);
+  const caption=makeCaption({...post,sourceName:'Lula'},new URL('https://example.test'));assert.match(caption,/Fonte: Lula/);assert.equal([...caption.matchAll(/@[a-z0-9_.]+/g)].filter(match=>match[0]!=='@boraaalula2026').length,5);assert.equal([...caption.matchAll(/#[\p{L}\p{N}_]+/gu)].length,3);
 });
 
 test('an operator-assisted recovery records the actual caption provider',()=>{

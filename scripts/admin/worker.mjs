@@ -9,6 +9,7 @@ import { AdminError } from '../../src/server/admin/auth.mjs';
 import { addActivity, cleanText, MAX_CANDIDATES, MAX_PENDING_BYTES, pendingBytes, validUsername, validateAdminState } from '../../src/server/admin/state.mjs';
 import { contentKey, publicSiteUrl, validateState } from '../instagram-publishing/core.mjs';
 import { collectorProvider, collectorConfiguration, createApifyCollector, stageApifyReels } from './apify.mjs';
+import { SOURCE_CAPTION_MODEL } from '../../src/server/admin/captions.mjs';
 
 const root=process.cwd();const cache=resolve(root,'.cache/admin-worker');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -41,7 +42,7 @@ async function publicJson(path,env){const file=await github(`contents/${path}?re
 export function candidateToPublic(item,assets){
   if(!item.approvedAt||!item.caption||item.mentionProfiles.length!==5||!['ready','publishing','awaiting_instagram','published'].includes(item.status))throw new AdminError('CANDIDATE_NOT_APPROVED',409);
   const video=assets.video.publicPath;const poster=assets.poster.publicPath;
-  return {id:item.id,source:item.source,sourceUrl:item.sourceUrl,permalink:item.permalink,title:item.caption.title,excerpt:item.caption.text.slice(0,280),publishedAt:null,observedAt:item.observedAt,publishedLabel:null,kind:'video',mediaUrl:video,thumbnailUrl:poster,downloadUrl:video,media:[{kind:'video',url:video,thumbnailUrl:poster,filename:basename(video)}],contentGroupId:item.contentGroupId,videoQuality:{width:item.media.video.width,height:item.media.video.height,preservedSource:true},publicationCaption:item.caption.text,publicationHashtags:item.caption.hashtags,mentionProfiles:[...item.mentionProfiles],reviewApprovedAt:item.approvedAt,captionProvider:item.caption.model==='codex'?'codex':'deepseek',captionModel:item.caption.model,captionSkillRevision:item.caption.skillRevision};
+  return {id:item.id,source:item.source,sourceUrl:item.sourceUrl,permalink:item.permalink,title:item.caption.title,excerpt:item.caption.text.slice(0,280),publishedAt:null,observedAt:item.observedAt,publishedLabel:null,kind:'video',mediaUrl:video,thumbnailUrl:poster,downloadUrl:video,media:[{kind:'video',url:video,thumbnailUrl:poster,filename:basename(video)}],contentGroupId:item.contentGroupId,videoQuality:{width:item.media.video.width,height:item.media.video.height,preservedSource:true},publicationCaption:item.caption.text,publicationHashtags:item.caption.hashtags,mentionProfiles:[...item.mentionProfiles],reviewApprovedAt:item.approvedAt,captionProvider:item.caption.model===SOURCE_CAPTION_MODEL?'source-text':item.caption.model==='codex'?'codex':'deepseek',captionModel:item.caption.model,captionSkillRevision:item.caption.skillRevision};
 }
 export async function workerCheck({store=createBlobStore(),env=process.env}={}){
   const state=validateAdminState(await store.load());let deploymentCredential='missing';
@@ -159,7 +160,7 @@ export async function runAdminWorker({env=process.env,store=createBlobStore(env)
       try{const response=await fetch(new URL('/api/admin/worker/caption/',publicSiteUrl(env.PUBLIC_SITE_URL)),{method:'POST',redirect:'error',signal:AbortSignal.timeout(150000),headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});if(!response.ok){const body=await response.json().catch(()=>({}));const code=typeof body.error==='string'&&/^[A-Z_]{1,80}$/.test(body.error)?body.error:'CAPTION_GENERATION_FAILED';log({mode:'caption-wait',code});if(code==='DEEPSEEK_NOT_CONFIGURED')break;}}
       catch{log({mode:'caption-wait',code:'CAPTION_SERVICE_UNAVAILABLE'});}
     }
-    const ready=publish?(await store.load()).candidates.filter(item=>['ready','publishing'].includes(item.status)).slice(0,5):[];if(ready.length){const count=await publishApproved(ready,{store,env});log({mode:'site-published',count});}
+    const ready=publish?(await store.load()).candidates.filter(item=>['ready','publishing'].includes(item.status)).slice(0,25):[];if(ready.length){const count=await publishApproved(ready,{store,env});log({mode:'site-published',count});}
     const collectionDeadline=Date.now()+12*60_000;
     for(const source of due.slice(0,8)){
       if(collectorProvider(env)==='apify'&&!env.APIFY_API_TOKEN){await store.mutate(state=>{state.worker.lastError='APIFY_NOT_CONFIGURED';});log({mode:'collection-awaiting-key',provider:'apify'});break;}

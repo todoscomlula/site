@@ -166,11 +166,21 @@ término. Eles permitem distinguir resposta truncada de um formato recusado,
 sem registrar cabeçalhos ou credenciais. Não são exportados pelo dashboard
 nem pelo manifesto público.
 
-O DeepSeek tem até 120 segundos para concluir a resposta. A função da Vercel
-usa até 180 segundos, dentro do limite do Fluid Compute do projeto. Um timeout
-ao ler a resposta é exibido como `DEEPSEEK_TIMEOUT`, sem confundi-lo com JSON
-inválido.
+As observações são opcionais. A geração usa o título, a descrição e o perfil
+de origem, inclusive quando a descrição é curta. Pouca informação resulta
+em uma legenda simples, sem deduzir acontecimentos ou exigir mais contexto.
 
-O workflow publica os aprovados antes de instalar ferramentas para novas
-coletas. Se uma legenda falhar, **Em publicação → Gerar legenda novamente**
-retoma a geração na Vercel, preservando a aprovação.
+O DeepSeek tem até 45 segundos para concluir a resposta. Se pedir contexto,
+ficar indisponível ou retornar uma resposta inválida ou truncada, o sistema
+prepara uma legenda simples com o texto original, sem adicionar fatos. Essa
+alternativa mantém as hashtags da descrição quando válidas, completa com
+tags do perfil e do formato e identifica o modelo como `source-caption-v1`
+e o provedor público como `source-text`; não atribui esse texto à IA.
+O motivo permanece no relatório privado em `fallback.reason`. Chave inválida,
+ausência de chave ou de saldo continuam sendo erros de configuração.
+A função da Vercel usa até 180 segundos, dentro do limite do Fluid Compute.
+
+O workflow publica até 25 vídeos prontos em um único deploy, antes de instalar
+ferramentas para novas coletas. Ele recupera até cinco legendas por ciclo.
+Se uma legenda falhar, **Em publicação → Gerar legenda novamente** retoma a
+geração na Vercel, preservando a aprovação e as cinco marcações selecionadas.
