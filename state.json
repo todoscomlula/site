@@ -310,8 +310,5 @@
     "stage": "processing",
     "createdAt": "2026-10-15T04:45:07.298Z"
   },
-  "lease": {
-    "owner": "0c1d5233-e212-4327-bd29-92e200680d18",
-    "expiresAt": "2026-10-15T15:34:33.379Z"
-  }
+  "lease": null
 }
