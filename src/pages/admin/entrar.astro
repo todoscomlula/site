@@ -6,7 +6,7 @@ import { handleAdminRequest } from '../../server/admin/service.mjs';
 export const prerender = false;
 Astro.response.headers.set('Cache-Control','private, no-store');
 Astro.response.headers.set('X-Robots-Tag','noindex, nofollow');
-Astro.response.headers.set('Referrer-Policy','no-referrer');
+Astro.response.headers.set('Referrer-Policy','same-origin');
 if(Astro.request.method==='GET'&&Astro.url.search)return adminRedirect('/admin/entrar/');
 let loginError='';
 if(Astro.request.method==='POST'){
