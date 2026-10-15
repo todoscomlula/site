@@ -71,16 +71,24 @@ export function requireMutation(request, env = process.env) {
   if (!constantEqual(request.headers.get('x-csrf-token'), session.csrf)) throw new AdminError('INVALID_CSRF', 403);
   return session;
 }
-export async function readJson(request, maximum = 16_384) {
-  if (!/^application\/json(?:;|$)/i.test(request.headers.get('content-type') || '')) throw new AdminError('JSON_REQUIRED', 415);
+export async function readRequestText(request, maximum = 16_384) {
   if (Number(request.headers.get('content-length') || 0) > maximum) throw new AdminError('BODY_TOO_LARGE', 413);
   const reader = request.body?.getReader();
   if (!reader) throw new AdminError('INVALID_JSON');
   let size = 0; const chunks = [];
   try {
     while (true) { const { done, value } = await reader.read(); if (done) break; size += value.length; if (size > maximum) { await reader.cancel(); throw new AdminError('BODY_TOO_LARGE', 413); } chunks.push(Buffer.from(value)); }
-    const value = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error();
-    return value;
+    return Buffer.concat(chunks).toString('utf8');
   } catch (error) { if (error instanceof AdminError) throw error; throw new AdminError('INVALID_JSON'); }
+}
+export async function readJson(request, maximum = 16_384) {
+  if (!/^application\/json(?:;|$)/i.test(request.headers.get('content-type') || '')) throw new AdminError('JSON_REQUIRED', 415);
+  try { const value=JSON.parse(await readRequestText(request,maximum));if(!value||typeof value!=='object'||Array.isArray(value))throw new Error();return value; }
+  catch(error){if(error instanceof AdminError)throw error;throw new AdminError('INVALID_JSON');}
+}
+export async function readLoginInput(request) {
+  if(!/^application\/x-www-form-urlencoded(?:;|$)/i.test(request.headers.get('content-type')||''))return readJson(request);
+  const form=new URLSearchParams(await readRequestText(request));
+  if([...form.keys()].sort().join(',')!=='email,password')throw new AdminError('INVALID_CREDENTIALS',401);
+  return Object.fromEntries(form);
 }

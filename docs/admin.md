@@ -46,7 +46,7 @@ alterá-las. Preview pode ter suas próprias credenciais e armazenamento.
 | `ADMIN_SESSION_SECRET` | Valor aleatório com pelo menos quarenta caracteres para assinar sessões. |
 | `ADMIN_WORKER_SECRET` | Valor aleatório compartilhado somente com o worker protegido. |
 | `BLOB_READ_WRITE_TOKEN` | Conexão automática com o Blob **privado** da fila. |
-| `DEEPSEEK_API_KEY` | Chave da sua conta DeepSeek; fica somente no servidor da Vercel. |
+| `DEEPSEEK_API_KEY` | Chave da sua conta DeepSeek; fica somente no servidor da Vercel. O nome alternativo `DEEP_SEEK_API` também é aceito. |
 | `DEEPSEEK_MODEL` | Opcional; padrão `deepseek-flash`. |
 
 O login usa cookie HttpOnly, Secure, SameSite Strict, com validade de oito horas,

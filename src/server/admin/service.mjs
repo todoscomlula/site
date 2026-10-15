@@ -1,4 +1,4 @@
-import { AdminError, authConfiguration, checkCredentials, constantEqual, createSession, requireSession, requireMutation, requireSameOrigin, readJson, sessionCookie, digest } from './auth.mjs';
+import { AdminError, authConfiguration, checkCredentials, constantEqual, createSession, requireSession, requireMutation, requireSameOrigin, readJson, readLoginInput, sessionCookie, digest } from './auth.mjs';
 import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUsername, pendingBytes, selectMentions, validId } from './state.mjs';
 import { createBlobStore } from './blob.mjs';
 import { generateCaption, GUIDANCE_REVISION } from './captions.mjs';
@@ -36,12 +36,12 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     if(['worker/caption','worker/status'].includes(action)&&request.method==='POST'){
       if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new AdminError('WORKER_NOT_CONFIGURED',503);
       if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
-      if(action==='worker/status')return json({deepseek:!!env.DEEPSEEK_API_KEY});
+      if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});
       const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
       await makeCaptionForItem(input.id,{store,env,fetchImpl});return json({ok:true});
     }
     if(action==='login'&&request.method==='POST'){
-      requireSameOrigin(request);authConfiguration(env);const input=await readJson(request);
+      requireSameOrigin(request);authConfiguration(env);const input=await readLoginInput(request);
       if(Object.keys(input).sort().join(',')!=='email,password'||typeof input.email!=='string'||typeof input.password!=='string')throw new AdminError('INVALID_CREDENTIALS',401);
       await store.checkLoginRate(digest(env.ADMIN_SESSION_SECRET+'\0'+clientAddress));
       if(!checkCredentials(input.email,input.password,env))throw new AdminError('INVALID_CREDENTIALS',401);
@@ -53,7 +53,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       const [state,status]=await Promise.all([store.load(),publicStatus(env,fetchImpl)]);
       const publishedIds=new Set(status.published.map(item=>item.postId));
       const candidates=state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
-      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{deepseek:!!env.DEEPSEEK_API_KEY,model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
+      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
     }
     const media=action.match(/^media\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})\/(video|poster)$/);
     if(media&&request.method==='GET'){

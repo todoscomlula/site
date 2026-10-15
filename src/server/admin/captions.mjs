@@ -15,12 +15,13 @@ export function captionMessages(candidate) {
     {role:'user',content:JSON.stringify({source:candidate.source,sourceName:candidate.sourceName,sourceUrl:candidate.sourceUrl,title:candidate.originalTitle,originalCaption:candidate.originalCaption,editorNotes:candidate.notes})}];
 }
 export async function generateCaption(candidate,{env=process.env,fetchImpl=fetch,now=Date.now()}={}){
-  if(!env.DEEPSEEK_API_KEY)throw new AdminError('DEEPSEEK_NOT_CONFIGURED',503);
+  const apiKey=env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API;
+  if(!apiKey)throw new AdminError('DEEPSEEK_NOT_CONFIGURED',503);
   if((candidate.originalCaption+' '+candidate.notes).trim().length<20)throw new AdminError('CAPTION_NEEDS_CONTEXT',422);
   const model=env.DEEPSEEK_MODEL||'deepseek-flash';
   if(!/^[a-z0-9._-]{1,80}$/.test(model))throw new AdminError('INVALID_DEEPSEEK_MODEL',503);
   let response;
-  try{response=await fetchImpl('https://api.deepseek.com/chat/completions',{method:'POST',redirect:'error',signal:AbortSignal.timeout(45000),headers:{Authorization:`Bearer ${env.DEEPSEEK_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,messages:captionMessages(candidate),thinking:{type:'disabled'},response_format:{type:'json_object'},max_tokens:1000,stream:false})});}
+  try{response=await fetchImpl('https://api.deepseek.com/chat/completions',{method:'POST',redirect:'error',signal:AbortSignal.timeout(45000),headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model,messages:captionMessages(candidate),thinking:{type:'disabled'},response_format:{type:'json_object'},max_tokens:1000,stream:false})});}
   catch{throw new AdminError('DEEPSEEK_UNAVAILABLE',502);}
   if(!response.ok)throw new AdminError(response.status===401?'DEEPSEEK_INVALID_KEY':response.status===402?'DEEPSEEK_BALANCE_REQUIRED':response.status===429?'DEEPSEEK_RATE_LIMIT':'DEEPSEEK_UNAVAILABLE',502);
   let result;

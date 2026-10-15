@@ -8,4 +8,5 @@ export default defineConfig({
   trailingSlash: 'always',
   devToolbar: { enabled: false },
   build: { inlineStylesheets: 'never' },
+  vite: { build: { assetsInlineLimit: 0 } },
 });
