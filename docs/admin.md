@@ -184,3 +184,34 @@ O workflow publica até 25 vídeos prontos em um único deploy, antes de instala
 ferramentas para novas coletas. Ele recupera até cinco legendas por ciclo.
 Se uma legenda falhar, **Em publicação → Gerar legenda novamente** retoma a
 geração na Vercel, preservando a aprovação e as cinco marcações selecionadas.
+
+## Envio ao Instagram na Vercel
+
+O envio à Meta também roda na Vercel. Um consumidor privado de Vercel Queues
+executa uma etapa da publicação por chamada. Se o Reel ainda estiver em
+processamento, agenda uma nova chamada para 60 segundos depois; uma recusa de
+quota agenda outra tentativa após 15 minutos. Os IDs e os checkpoints ficam no
+Blob privado, em `queue/instagram-publishing-state.json`. Uma interrupção de
+publicação continua exigindo confirmação do provedor antes de reenviar.
+
+O primeiro processamento importa e valida o histórico existente da branch
+`instagram-publishing-state`. Depois da migração, essa branch é uma fotografia
+do histórico antigo; o painel e a limpeza do coletor usam o histórico privado.
+Não são apagadas publicações nem operações pendentes na migração.
+
+O botão **Retomar Instagram** adiciona uma mensagem à fila na Vercel. Quando
+um lote entra no site, o worker chama o endpoint protegido da Vercel, sem
+conectar à Meta pelo GitHub. Um cron diário da Vercel recupera uma fila que
+tenha ficado inativa; os intervalos normais usam as mensagens duráveis.
+
+`INSTAGRAM_ACCESS_TOKEN` deve ser uma variável sensível de produção na Vercel,
+com `INSTAGRAM_PUBLISHING_RUNTIME=vercel`. A configuração inicial pode ser
+feita pelo workflow manual `configure-instagram-vercel.yml`: ele transfere o
+Secret diretamente para o projeto autorizado pela API da Vercel, sem gravar
+o valor em arquivos ou logs. Após configurar, publique um novo deployment e
+desative o fluxo legado com a variável de repositório
+`INSTAGRAM_PUBLISHING_RUNTIME=vercel`.
+
+O consumidor é uma função independente da função Astro, gerada no `postbuild`,
+com o trigger `queue/v2beta`. Isso mantém o consumidor privado sem tornar o
+site e o painel privados. Referência: [Vercel Queues](https://vercel.com/docs/queues/quickstart).

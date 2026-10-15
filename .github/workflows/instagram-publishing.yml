@@ -1,10 +1,7 @@
-name: Publicar acervo no Instagram
+name: Instagram — fluxo legado
 
 on:
-  # Inativo enquanto INSTAGRAM_AUTOPUBLISH_ENABLED não for exatamente true.
-  # A fila inclui o acervo ainda não publicado e novos conteúdos elegíveis.
-  schedule:
-    - cron: '*/15 * * * *'
+  # Desativado após a migração do envio para a Vercel.
   workflow_dispatch:
     inputs:
       dry_run:
@@ -29,7 +26,7 @@ concurrency:
 
 jobs:
   check-connection:
-    if: github.event_name == 'workflow_dispatch' && inputs.check_connection
+    if: vars.INSTAGRAM_PUBLISHING_RUNTIME != 'vercel' && github.event_name == 'workflow_dispatch' && inputs.check_connection
     runs-on: ubuntu-latest
     timeout-minutes: 5
     environment: instagram-publishing
@@ -51,7 +48,7 @@ jobs:
         run: node scripts/instagram-publish.mjs --check-connection
 
   simulate:
-    if: github.event_name == 'workflow_dispatch' && inputs.dry_run && !inputs.check_connection
+    if: vars.INSTAGRAM_PUBLISHING_RUNTIME != 'vercel' && github.event_name == 'workflow_dispatch' && inputs.dry_run && !inputs.check_connection
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -71,8 +68,9 @@ jobs:
 
   publish:
     if: >-
+      vars.INSTAGRAM_PUBLISHING_RUNTIME != 'vercel' && (
       (github.event_name == 'schedule' && vars.INSTAGRAM_AUTOPUBLISH_ENABLED == 'true') ||
-      (github.event_name == 'workflow_dispatch' && !inputs.dry_run && !inputs.check_connection)
+      (github.event_name == 'workflow_dispatch' && !inputs.dry_run && !inputs.check_connection))
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.publish_all && 60 || 15 }}
     permissions:

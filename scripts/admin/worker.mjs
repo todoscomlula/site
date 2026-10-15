@@ -53,7 +53,8 @@ export async function workerCheck({store=createBlobStore(),env=process.env}={}){
 }
 async function saveCollectorConfiguration(store,env){const configuration=collectorConfiguration(env);const old=await store.readJson('queue/collector-status.json');if(!old||old.provider!==configuration.provider||old.configured!==configuration.configured||Date.now()-Date.parse(old.checkedAt)>3600000)await store.putJson('queue/collector-status.json',configuration);return configuration;}
 async function reconcile(store,env){
-  const file=await github('contents/state.json?ref=instagram-publishing-state',{env});const published=validateState(JSON.parse(Buffer.from(file.content,'base64').toString('utf8'))).published;const keys=new Set(published.map(post=>post.contentHash));const state=await store.load();const updates=state.candidates.filter(item=>item.status!=='published'&&item.approvedAt&&keys.has(contentKey(item)));
+  const privateState=await store.readJson('queue/instagram-publishing-state.json');
+  const file=privateState?null:await github('contents/state.json?ref=instagram-publishing-state',{env});const published=validateState(privateState||JSON.parse(Buffer.from(file.content,'base64').toString('utf8'))).published;const keys=new Set(published.map(post=>post.contentHash));const state=await store.load();const updates=state.candidates.filter(item=>item.status!=='published'&&item.approvedAt&&keys.has(contentKey(item)));
   if(updates.length)await store.mutate(current=>{for(const original of updates){const item=current.candidates.find(item=>item.id===original.id);if(item){item.status='published';item.publishedAt=new Date().toISOString();item.lastError=null;addActivity(current,'published',`Vídeo de @${item.source} confirmado no Instagram.`);}}});
   for(const item of (await store.load()).candidates.filter(item=>['rejected','published'].includes(item.status)&&!item.mediaRemoved)){
     try{await store.remove(item.media.video.path);await store.remove(item.media.poster.path);await store.mutate(current=>{const record=current.candidates.find(record=>record.id===item.id);if(record)record.mediaRemoved=true;});}catch{/* Retried on a later cycle; no publication is repeated. */}
@@ -139,7 +140,8 @@ async function publishApproved(items,{store,env}){
   await run('npx',['--yes','vercel@64.0.2','--prod','--yes'],{env:{...env,VERCEL_TOKEN:env.ADMIN_VERCEL_TOKEN},timeout:15*60_000});
   const site=publicSiteUrl(env.PUBLIC_SITE_URL);const response=await fetch(new URL('/feed.json',site),{redirect:'error',signal:AbortSignal.timeout(30000)});if(!response.ok)throw new AdminError('DEPLOYMENT_NOT_READY',503);const feed=await response.json();if(!prepared.every(({item})=>feed.some(post=>post.id===item.id)))throw new AdminError('DEPLOYMENT_NOT_READY',503);
   await store.mutate(state=>{for(const {item}of prepared){const current=state.candidates.find(value=>value.id===item.id);if(current){current.status='awaiting_instagram';current.sitePublishedAt=new Date().toISOString();current.lastError=null;addActivity(state,'site',`Vídeo de @${current.source} publicado no site.`);}}});
-  await github('actions/workflows/instagram-publishing.yml/dispatches',{method:'POST',env,body:{ref:'main',inputs:{dry_run:'false',check_connection:'false',publish_all:'true'}}});
+  const queued=await fetch(new URL('/api/admin/worker/instagram/',site),{method:'POST',redirect:'error',signal:AbortSignal.timeout(30000),headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:'{}'});
+  if(!queued.ok)throw new AdminError('INSTAGRAM_QUEUE_UNAVAILABLE',503);
   return prepared.length;
 }
 export async function runAdminWorker({env=process.env,store=createBlobStore(env),log=event=>console.log(JSON.stringify(event)),collect=true,publish=true}={}){

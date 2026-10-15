@@ -1,5 +1,7 @@
 # Publicação automática em @boraaalula2026
 
+> O envio atual roda na Vercel. Consulte [Envio ao Instagram na Vercel](admin.md#envio-ao-instagram-na-vercel). Os comandos e o workflow abaixo descrevem o publicador legado, preservado para manutenção do histórico.
+
 A automação prepara a fila do acervo e, no modo padrão, publica **no máximo um conteúdo por execução** na conta `boraaalula2026`. O workflow verifica a fila a cada 15 minutos quando `INSTAGRAM_AUTOPUBLISH_ENABLED=true`. Inclui o acervo elegível que ainda não foi publicado e as novas adições, na ordem de chegada ao acervo. `observedAt` serve para ordenar a coleta; não é apresentado como data original de publicação.
 
 A publicação já está autorizada pelo responsável pelo projeto. A fila deve ser ativada somente depois de validar a autenticação da conta.

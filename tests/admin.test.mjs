@@ -9,6 +9,8 @@ import { candidateToPublic, workerPlan, dueSources } from '../scripts/admin/work
 import { makeCaption } from '../scripts/instagram-publishing/core.mjs';
 import { BlobPreconditionFailedError } from '@vercel/blob';
 import { createBlobStore } from '../src/server/admin/blob.mjs';
+import { emptyState as emptyPublishingState } from '../scripts/instagram-publishing/core.mjs';
+import { INSTAGRAM_STATE_PATH, INSTAGRAM_STATUS_PATH } from '../src/server/instagram/runtime.mjs';
 
 const password=randomBytes(20).toString('base64url');
 const env={ADMIN_EMAIL:'admin@example.test',ADMIN_PASSWORD_HASH:hashPassword(password),ADMIN_SESSION_SECRET:randomBytes(48).toString('base64url'),ADMIN_WORKER_SECRET:randomBytes(48).toString('base64url'),PUBLIC_SITE_URL:'https://example.test'};
@@ -102,4 +104,14 @@ test('source text fallback reaches public publishing with honest provenance, att
 test('an operator-assisted recovery records the actual caption provider',()=>{
   const item=fixtureCandidate();item.status='ready';item.approvedAt=instant;item.mentionProfiles=selectMentions(emptyAdminState().sources,item);item.caption={...fixtureCaption(),model:'codex'};
   const post=candidateToPublic(item,{video:{publicPath:'/media/video.mp4'},poster:{publicPath:'/media/poster.jpg'}});assert.equal(post.captionProvider,'codex');assert.equal(post.captionModel,'codex');assert.equal(post.reviewApprovedAt,instant);
+});
+
+test('Instagram enqueue and diagnostics require admin CSRF or the protected worker credential',async()=>{
+ const store=memoryStore();for(const path of ['worker/instagram','worker/instagram/check','worker/instagram/status']){const response=await service(request(path,{method:'POST',token:null,body:{}}),store);assert.equal(response.status,401);}
+ assert.equal((await service(request('instagram',{method:'POST',csrf:false,body:{}}),store)).status,403);
+ assert.equal((await service(request('instagram',{method:'POST',body:{}}),store)).status,503);
+});
+
+test('dashboard reads migrated private publishing history and the actual runtime wait reason',async()=>{
+ const store=memoryStore();const publishing=emptyPublishingState();publishing.published.push({postId:'confirmed-video',contentHash:'a'.repeat(64),mediaId:'123',publishedAt:instant});await store.putJson(INSTAGRAM_STATE_PATH,publishing);await store.putJson(INSTAGRAM_STATUS_PATH,{runtime:'vercel',mode:'quota-wait',code:'META_PUBLISHING_LIMIT',nextAttemptAt:instant});const response=await service(request('dashboard'),store);const body=await response.json();assert.equal(response.status,200);assert.equal(body.counts.instagram,1);assert.equal(body.instagramRuntime.runtime,'vercel');assert.equal(body.instagramRuntime.mode,'quota-wait');
 });

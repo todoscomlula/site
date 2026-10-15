@@ -3,6 +3,8 @@ import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUse
 import { createBlobStore } from './blob.mjs';
 import { generateCaption, checkCaptionProvider, GUIDANCE_REVISION } from './captions.mjs';
 import { randomUUID } from 'node:crypto';
+import { PublishingError, validateState as validatePublishingState } from '../../../scripts/instagram-publishing/core.mjs';
+import { enqueueInstagram, checkInstagramConnection, INSTAGRAM_STATE_PATH, INSTAGRAM_STATUS_PATH } from '../instagram/runtime.mjs';
 
 const headers = {'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store, max-age=0','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'};
 const json = (value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{...headers,...extra}});
@@ -37,9 +39,12 @@ async function makeCaptionForItem(id,{store,env,fetchImpl}){
 export async function handleAdminRequest(request,{env=process.env,store=createBlobStore(env),fetchImpl=fetch,clientAddress='unknown',background=null}={}){
   const action=new URL(request.url).pathname.replace(/^\/api\/admin\/?/,'').replace(/\/$/,'');
   try{
-    if(['worker/caption','worker/status','worker/deepseek'].includes(action)&&request.method==='POST'){
+    if(['worker/caption','worker/status','worker/deepseek','worker/instagram','worker/instagram/check','worker/instagram/status'].includes(action)&&request.method==='POST'){
       if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new AdminError('WORKER_NOT_CONFIGURED',503);
       if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
+      if(action==='worker/instagram'){await readJson(request);return json(await enqueueInstagram({env}),202);}
+      if(action==='worker/instagram/check'){await readJson(request);return json(await checkInstagramConnection({env,store,fetchImpl}));}
+      if(action==='worker/instagram/status'){const [publishing,status]=await Promise.all([store.readJson(INSTAGRAM_STATE_PATH),store.readJson(INSTAGRAM_STATUS_PATH)]);return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'github',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:!!publishing,published:publishing?.published?.length||0,status:status||null});}
       if(action==='worker/deepseek'){const input=await readJson(request);if(Object.keys(input).some(key=>!['mode','model'].includes(key))||('mode'in input&&!['metadata','probe'].includes(input.mode))||('model'in input&&typeof input.model!=='string'))throw new AdminError('INVALID_REQUEST');return json(await checkCaptionProvider({env,fetchImpl,metadata:input.mode==='metadata',model:input.model||null}));}
       if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});
       const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
@@ -55,10 +60,11 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     const session=requireSession(request,env);
     if(action==='session'&&request.method==='GET')return json({email:session.email,csrf:session.csrf,expiresAt:session.expiresAt});
     if(action==='dashboard'&&request.method==='GET'){
-      const [state,status,collector]=await Promise.all([store.load(),publicStatus(env,fetchImpl),store.readJson?.('queue/collector-status.json')||null]);
+      const [state,status,collector,instagramState,instagramRuntime]=await Promise.all([store.load(),publicStatus(env,fetchImpl),store.readJson?.('queue/collector-status.json')||null,store.readJson?.(INSTAGRAM_STATE_PATH)||null,store.readJson?.(INSTAGRAM_STATUS_PATH)||null]);
+      if(instagramState)status.published=validatePublishingState(instagramState).published;
       const publishedIds=new Set(status.published.map(item=>item.postId));
       const candidates=state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
-      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{collection:{provider:collector?.provider==='apify'?'apify':'storiesig',configured:collector?.configured===true},deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
+      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,instagramRuntime:instagramRuntime||null,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{collection:{provider:collector?.provider==='apify'?'apify':'storiesig',configured:collector?.configured===true},deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
     }
     const media=action.match(/^media\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})\/(video|poster)$/);
     if(media&&request.method==='GET'){
@@ -72,6 +78,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     }
     if(!['POST','PATCH','DELETE'].includes(request.method))throw new AdminError('NOT_FOUND',404);
     requireMutation(request,env);
+    if(action==='instagram'&&request.method==='POST'){await readJson(request);return json(await enqueueInstagram({env}),202);}
     if(action==='logout'&&request.method==='POST')return json({ok:true},200,{'Set-Cookie':sessionCookie('',true)});
     if(action==='sources'&&request.method==='POST'){
       const input=await readJson(request);const username=normalizeUsername(input.username);const name=cleanText(input.name||`@${username}`,80);
@@ -110,5 +117,5 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       });if(operation==='approve'&&background)background(makeCaptionForItem(id,{store,env,fetchImpl}).catch(()=>{}));return json({ok:true},operation==='approve'?202:200);
     }
     throw new AdminError('NOT_FOUND',404);
-  }catch(error){const safe=error instanceof AdminError?error:new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);return json({error:safe.code},safe.status);}
+  }catch(error){const safe=error instanceof AdminError?error:error instanceof PublishingError?new AdminError(error.code,503):new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);return json({error:safe.code},safe.status);}
 }

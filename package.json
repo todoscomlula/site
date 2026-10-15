@@ -15,18 +15,21 @@
     "test:unit": "node --test tests/*.test.mjs scripts/test-*.mjs",
     "scrape:instagram": ".venv/bin/python scripts/scrape-instagram.py --max-posts 5 --max-reels 5",
     "scrape:storiesig": "node scripts/scrape-storiesig.mjs",
-    "scrape:storiesig:update": "node scripts/scrape-storiesig.mjs --max-posts 0 --max-reels 0 --additional-reels 1 --scan-reels 6 --max-age-days 14"
+    "scrape:storiesig:update": "node scripts/scrape-storiesig.mjs --max-posts 0 --max-reels 0 --additional-reels 1 --scan-reels 6 --max-age-days 14",
+    "postbuild": "node scripts/build-instagram-queue.mjs"
   },
   "dependencies": {
     "@astrojs/vercel": "11.0.14",
     "@vercel/analytics": "2.0.1",
     "@vercel/blob": "2.8.2",
     "@vercel/functions": "3.10.1",
+    "@vercel/queue": "0.8.0",
     "astro": "7.3.8",
     "sharp": "0.35.5"
   },
   "devDependencies": {
-    "@playwright/test": "1.64.0"
+    "@playwright/test": "1.64.0",
+    "esbuild": "0.28.2"
   },
   "overrides": {
     "path-to-regexp": "^6.3.0"
