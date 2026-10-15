@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile, writeFile, mkdir, stat, access } from 'node:fs/promises';
+import { readFile, writeFile, appendFile, mkdir, stat, access } from 'node:fs/promises';
 import { createHash, randomUUID } from 'node:crypto';
 import { spawn } from 'node:child_process';
 import { resolve, basename, extname } from 'node:path';
@@ -14,6 +14,19 @@ const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readJson=async path=>JSON.parse(await readFile(path,'utf8'));
 const saveJson=async(path,value)=>{await mkdir(resolve(path,'..'),{recursive:true});await writeFile(path,JSON.stringify(value,null,2)+'\n');};
 const safeCodes=new Set(['rate_limited','access_restricted','challenge_required']);
+export function dueSources(state,now=Date.now()){
+  const busy=!!state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>now;
+  return state.sources.filter(source=>source.enabled&&(source.requestedAt||(source.autoCollect&&source.nextCollectAt&&Date.parse(source.nextCollectAt)<=now)||(!busy&&source.lastStatus==='collecting')))
+    .sort((left,right)=>Date.parse(left.requestedAt||left.nextCollectAt||state.worker.lastRunAt)-Date.parse(right.requestedAt||right.nextCollectAt||state.worker.lastRunAt));
+}
+export function workerPlan(state,now=Date.now()){
+  validateAdminState(state);
+  const busy=!!state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>now;
+  const collect=!busy&&dueSources(state,now).length>0;
+  const publish=!busy&&state.candidates.some(item=>['approved','generating','ready','publishing'].includes(item.status));
+  const work=!busy&&(collect||state.candidates.some(item=>['approved','generating','ready','publishing','awaiting_instagram'].includes(item.status)||(['rejected','published'].includes(item.status)&&!item.mediaRemoved)));
+  return {work,collect,publish};
+}
 function run(binary,args,{allowFailure=false,env=process.env,timeout=20*60_000}={}){
   return new Promise((resolveRun,reject)=>{const child=spawn(binary,args,{env,stdio:['ignore','pipe','pipe']});let stdout='';let bytes=0;const timer=setTimeout(()=>{child.kill('SIGTERM');reject(new AdminError('PROCESS_TIMEOUT',503));},timeout);child.stdout.on('data',part=>{bytes+=part.length;if(bytes<8*1024*1024)stdout+=part;});child.stderr.on('data',()=>{});child.on('error',()=>{clearTimeout(timer);reject(new AdminError('PROCESS_START_FAILED',503));});child.on('close',code=>{clearTimeout(timer);if(code&&!allowFailure)reject(new AdminError('PROCESS_FAILED',503));else resolveRun({code,stdout});});});
 }
@@ -52,7 +65,7 @@ async function uploadCandidate(record,source,store){
   }
   return {id:record.id,source:source.username,sourceName:source.name,sourceUrl:`https://www.instagram.com/${source.username}/reels/`,permalink:record.permalink||null,originalTitle:cleanText(record.title,120),originalCaption:cleanText(record.excerpt,4000),notes:'',observedAt:record.observedAt,contentGroupId:record.contentGroupId||record.id,media:assets,mediaRemoved:false,mentionProfiles:[],status:'pending',approvedAt:null,caption:null,lastError:null,sitePublishedAt:null,publishedAt:null};
 }
-async function collectSource(source,{store,env}){
+async function collectSource(source,{store,env,timeout=8*60_000}){
   await store.mutate(state=>{const item=state.sources.find(item=>item.username===source.username);if(!item||!item.enabled)throw new AdminError('SOURCE_DISABLED',409);item.lastStatus='collecting';item.requestedAt=null;item.lastError=null;});
   const baseRecords=await publicJson('src/data/storiesig-posts.json',env);const snapshot=await store.load();
   const previous=[...baseRecords];const known=new Set(previous.map(item=>item.id));
@@ -60,9 +73,11 @@ async function collectSource(source,{store,env}){
   await saveJson(resolve(root,'src/data/storiesig-posts.json'),previous);
   await saveJson(resolve(root,'src/data/sources.json'),snapshot.sources.map(item=>({username:item.username,name:item.name,category:'Comunidade',initials:item.username.slice(0,2).toUpperCase(),color:'green'})));
   const fingerprints=await store.readJson('queue/video-fingerprints.json');if(!fingerprints)throw new AdminError('FINGERPRINTS_NOT_INITIALIZED',503);await saveJson(resolve(root,'.cache/storiesig/video-fingerprints.json'),fingerprints);
-  const result=await run('node',['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'],{allowFailure:true,env,timeout:8*60_000});
+  const result=await run('node',['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'],{allowFailure:true,env,timeout});
   const records=await readJson(resolve(root,'src/data/storiesig-posts.json'));const added=records.filter(item=>item.kind==='video'&&!known.has(item.id));
   const report=await readJson(resolve(root,'data/storiesig-import-report.json'));const entry=report.sources?.find(item=>item.source===source.username);const status=entry?.status||report.status||'public_flow_unavailable';
+  // Keep diagnostics private, with fixed fields and no provider URLs or headers.
+  await store.putJson(`queue/reports/${source.username}.json`,{at:new Date().toISOString(),status,visibleReels:entry?.tabs?.reels?.visibleDownloads||0,duplicates:(entry?.duplicate||0)+(entry?.duplicate_content||0),tooOld:entry?.older_than_window||0});
   let imported=0;
   for(const record of added.slice(0,2)){
     const state=await store.load();if(state.candidates.some(item=>item.id===record.id))continue;
@@ -113,14 +128,14 @@ async function publishApproved(items,{store,env}){
   return prepared.length;
 }
 export async function runAdminWorker({env=process.env,store=createBlobStore(env),log=event=>console.log(JSON.stringify(event))}={}){
-  const now=Date.now();const initial=validateAdminState(await store.load());const due=initial.sources.filter(source=>source.enabled&&(source.requestedAt||(source.autoCollect&&source.nextCollectAt&&Date.parse(source.nextCollectAt)<=now)));
+  const now=Date.now();const initial=validateAdminState(await store.load());const due=dueSources(initial,now);
   const approved=initial.candidates.filter(item=>['approved','generating','ready','publishing','awaiting_instagram'].includes(item.status));const cleanup=initial.candidates.some(item=>['rejected','published'].includes(item.status)&&!item.mediaRemoved);
   if(!due.length&&!approved.length&&!cleanup){log({mode:'admin-idle'});return;}
   if(!due.length&&!cleanup&&approved.length&&approved.every(item=>['approved','generating'].includes(item.status))){
     const response=await fetch(new URL('/api/admin/worker/status/',publicSiteUrl(env.PUBLIC_SITE_URL)),{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:'{}'});
     if(response.ok&&!(await response.json()).deepseek){log({mode:'admin-awaiting-deepseek'});return;}
   }
-  const owner=randomUUID();await store.mutate(state=>{if(state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>Date.now())throw new AdminError('WORKER_BUSY',409);state.worker.lease={owner,expiresAt:new Date(Date.now()+40*60_000).toISOString()};state.worker.lastRunAt=new Date().toISOString();state.worker.lastError=null;});
+  const owner=randomUUID();await store.mutate(state=>{if(state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>Date.now())throw new AdminError('WORKER_BUSY',409);for(const source of state.sources)if(source.enabled&&source.lastStatus==='collecting'){source.lastStatus='queued';source.requestedAt ||= state.worker.lastRunAt||new Date().toISOString();}state.worker.lease={owner,expiresAt:new Date(Date.now()+40*60_000).toISOString()};state.worker.lastRunAt=new Date().toISOString();state.worker.lastError=null;});
   try{
     await reconcile(store,env);
     // Recover a stopped generation before making a fresh, bounded request.
@@ -131,11 +146,19 @@ export async function runAdminWorker({env=process.env,store=createBlobStore(env)
       catch{log({mode:'caption-wait',code:'CAPTION_SERVICE_UNAVAILABLE'});}
     }
     const ready=(await store.load()).candidates.filter(item=>['ready','publishing'].includes(item.status)).slice(0,5);if(ready.length){const count=await publishApproved(ready,{store,env});log({mode:'site-published',count});}
-    for(const source of due.slice(0,4)){const state=await store.load();if(pendingBytes(state)>=MAX_PENDING_BYTES)break;try{const restricted=await collectSource(source,{store,env});if(restricted)break;}catch(error){const code=error instanceof AdminError?error.code:'COLLECTION_UNAVAILABLE';await store.mutate(current=>{const item=current.sources.find(value=>value.username===source.username);if(item){item.lastStatus='error';item.lastError=code;item.requestedAt=null;item.nextCollectAt=item.autoCollect?new Date(Date.now()+24*60*60_000).toISOString():null;}});log({mode:'collection-error',code});}}
+    const collectionDeadline=Date.now()+12*60_000;
+    for(const source of due.slice(0,8)){
+      const state=await store.load();const currentSource=state.sources.find(item=>item.username===source.username);
+      const remaining=collectionDeadline-Date.now();if(pendingBytes(state)>=MAX_PENDING_BYTES||remaining<30000)break;
+      if(!currentSource||!dueSources(state).some(item=>item.username===source.username))continue;
+      try{const restricted=await collectSource(currentSource,{store,env,timeout:Math.min(8*60_000,remaining)});const current=(await store.load()).sources.find(item=>item.username===source.username);log({mode:'collection-finished',source:source.username,status:current?.lastStatus,code:current?.lastError});if(restricted)break;}
+      catch(error){const code=error instanceof AdminError?error.code:'COLLECTION_UNAVAILABLE';await store.mutate(current=>{const item=current.sources.find(value=>value.username===source.username);if(item){item.lastStatus='error';item.lastError=code;item.requestedAt=null;item.lastCollectedAt=new Date().toISOString();item.nextCollectAt=item.autoCollect?new Date(Date.now()+24*60*60_000).toISOString():null;}});log({mode:'collection-error',source:source.username,code});}
+    }
   }catch(error){const code=error instanceof AdminError?error.code:'ADMIN_WORKER_FAILED';await store.mutate(state=>{state.worker.lastError=code;});throw error instanceof AdminError?error:new AdminError('ADMIN_WORKER_FAILED',503);}
   finally{await store.mutate(state=>{if(state.worker.lease?.owner===owner)state.worker.lease=null;});}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
-  const check=process.argv.slice(2).join(' ')==='--check';
-  (check?workerCheck().then(report=>console.log(JSON.stringify({mode:'admin-check',...report}))):runAdminWorker()).catch(error=>{console.error(JSON.stringify({error:error instanceof AdminError?error.code:'ADMIN_WORKER_FAILED'}));process.exitCode=1;});
+  const mode=process.argv.slice(2).join(' ');
+  const task=mode==='--plan'?createBlobStore().load().then(async state=>{const plan=workerPlan(state);if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,Object.entries(plan).map(([key,value])=>`${key}=${value}`).join('\n')+'\n');console.log(JSON.stringify({mode:'admin-plan',...plan}));}):mode==='--check'?workerCheck().then(report=>console.log(JSON.stringify({mode:'admin-check',...report}))):mode===''?runAdminWorker():Promise.reject(new AdminError('INVALID_WORKER_MODE'));
+  task.catch(error=>{console.error(JSON.stringify({error:error instanceof AdminError?error.code:'ADMIN_WORKER_FAILED'}));process.exitCode=1;});
 }

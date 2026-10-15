@@ -1,7 +1,7 @@
 name: Processar revisão da administração
 on:
   schedule:
-    - cron: '7,22,37,52 * * * *'
+    - cron: '2-57/5 * * * *'
   workflow_dispatch:
     inputs:
       check_only:
@@ -41,8 +41,15 @@ jobs:
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
         run: node scripts/admin/worker.mjs --check
-      - name: Preparar ferramentas para os vídeos aprovados
+      - name: Identificar trabalho antes de preparar ferramentas
+        id: plan
         if: '!inputs.check_only'
+        env:
+          ADMIN_BLOB_READ_WRITE_TOKEN: ${{ secrets.ADMIN_BLOB_READ_WRITE_TOKEN }}
+        run: node scripts/admin/worker.mjs --plan
+      - name: Preparar verificação das publicações aprovadas
+        # Uma aprovação pode chegar depois da leitura inicial da fila.
+        if: steps.plan.outputs.work == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -52,10 +59,21 @@ jobs:
           curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt -o "$task_tool_dir/gitleaks_8.30.1_checksums.txt"
           (cd "$task_tool_dir" && sha256sum --check --ignore-missing gitleaks_8.30.1_checksums.txt)
           tar -xzf "$task_tool_dir/gitleaks_8.30.1_linux_x64.tar.gz" -C .git/tools gitleaks
+      - name: Preparar coleta com o navegador disponível
+        if: steps.plan.outputs.collect == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
           command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
-          npx playwright install --with-deps chromium
+          task_chrome="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          if [ -n "$task_chrome" ]; then
+            printf 'CHROME_EXECUTABLE_PATH=%s\n' "$task_chrome" >> "$GITHUB_ENV"
+            echo 'Usando o Chrome já disponível no executor.'
+          else
+            npx playwright install --with-deps chromium --only-shell
+          fi
       - name: Coletar para revisão e publicar somente os aprovados
-        if: '!inputs.check_only'
+        if: steps.plan.outputs.work == 'true'
         env:
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -19,8 +19,8 @@ incluída neste repositório público.
    completo. Também é possível selecionar vários vídeos para aprovação.
 5. O processamento gera a legenda, publica somente os arquivos aprovados no
    site e encaminha a publicação ao Instagram. O andamento aparece em
-   **Em publicação**. O agendamento consulta a fila a cada quinze minutos;
-   coleta, deploy, processamento da Meta e atrasos do GitHub podem levar mais tempo.
+   **Em publicação**. O agendamento consulta a fila a cada cinco minutos;
+   coleta, deploy, processamento da Meta e atrasos do GitHub podem levar mais tempo. O painel distingue a espera na fila da coleta em andamento e atualiza esse estado a cada dez segundos.
 
 As legendas mantêm a atribuição e incluem de três a cinco hashtags relacionadas
 ao assunto. Cinco outros perfis ativos da lista são marcados em cada nova
@@ -60,6 +60,8 @@ com suporte a requisições parciais. A fila limita a mídia pendente a 512 MiB 
 cada vídeo a 90 MiB. Arquivos rejeitados ou já confirmados no Instagram são
 removidos da fila privada nos ciclos seguintes. Os vídeos públicos aprovados
 continuam na CDN atual, com integridade SHA-256 e origem em releases públicas.
+
+O coletor processa até oito perfis por ciclo, priorizando os pedidos mais antigos, com orçamento de doze minutos para a etapa de coleta. A execução verifica se há trabalho antes de preparar ferramentas e reutiliza o Chrome do executor quando disponível.
 
 ## GitHub Actions
 

@@ -85,7 +85,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     }
     if(action==='collect'&&request.method==='POST'){
       const input=await readJson(request);const username=input.username?normalizeUsername(input.username):null;
-      await store.mutate(state=>{const selected=state.sources.filter(source=>source.enabled&&(!username||source.username===username));if(!selected.length)throw new AdminError('NO_ACTIVE_SOURCE',422);if(pendingBytes(state)>=MAX_PENDING_BYTES||state.candidates.filter(item=>!['published','rejected'].includes(item.status)).length>=100)throw new AdminError('REVIEW_QUEUE_FULL',422);for(const source of selected){if(source.lastStatus==='collecting')continue;source.requestedAt=new Date().toISOString();source.lastStatus='queued';source.lastError=null;}addActivity(state,'collect',`Coleta solicitada para ${selected.length} perfil(is).`);});return json({ok:true},202);
+      await store.mutate(state=>{const selected=state.sources.filter(source=>source.enabled&&(!username||source.username===username));if(!selected.length)throw new AdminError('NO_ACTIVE_SOURCE',422);if(pendingBytes(state)>=MAX_PENDING_BYTES||state.candidates.filter(item=>!['published','rejected'].includes(item.status)).length>=100)throw new AdminError('REVIEW_QUEUE_FULL',422);for(const source of selected){if(source.lastStatus==='collecting')continue;source.requestedAt ||= new Date().toISOString();source.lastStatus='queued';source.lastError=null;}addActivity(state,'collect',`Coleta solicitada para ${selected.length} perfil(is).`);});return json({ok:true},202);
     }
     const candidateAction=action.match(/^candidates\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})(?:\/(approve|reject|preview))?$/);
     if(candidateAction){
