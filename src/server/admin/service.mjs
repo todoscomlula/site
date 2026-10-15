@@ -1,7 +1,7 @@
 import { AdminError, authConfiguration, checkCredentials, constantEqual, createSession, requireSession, requireMutation, requireSameOrigin, readJson, readLoginInput, sessionCookie, digest } from './auth.mjs';
 import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUsername, pendingBytes, selectMentions, validId } from './state.mjs';
 import { createBlobStore } from './blob.mjs';
-import { generateCaption, GUIDANCE_REVISION } from './captions.mjs';
+import { generateCaption, checkCaptionProvider, GUIDANCE_REVISION } from './captions.mjs';
 import { randomUUID } from 'node:crypto';
 
 const headers = {'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store, max-age=0','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'};
@@ -37,9 +37,10 @@ async function makeCaptionForItem(id,{store,env,fetchImpl}){
 export async function handleAdminRequest(request,{env=process.env,store=createBlobStore(env),fetchImpl=fetch,clientAddress='unknown',background=null}={}){
   const action=new URL(request.url).pathname.replace(/^\/api\/admin\/?/,'').replace(/\/$/,'');
   try{
-    if(['worker/caption','worker/status'].includes(action)&&request.method==='POST'){
+    if(['worker/caption','worker/status','worker/deepseek'].includes(action)&&request.method==='POST'){
       if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new AdminError('WORKER_NOT_CONFIGURED',503);
       if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
+      if(action==='worker/deepseek')return json(await checkCaptionProvider({env,fetchImpl}));
       if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});
       const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
       await makeCaptionForItem(input.id,{store,env,fetchImpl});return json({ok:true});
