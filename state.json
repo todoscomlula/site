@@ -288,12 +288,12 @@
   "pending": {
     "contentHash": "36e6310921810b0f4f2f3410edfd4a1a10d9367b4078cab2b369585919a59ca2",
     "postId": "storiesig-jeanwyllys_real-884fc474a6ee",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18132270439655634",
+    "stage": "processing",
     "createdAt": "2026-10-15T03:58:12.572Z"
   },
   "lease": {
     "owner": "d3d8bfc4-2aec-4077-8592-277b8a24aaf2",
-    "expiresAt": "2026-10-15T04:18:12.573Z"
+    "expiresAt": "2026-10-15T04:18:14.718Z"
   }
 }
