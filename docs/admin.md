@@ -117,3 +117,5 @@ Os testes de administração cobrem sessão, limites de login, isolamento da mí
 CSRF, aprovação explícita, cinco marcações, respostas da IA, proteção de chaves
 e atualizações concorrentes do armazenamento. O build mantém as páginas públicas
 pré-renderizadas e cria funções apenas para a administração.
+
+Se o StoriesIG informar que está indisponível, a execução interrompe o lote sem esperar a busca de cada perfil. O painel informa a falha do provedor. Os diagnósticos de falha ficam apenas no Blob privado, com uma captura atual por perfil, sem credenciais ou URLs de API.

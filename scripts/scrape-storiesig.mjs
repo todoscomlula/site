@@ -186,6 +186,7 @@ page.on('response', response => {
 });
 async function checkAccess() {
   const body = await page.locator('body').innerText();
+  if (body.trim().length < 500 && /this service is (?:permanently |temporarily )?unavailable|serviço (?:está )?(?:permanentemente |temporariamente )?indisponível/i.test(body)) blocked = 'service_unavailable';
   if (/verify you are human|checking your browser|confirm you are human|confirme que você é humano|captcha required|challenge required/i.test(body)) blocked = 'challenge_required';
   if (blocked) throw new Error(blocked);
 }

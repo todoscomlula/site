@@ -13,7 +13,7 @@ const root=process.cwd();const cache=resolve(root,'.cache/admin-worker');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const readJson=async path=>JSON.parse(await readFile(path,'utf8'));
 const saveJson=async(path,value)=>{await mkdir(resolve(path,'..'),{recursive:true});await writeFile(path,JSON.stringify(value,null,2)+'\n');};
-const safeCodes=new Set(['rate_limited','access_restricted','challenge_required']);
+const safeCodes=new Set(['rate_limited','access_restricted','challenge_required','service_unavailable']);
 export function dueSources(state,now=Date.now()){
   const busy=!!state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>now;
   return state.sources.filter(source=>source.enabled&&(source.requestedAt||(source.autoCollect&&source.nextCollectAt&&Date.parse(source.nextCollectAt)<=now)||(!busy&&source.lastStatus==='collecting')))
@@ -89,7 +89,7 @@ async function collectSource(source,{store,env,timeout=8*60_000}){
     await store.mutate(current=>{if(current.candidates.some(item=>item.id===candidate.id))return;if(current.candidates.length>=MAX_CANDIDATES){const index=current.candidates.findIndex(item=>['published','rejected'].includes(item.status)&&item.mediaRemoved);if(index>=0)current.candidates.splice(index,1);else throw new AdminError('REVIEW_QUEUE_FULL',422);}current.candidates.unshift(candidate);addActivity(current,'collected',`Vídeo de @${source.username} disponível para revisão.`);});imported++;
   }
   await store.putJson('queue/video-fingerprints.json',await readJson(resolve(root,'.cache/storiesig/video-fingerprints.json')));
-  await store.mutate(state=>{const item=state.sources.find(item=>item.username===source.username);if(!item)return;item.lastCollectedAt=new Date().toISOString();item.lastStatus=result.code&&!imported?'error':'success';item.lastError=item.lastStatus==='error'?(safeCodes.has(status)?'SOURCE_ACCESS_RESTRICTED':'COLLECTION_UNAVAILABLE'):null;item.nextCollectAt=item.enabled&&item.autoCollect?new Date(Date.now()+(item.lastError?24:6)*60*60_000).toISOString():null;addActivity(state,'collect',`Coleta de @${source.username}: ${imported} vídeo(s) para revisar.`);});
+  await store.mutate(state=>{const item=state.sources.find(item=>item.username===source.username);if(!item)return;item.lastCollectedAt=new Date().toISOString();item.lastStatus=result.code&&!imported?'error':'success';item.lastError=item.lastStatus==='error'?(status==='service_unavailable'?'COLLECTION_PROVIDER_UNAVAILABLE':safeCodes.has(status)?'SOURCE_ACCESS_RESTRICTED':'COLLECTION_UNAVAILABLE'):null;if(status==='service_unavailable')state.worker.lastError='COLLECTION_PROVIDER_UNAVAILABLE';item.nextCollectAt=item.enabled&&item.autoCollect?new Date(Date.now()+(item.lastError?24:6)*60*60_000).toISOString():null;addActivity(state,'collect',item.lastError?`Coleta de @${source.username} indisponível neste momento.`:`Coleta de @${source.username}: ${imported} vídeo(s) para revisar.`);});
   return safeCodes.has(status);
 }
 async function releaseAsset(item,kind,{store,env,tag}){
