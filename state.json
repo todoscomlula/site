@@ -310,5 +310,8 @@
     "stage": "publishing",
     "createdAt": "2026-10-15T04:45:07.298Z"
   },
-  "lease": null
+  "lease": {
+    "owner": "eb682bbb-f5e4-4e64-b658-788045f1fb0e",
+    "expiresAt": "2026-10-15T08:29:15.345Z"
+  }
 }
