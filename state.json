@@ -307,11 +307,11 @@
     "contentHash": "7adf5a7241223536dab1d8f081a25a7065c3668466d8aebeb418e0b0c657df5c",
     "postId": "storiesig-lulaoficial-31a7f5b5f87a",
     "containerId": "18132278467655634",
-    "stage": "publishing",
+    "stage": "processing",
     "createdAt": "2026-10-15T04:45:07.298Z"
   },
   "lease": {
     "owner": "0c1d5233-e212-4327-bd29-92e200680d18",
-    "expiresAt": "2026-10-15T15:34:31.502Z"
+    "expiresAt": "2026-10-15T15:34:33.379Z"
   }
 }
