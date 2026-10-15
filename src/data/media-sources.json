@@ -788,5 +788,35 @@
     "url": "https://github.com/todoscomlula/site/releases/download/media-quality-2026-10-14/ca768447b131.mp4",
     "sha256": "ca768447b131e619a93a9b68eb84b7801ff1d5749236c97cf6b848811cc09b57",
     "bytes": 11703631
+  },
+  "/media/instagram/fernandohaddadoficial/3d8df1c0b299.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/3d8df1c0b299.mp4",
+    "sha256": "3d8df1c0b2995d9ce53753c0e10c0a653dab3806a7098868b3b78652e03c37b6",
+    "bytes": 15604896
+  },
+  "/media/instagram/fernandohaddadoficial/ede72055afb8.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/ede72055afb8.jpg",
+    "sha256": "ede72055afb88ce6e80d0484cd6c7e16560b4c7d6693806e0da7be2011458d02",
+    "bytes": 35618
+  },
+  "/media/instagram/jeanwyllys_real/39571fbe88fe.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/39571fbe88fe.mp4",
+    "sha256": "39571fbe88fe7467a89e67bf7196246b99a8a688645c7e5ae6398ecc34d7587b",
+    "bytes": 4737143
+  },
+  "/media/instagram/jeanwyllys_real/2c4649cfd377.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/2c4649cfd377.jpg",
+    "sha256": "2c4649cfd37785949a220f033ee44bc486927e09c09ee7b33717e0bfe4d6c043",
+    "bytes": 9516
+  },
+  "/media/instagram/jeanwyllys_real/884fc474a6ee.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/884fc474a6ee.mp4",
+    "sha256": "884fc474a6ee5ec69cdeea2e0445ca9b028e84694d4627332b5d2c47f415f45a",
+    "bytes": 20362910
+  },
+  "/media/instagram/jeanwyllys_real/fd0fe2eaf286.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/fd0fe2eaf286.jpg",
+    "sha256": "fd0fe2eaf2869ad22573355ad1ed8a6daf83011fbae9ef603e152043c347cc65",
+    "bytes": 83464
   }
 }
