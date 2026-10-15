@@ -8,12 +8,13 @@ export const API_VERSION = 'v26.0';
 export const LEASE_MS = 20 * 60 * 1000;
 
 export class PublishingError extends Error {
-  constructor(code, status = null, providerCode = null) {
+  constructor(code, status = null, providerCode = null, providerSubcode = null) {
     super(code);
     this.name = 'PublishingError';
     this.code = code;
     this.status = Number.isInteger(status) ? status : null;
     this.providerCode = Number.isInteger(providerCode) ? providerCode : null;
+    this.providerSubcode = Number.isInteger(providerSubcode) ? providerSubcode : null;
   }
 }
 
@@ -316,7 +317,17 @@ export async function runPublisher({ posts, siteUrl, publish = false, graph, sto
     await graph.verifyAccount();
     state.pending.stage = 'publishing';
     await checkpoint();
-    const mediaId = await graph.publishContainer(state.pending.containerId);
+    let mediaId;
+    try { mediaId = await graph.publishContainer(state.pending.containerId); }
+    catch (error) {
+      // An explicit quota rejection did not publish the container. Retain it
+      // for a later cycle; interrupted requests still remain uncertain.
+      if (!(error instanceof PublishingError) || error.code !== 'META_PUBLISHING_LIMIT') throw error;
+      state.pending.stage = 'processing';
+      await checkpoint();
+      log({ mode: 'quota-wait', account: TARGET_ACCOUNT, reason: 'meta-publishing-limit' });
+      return { published: false, quotaWait: true };
+    }
     if (!validMediaId(mediaId) || mediaId === null) throw new PublishingError('INVALID_PUBLISHED_MEDIA_ID');
     await finish(mediaId);
     log({ mode: 'published', account: TARGET_ACCOUNT, postId: candidate.post.id });

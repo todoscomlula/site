@@ -190,6 +190,27 @@ test('an interrupted publishing request is never sent again blindly', async () =
   assert.equal(data.calls.filter((event) => event === 'publish').length, 1);
 });
 
+test('an explicit publishing-limit rejection preserves a reusable container and resumes it later', async () => {
+  const data = fixture({ quota:{used:50,maximum:100},publishError:new PublishingError('META_PUBLISHING_LIMIT',400,9,2207042) });
+  const result=await runPublisher(data.options);
+  assert.equal(result.quotaWait,true);assert.equal(data.state().pending.stage,'processing');assert.equal(data.state().pending.containerId,'111111');assert.equal(data.state().published.length,0);assert.equal(data.state().lease,null);
+  const resumed=fixture({state:data.state()});assert.equal((await runPublisher(resumed.options)).published,true);assert.equal(resumed.calls.includes('create'),false);assert.equal(resumed.state().published.length,1);
+});
+
+test('a failed quota checkpoint cannot turn a rejection into a confirmed publication',async()=>{
+  let quotaRejected=false;
+  const data=fixture({publishError:new PublishingError('META_PUBLISHING_LIMIT',400,9,2207042),failSave:state=>quotaRejected&&state.pending?.stage==='processing'&&state.lease!==null});
+  const original=data.graph.publishContainer;data.graph.publishContainer=async()=>{try{return await original();}finally{quotaRejected=true;}};
+  await assert.rejects(runPublisher(data.options),{code:'TEST_DURABLE_WRITE_FAILED'});assert.equal(data.state().published.length,0);assert.equal(data.calls.filter(call=>call==='publish').length,1);
+});
+
+test('Meta exposes only numeric error details and classifies only the specific publishing-cap rejection',async()=>{
+  for(const [code,subcode,expected]of [[9,2207042,'META_PUBLISHING_LIMIT'],[9,123,'META_REQUEST_FAILED'],[4,2207051,'META_REQUEST_FAILED']]){
+    const graph=new MetaClient({accessToken:'TEST_ONLY',userId:'123',fetchImpl:async()=>new Response(JSON.stringify({error:{code,error_subcode:subcode,message:'TEST_ONLY'}}),{status:400})});
+    await assert.rejects(graph.publishContainer('111111'),error=>{assert.equal(error.code,expected);assert.equal(error.providerCode,code);assert.equal(error.providerSubcode,subcode);assert.equal(String(error).includes('TEST_ONLY'),false);return true;});
+  }
+});
+
 test('PUBLISHED status resolves an uncertain result without publishing the next item', async () => {
   const state = emptyState(); state.pending = { contentHash: contentKey(post()), postId: 'sample-card', containerId: '111111', stage: 'publishing', createdAt: new Date(instant).toISOString() };
   const data = fixture({ state, posts: [post(), post({ id: 'second-card' })], statuses: ['PUBLISHED'] });
@@ -361,6 +382,14 @@ test('connection checking needs only the token and makes GET requests without pu
 test('connection checking cannot be combined with a publishing flag', async () => {
   await assert.rejects(main(['--check-connection', '--publish'], {}), { code: 'USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH' });
   await assert.rejects(main(['--check-connection', '--dry-run'], {}), { code: 'USE_CHECK_CONNECTION_DRY_RUN_OR_PUBLISH' });
+});
+
+test('connection diagnostics inspect the pending Meta container using read-only requests',async(t)=>{
+  const state=emptyState();state.pending={contentHash:contentKey(post()),postId:'sample-card',containerId:'111111',stage:'publishing',createdAt:new Date(instant).toISOString()};
+  const requests=[];const logs=[];t.mock.method(console,'log',value=>logs.push(value));
+  t.mock.method(globalThis,'fetch',async(url,options)=>{requests.push({url:new URL(url),options});if(new URL(url).hostname==='api.github.com')return Response.json({encoding:'base64',content:Buffer.from(JSON.stringify(state)).toString('base64'),sha:'revision'});if(new URL(url).pathname.endsWith('/me'))return Response.json({user_id:'123456',username:TARGET_ACCOUNT});if(new URL(url).pathname.endsWith('/content_publishing_limit'))return Response.json({data:[{quota_usage:50,config:{quota_total:100}}]});return Response.json({status_code:'FINISHED'});});
+  const result=await main(['--check-connection'],{INSTAGRAM_ACCESS_TOKEN:'PLACEHOLDER_FOR_OFFLINE_TEST',INSTAGRAM_STATE_BACKEND:'github',GITHUB_TOKEN:'PLACEHOLDER_FOR_OFFLINE_TEST'});
+  assert.deepEqual(result.pending,{postId:'sample-card',stage:'publishing',status:'FINISHED'});assert.equal(requests.length,4);assert.ok(requests.every(({options})=>options.method==='GET'&&!options.body));assert.equal(logs[0].includes('PLACEHOLDER_FOR_OFFLINE_TEST'),false);
 });
 
 test('Meta uses Bearer headers, permanent full video URLs and no token query parameters', async () => {

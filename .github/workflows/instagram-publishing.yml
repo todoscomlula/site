@@ -43,6 +43,8 @@ jobs:
           package-manager-cache: false
       - name: Validar a conexão com a conta autorizada
         env:
+          INSTAGRAM_STATE_BACKEND: github
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}

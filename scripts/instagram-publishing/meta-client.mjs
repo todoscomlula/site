@@ -25,7 +25,10 @@ export class MetaClient {
     let data;
     try { data = await response.json(); } catch { throw new PublishingError('INVALID_META_RESPONSE', response.status); }
     // Provider messages can echo request parameters, including tokens: never expose them.
-    if (!response.ok || data?.error) throw new PublishingError('META_REQUEST_FAILED', response.status, data?.error?.code);
+    if (!response.ok || data?.error) {
+      const publishingLimit=response.status===400&&data?.error?.code===9&&data?.error?.error_subcode===2207042;
+      throw new PublishingError(publishingLimit?'META_PUBLISHING_LIMIT':'META_REQUEST_FAILED', response.status, data?.error?.code, data?.error?.error_subcode);
+    }
     return data;
   }
 

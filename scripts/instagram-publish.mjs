@@ -17,6 +17,15 @@ export async function main(args = process.argv.slice(2), env = process.env) {
       throw new PublishingError('INVALID_PUBLISHING_QUOTA');
     }
     const result = { mode: 'connection-verified', account: identity.username, userId: identity.userId, quota };
+    if (env.INSTAGRAM_STATE_BACKEND === 'github') {
+      const store = new GithubStateStore({ token: env.GITHUB_TOKEN, repository: env.GITHUB_REPOSITORY });
+      const state = await store.load();
+      if (state.pending?.containerId) {
+        const status = await graph.containerStatus(state.pending.containerId);
+        if (!['IN_PROGRESS','FINISHED','PUBLISHED','ERROR','EXPIRED'].includes(status)) throw new PublishingError('UNKNOWN_CONTAINER_STATUS');
+        result.pending = { postId: state.pending.postId, stage: state.pending.stage, status };
+      }
+    }
     console.log(JSON.stringify(result));
     return result;
   }
@@ -61,7 +70,7 @@ export async function main(args = process.argv.slice(2), env = process.env) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     const safe = error instanceof PublishingError ? error : new PublishingError('UNEXPECTED_PUBLISHING_FAILURE');
-    console.error(JSON.stringify({ error: safe.code, status: safe.status, providerCode: safe.providerCode }));
+    console.error(JSON.stringify({ error: safe.code, status: safe.status, providerCode: safe.providerCode, providerSubcode: safe.providerSubcode }));
     process.exitCode = 1;
   });
 }
