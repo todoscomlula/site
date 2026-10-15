@@ -35,7 +35,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <div class="header-inner">
         <a href="/" class="brand" aria-label="Todos com Lula — página inicial"><span class="brand-star">★</span><span class="brand-words">TODOS<span>COM LULA</span></span></a>
         <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
-          <a href="/#assuntos">Assuntos</a><a href="/cards/">Cards</a><a href="/videos/">Vídeos</a><a href="/fontes/">Nas redes</a>
+          <a href="/#assuntos">Assuntos</a><a href="/cards/">Cards</a><a href="/videos/">Vídeos</a><a href="/desmantelando/" aria-current={Astro.url.pathname === '/desmantelando/' ? 'page' : undefined}>Desmantelando</a><a href="/fontes/">Nas redes</a>
         </nav>
         <div class="header-actions">
           <button class="button button-yellow header-share" type="button" data-share-site><Icon name="whatsapp" size={18} /><span>Mandar no WhatsApp</span></button>

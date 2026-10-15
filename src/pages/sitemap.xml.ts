@@ -14,7 +14,7 @@ const escapeXml = (value: string) => value.replace(/[&<>"']/g, (character) => es
 
 export const GET: APIRoute = ({ site }) => {
   const base = site || import.meta.env.PUBLIC_SITE_URL || 'https://todos-com-lula.vercel.app';
-  const routes = ['/', '/cards/', '/videos/', '/fontes/', '/sobre/', '/privacidade/', '/creditos/'];
+  const routes = ['/', '/cards/', '/videos/', '/desmantelando/', '/fontes/', '/sobre/', '/privacidade/', '/creditos/'];
   const paths = [...new Set([...routes, ...posts.map((post) => postUrl(post.id))])];
   const urls = paths.map((path) => `<url><loc>${escapeXml(new URL(path, base).href)}</loc></url>`).join('');
 
