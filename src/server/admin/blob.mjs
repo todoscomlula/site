@@ -13,7 +13,9 @@ export function createBlobStore(env = process.env, sdk = { get, put, head, del }
     if (!result.stream || result.blob.size > maximum) throw new AdminError('INVALID_PRIVATE_RECORD',503);
     const raw = await new Response(result.stream).text();
     if (Buffer.byteLength(raw)>maximum) throw new AdminError('INVALID_PRIVATE_RECORD',503);
-    return { value:JSON.parse(raw), etag:result.blob.etag };
+    // The private GET transport can prefix the stored entity tag with W/.
+    // Blob's conditional-write API expects the original quoted entity tag.
+    return { value:JSON.parse(raw), etag:result.blob.etag.replace(/^W\//,'') };
   };
   const write = (path,value,etag) => sdk.put(path,JSON.stringify(value),{...options,addRandomSuffix:false,allowOverwrite:!!etag,...(etag?{ifMatch:etag}:{}),contentType:'application/json',cacheControlMaxAge:60,abortSignal:AbortSignal.timeout(30000)});
   return {
