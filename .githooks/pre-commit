@@ -2,7 +2,7 @@
 set -eu
 
 project_root=$(git rev-parse --show-toplevel)
-scanner=$(git rev-parse --git-path tools/gitleaks)
+scanner="$(git rev-parse --path-format=absolute --git-common-dir)/tools/gitleaks"
 if [ ! -x "$scanner" ]; then
     scanner=$(command -v gitleaks || true)
 fi

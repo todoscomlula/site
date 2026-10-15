@@ -50,6 +50,7 @@ dist/
 build/
 coverage/
 .cache/
+.worktrees/
 .turbo/
 .vercel/
 .netlify/
