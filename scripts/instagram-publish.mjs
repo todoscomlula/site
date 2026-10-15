@@ -34,6 +34,19 @@ export async function main(args = process.argv.slice(2), env = process.env) {
 
   const remoteState = env.INSTAGRAM_STATE_BACKEND === 'github';
   if (publish && !remoteState) throw new PublishingError('PUBLISH_REQUIRES_DURABLE_GITHUB_STATE');
+  if (publish) {
+    try {
+      const { createBlobStore } = await import('../src/server/admin/blob.mjs');
+      const { selectMentions } = await import('../src/server/admin/state.mjs');
+      const state = await createBlobStore(env).load();
+      feed = feed.map(post => typeof post.publicationCaption === 'string' ? post : {
+        ...post,
+        publicationMentionsRequired: true,
+        mentionProfiles: selectMentions(state.sources, post),
+      });
+    } catch { throw new PublishingError('PUBLICATION_MENTIONS_UNAVAILABLE'); }
+  }
+
   const store = remoteState
     ? new GithubStateStore({ token: env.GITHUB_TOKEN, repository: env.GITHUB_REPOSITORY })
     : new LocalReadOnlyState();

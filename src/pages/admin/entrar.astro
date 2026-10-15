@@ -1,0 +1,12 @@
+---
+import '../../styles/global.css';
+import '../../styles/admin.css';
+import { readSession } from '../../server/admin/auth.mjs';
+export const prerender = false;
+Astro.response.headers.set('Cache-Control','private, no-store');
+Astro.response.headers.set('X-Robots-Tag','noindex, nofollow');
+let loggedIn=false;try{loggedIn=!!readSession(Astro.request);}catch{}
+if(loggedIn)return Astro.redirect('/admin/');
+---
+<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Entrar · Administração · Todos com Lula</title><link rel="icon" href="/favicon.svg"/></head>
+<body class="admin-login-page"><main class="login-wrap"><a href="/" class="brand login-brand"><span class="brand-star">★</span><span class="brand-words">TODOS<span>COM LULA</span></span></a><section class="login-card"><span class="eyebrow">ÁREA DE ADMINISTRAÇÃO</span><h1>A rede começa<br/>por aqui.</h1><p>Entre para escolher os próximos conteúdos<br class="desktop-only"/> e cuidar das nossas publicações.</p><form id="admin-login"><label for="email">E-mail</label><input id="email" name="email" type="email" autocomplete="username" required maxlength="254" placeholder="Seu e-mail de acesso"/><label for="password">Senha</label><div class="password-field"><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="256"/><button type="button" id="show-password" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div><p class="form-error" id="login-error" role="alert" hidden></p><button class="button button-red login-submit" type="submit">Entrar no painel <span aria-hidden="true">→</span></button></form><a class="login-back" href="/">← Voltar para o site</a></section><p class="login-foot">Todos com Lula · Administração</p></main><script>import '../../scripts/admin-login.ts';</script></body></html>

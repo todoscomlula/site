@@ -59,6 +59,12 @@ Os testes de proteção das estatísticas usam `npm run test:unit`.
 
 ## Publicação automática no Instagram
 
+O [painel de administração](https://todos-com-lula.vercel.app/admin/) permite
+gerenciar fontes, revisar novos Reels e aprovar a publicação no site e no
+Instagram com legendas do DeepSeek. Consulte a [operação da administração](docs/admin.md)
+para configurar as variáveis privadas e os Secrets do processamento. Novas
+publicações marcam cinco outros perfis da lista gerenciada no painel.
+
 A fila inclui o acervo elegível e novas entradas, sem republicar o mesmo vídeo.
 O workflow consulta o site a cada 15 minutos e publica um item por execução em
 `@boraaalula2026`, respeitando processamento e quota da Meta. Em 14/10/2026, a

@@ -85,6 +85,8 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Verificar o publicador offline
+        run: npm ci --ignore-scripts
+      - name: Testar a fila e as legendas
         run: node --test scripts/test-instagram-publishing.mjs
       - name: Preparar Gitleaks local para os checkpoints públicos
         shell: bash
@@ -103,5 +105,6 @@ jobs:
           INSTAGRAM_STATE_BACKEND: github
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          ADMIN_BLOB_READ_WRITE_TOKEN: ${{ secrets.ADMIN_BLOB_READ_WRITE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/instagram-publish.mjs ${{ github.event_name == 'workflow_dispatch' && inputs.publish_all && '--publish-all' || '--publish' }}

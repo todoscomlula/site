@@ -22,6 +22,7 @@ export const GET: APIRoute = () => {
     mediaUrl: post.mediaUrl,
     downloadUrl: post.downloadUrl,
     url: postUrl(post.id),
+    ...(post.publicationCaption ? { publicationCaption: post.publicationCaption, publicationHashtags: post.publicationHashtags, mentionProfiles: post.mentionProfiles, reviewApprovedAt: post.reviewApprovedAt } : {}),
   }));
 
   return new Response(JSON.stringify(feed), {

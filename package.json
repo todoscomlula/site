@@ -18,11 +18,16 @@
     "scrape:storiesig:update": "node scripts/scrape-storiesig.mjs --max-posts 0 --max-reels 0 --additional-reels 1 --scan-reels 6 --max-age-days 14"
   },
   "dependencies": {
+    "@astrojs/vercel": "11.0.14",
     "@vercel/analytics": "2.0.1",
+    "@vercel/blob": "2.8.2",
     "astro": "7.3.8",
     "sharp": "0.35.5"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0"
+  },
+  "overrides": {
+    "path-to-regexp": "^6.3.0"
   }
 }

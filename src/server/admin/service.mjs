@@ -1,0 +1,105 @@
+import { AdminError, authConfiguration, checkCredentials, constantEqual, createSession, requireSession, requireMutation, requireSameOrigin, readJson, sessionCookie, digest } from './auth.mjs';
+import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUsername, pendingBytes, selectMentions, validId } from './state.mjs';
+import { createBlobStore } from './blob.mjs';
+import { generateCaption, GUIDANCE_REVISION } from './captions.mjs';
+
+const headers = {'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store, max-age=0','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'};
+const json = (value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{...headers,...extra}});
+let publicCache = { at:0, feed:[], published:[] };
+async function publicStatus(env,fetchImpl){
+  if(Date.now()-publicCache.at<20000)return publicCache;
+  const origin=new URL(env.PUBLIC_SITE_URL||'https://todos-com-lula.vercel.app');
+  if(origin.protocol!=='https:'||origin.username||origin.password||origin.search||origin.pathname!=='/')throw new AdminError('INVALID_SITE_CONFIGURATION',503);
+  const results=await Promise.allSettled([
+    fetchImpl(new URL('/feed.json',origin),{signal:AbortSignal.timeout(8000)}).then(async r=>{if(!r.ok)throw new Error();const text=await r.text();if(text.length>10000000)throw new Error();const v=JSON.parse(text);if(!Array.isArray(v))throw new Error();return v;}),
+    fetchImpl('https://raw.githubusercontent.com/todoscomlula/site/refs/heads/instagram-publishing-state/state.json',{signal:AbortSignal.timeout(8000)}).then(async r=>{if(!r.ok)throw new Error();const text=await r.text();if(text.length>1000000)throw new Error();const v=JSON.parse(text);if(v.account!=='boraaalula2026'||!Array.isArray(v.published))throw new Error();return v.published;}),
+  ]);
+  publicCache={at:Date.now(),feed:results[0].status==='fulfilled'?results[0].value:publicCache.feed,published:results[1].status==='fulfilled'?results[1].value:publicCache.published};
+  return publicCache;
+}
+function requireItem(state,id){const item=state.candidates.find(candidate=>candidate.id===id);if(!item)throw new AdminError('CANDIDATE_NOT_FOUND',404);return item;}
+function editable(item){if(!['pending','approved','error'].includes(item.status))throw new AdminError('CANDIDATE_BUSY',409);}
+function mentionsFor(state,item){try{return item.mentionProfiles?.length===5?item.mentionProfiles:selectMentions(state.sources,item);}catch{return [];}}
+async function makeCaptionForItem(id,{store,env,fetchImpl}){
+  let candidate; let claimed=false;
+  await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='ready'||item.status==='publishing'||item.status==='awaiting_instagram'||item.status==='published'){candidate=structuredClone(item);return;}if(!['approved','error'].includes(item.status)||!item.approvedAt)throw new AdminError('CANDIDATE_NOT_APPROVED',409);item.status='generating';item.lastError=null;candidate=structuredClone(item);claimed=true;});
+  if(!claimed)return candidate.caption;
+  try{
+    const caption=await generateCaption(candidate,{env,fetchImpl});
+    await store.mutate(state=>{const item=requireItem(state,id);if(item.status!=='generating'||item.approvedAt!==candidate.approvedAt)throw new AdminError('CANDIDATE_CHANGED',409);item.caption=caption;item.status='ready';item.lastError=null;addActivity(state,'caption',`Legenda pronta para @${item.source}.`);});
+    return caption;
+  }catch(error){const code=error instanceof AdminError?error.code:'CAPTION_GENERATION_FAILED';await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='generating'){item.status='approved';item.lastError=code;}});throw error instanceof AdminError?error:new AdminError('CAPTION_GENERATION_FAILED',502);}
+}
+export async function handleAdminRequest(request,{env=process.env,store=createBlobStore(env),fetchImpl=fetch,clientAddress='unknown'}={}){
+  const action=new URL(request.url).pathname.replace(/^\/api\/admin\/?/,'').replace(/\/$/,'');
+  try{
+    if(['worker/caption','worker/status'].includes(action)&&request.method==='POST'){
+      if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new AdminError('WORKER_NOT_CONFIGURED',503);
+      if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
+      if(action==='worker/status')return json({deepseek:!!env.DEEPSEEK_API_KEY});
+      const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
+      await makeCaptionForItem(input.id,{store,env,fetchImpl});return json({ok:true});
+    }
+    if(action==='login'&&request.method==='POST'){
+      requireSameOrigin(request);authConfiguration(env);const input=await readJson(request);
+      if(Object.keys(input).sort().join(',')!=='email,password'||typeof input.email!=='string'||typeof input.password!=='string')throw new AdminError('INVALID_CREDENTIALS',401);
+      await store.checkLoginRate(digest(env.ADMIN_SESSION_SECRET+'\0'+clientAddress));
+      if(!checkCredentials(input.email,input.password,env))throw new AdminError('INVALID_CREDENTIALS',401);
+      return json({ok:true},200,{'Set-Cookie':sessionCookie(createSession(env))});
+    }
+    const session=requireSession(request,env);
+    if(action==='session'&&request.method==='GET')return json({email:session.email,csrf:session.csrf,expiresAt:session.expiresAt});
+    if(action==='dashboard'&&request.method==='GET'){
+      const [state,status]=await Promise.all([store.load(),publicStatus(env,fetchImpl)]);
+      const publishedIds=new Set(status.published.map(item=>item.postId));
+      const candidates=state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
+      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{deepseek:!!env.DEEPSEEK_API_KEY,model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
+    }
+    const media=action.match(/^media\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})\/(video|poster)$/);
+    if(media&&request.method==='GET'){
+      const state=await store.load();const item=requireItem(state,media[1]);const asset=item.media[media[2]];const range=request.headers.get('range');
+      if(item.mediaRemoved)throw new AdminError('PRIVATE_MEDIA_UNAVAILABLE',404);
+      if(range&&!/^bytes=\d*-\d*$/.test(range))throw new AdminError('INVALID_RANGE',416);
+      const {result}=await store.preview(asset.path,range);const contentRange=result.headers.get('content-range');
+      const outputHeaders={...headers,'Content-Type':media[2]==='video'?'video/mp4':'image/jpeg','Accept-Ranges':'bytes','Content-Disposition':'inline','Cache-Control':'private, max-age=60'};
+      if(result.headers.get('content-length'))outputHeaders['Content-Length']=result.headers.get('content-length');if(contentRange)outputHeaders['Content-Range']=contentRange;
+      return new Response(result.stream,{status:contentRange?206:200,headers:outputHeaders});
+    }
+    if(!['POST','PATCH','DELETE'].includes(request.method))throw new AdminError('NOT_FOUND',404);
+    requireMutation(request,env);
+    if(action==='logout'&&request.method==='POST')return json({ok:true},200,{'Set-Cookie':sessionCookie('',true)});
+    if(action==='sources'&&request.method==='POST'){
+      const input=await readJson(request);const username=normalizeUsername(input.username);const name=cleanText(input.name||`@${username}`,80);
+      await store.mutate(state=>{if(state.sources.length>=100)throw new AdminError('SOURCE_LIMIT',422);if(state.sources.some(source=>source.username===username))throw new AdminError('SOURCE_EXISTS',409);state.sources.push({username,name,enabled:true,autoCollect:false,requestedAt:new Date().toISOString(),lastCollectedAt:null,nextCollectAt:null,lastStatus:'queued',lastError:null});addActivity(state,'source',`@${username} adicionada à coleta.`);});return json({ok:true},201);
+    }
+    const sourceAction=action.match(/^sources\/([a-z0-9_.]{1,30})$/);
+    if(sourceAction){
+      const username=normalizeUsername(sourceAction[1]);const input=request.method==='PATCH'?await readJson(request):{};
+      await store.mutate(state=>{const source=state.sources.find(value=>value.username===username);if(!source)throw new AdminError('SOURCE_NOT_FOUND',404);if(source.lastStatus==='collecting')throw new AdminError('SOURCE_BUSY',409);
+        if(request.method==='DELETE'){state.sources=state.sources.filter(value=>value!==source);addActivity(state,'source',`@${username} removida das fontes.`);return;}
+        if(request.method!=='PATCH'||Object.keys(input).some(key=>!['enabled','autoCollect','name'].includes(key)))throw new AdminError('INVALID_SOURCE');
+        if('enabled'in input){if(typeof input.enabled!=='boolean')throw new AdminError('INVALID_SOURCE');source.enabled=input.enabled;if(!source.enabled){source.requestedAt=null;source.nextCollectAt=null;source.lastStatus='idle';}}
+        if('autoCollect'in input){if(typeof input.autoCollect!=='boolean')throw new AdminError('INVALID_SOURCE');source.autoCollect=input.autoCollect;source.nextCollectAt=input.autoCollect&&source.enabled?new Date().toISOString():null;}
+        if('name'in input)source.name=cleanText(input.name,80);
+      });return json({ok:true});
+    }
+    if(action==='collect'&&request.method==='POST'){
+      const input=await readJson(request);const username=input.username?normalizeUsername(input.username):null;
+      await store.mutate(state=>{const selected=state.sources.filter(source=>source.enabled&&(!username||source.username===username));if(!selected.length)throw new AdminError('NO_ACTIVE_SOURCE',422);if(pendingBytes(state)>=MAX_PENDING_BYTES||state.candidates.filter(item=>!['published','rejected'].includes(item.status)).length>=100)throw new AdminError('REVIEW_QUEUE_FULL',422);for(const source of selected){if(source.lastStatus==='collecting')continue;source.requestedAt=new Date().toISOString();source.lastStatus='queued';source.lastError=null;}addActivity(state,'collect',`Coleta solicitada para ${selected.length} perfil(is).`);});return json({ok:true},202);
+    }
+    const candidateAction=action.match(/^candidates\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})(?:\/(approve|reject|preview))?$/);
+    if(candidateAction){
+      const [,id,operation]=candidateAction;const input=await readJson(request);
+      if(operation==='preview'){
+        const state=await store.load();const item=requireItem(state,id);editable(item);const candidate={...item,notes:'notes'in input?cleanText(input.notes,2500):item.notes};const caption=await generateCaption(candidate,{env,fetchImpl});
+        await store.mutate(current=>{const record=requireItem(current,id);editable(record);record.notes=candidate.notes;record.caption=caption;record.lastError=null;});return json({ok:true,caption});
+      }
+      await store.mutate(state=>{const item=requireItem(state,id);editable(item);if('notes'in input){const notes=cleanText(input.notes,2500);if(notes!==item.notes)item.caption=null;item.notes=notes;}
+        if(operation==='approve'){item.mentionProfiles=selectMentions(state.sources,item);item.approvedAt=new Date().toISOString();item.status=item.caption?'ready':'approved';item.lastError=null;addActivity(state,'approval',`Vídeo de @${item.source} aprovado para site e Instagram.`);}
+        else if(operation==='reject'){if(item.status!=='pending'&&item.status!=='error')throw new AdminError('CANDIDATE_BUSY',409);item.status='rejected';item.lastError=null;addActivity(state,'rejection',`Vídeo de @${item.source} não selecionado.`);}
+        else if(request.method!=='PATCH')throw new AdminError('NOT_FOUND',404);
+      });return json({ok:true},operation==='approve'?202:200);
+    }
+    throw new AdminError('NOT_FOUND',404);
+  }catch(error){const safe=error instanceof AdminError?error:new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);return json({error:safe.code},safe.status);}
+}

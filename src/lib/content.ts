@@ -42,6 +42,10 @@ export interface Post {
   downloadUrl: string | null;
   paragraphs: string[];
   origin: 'editorial' | 'instagram';
+  publicationCaption?: string;
+  publicationHashtags?: string[];
+  mentionProfiles?: string[];
+  reviewApprovedAt?: string;
 }
 
 export const sourceProfiles = sources;
@@ -73,6 +77,7 @@ export const posts: Post[] = [
     downloadUrl: post.downloadUrl || null,
     paragraphs: post.excerpt ? [post.excerpt] : [],
     origin: 'instagram',
+    ...(typeof post.publicationCaption === 'string' ? { publicationCaption: post.publicationCaption, publicationHashtags: post.publicationHashtags, mentionProfiles: post.mentionProfiles, reviewApprovedAt: post.reviewApprovedAt } : {}),
   })),
   ...(editorial as Array<Record<string, any>>).map((post): Post => ({
     id: post.id,

@@ -158,11 +158,19 @@ export function publicationHashtags(post) {
 export function makeCaption(post, site) {
   const source = externalSource(post.sourceUrl);
   if (!source) throw new PublishingError('MISSING_SOURCE_ATTRIBUTION');
-  const suffix = `Siga @${TARGET_ACCOUNT} para acompanhar os próximos conteúdos.\n\nFonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.\n\n${publicationHashtags(post).join(' ')}`;
+  const reviewed = typeof post.publicationCaption === 'string';
+  const requiresMentions = reviewed || post.publicationMentionsRequired === true;
+  const mentions = post.mentionProfiles;
+  if((reviewed && !validDate(post.reviewApprovedAt)) || (requiresMentions && (!Array.isArray(mentions) || mentions.length!==5 || new Set(mentions).size!==5 || !mentions.every(value=>typeof value==='string'&&/^(?!\.+$)[a-z0-9_.]{1,30}$/.test(value)&&value!==TARGET_ACCOUNT)))) throw new PublishingError('REVIEWED_POST_REQUIRES_FIVE_MENTIONS');
+  const generatedTags = post.publicationHashtags;
+  if(reviewed && (!Array.isArray(generatedTags)||generatedTags.length<3||generatedTags.length>5||!generatedTags.every(value=>typeof value==='string'&&/^[\p{L}\p{N}_]{2,50}$/u.test(value))))throw new PublishingError('INVALID_REVIEWED_HASHTAGS');
+  const tags = reviewed ? generatedTags.map(tag=>`#${tag}`) : publicationHashtags(post);
+  const mentionLine = requiresMentions ? `\n\nPerfis: ${mentions.map(value=>`@${value}`).join(' ')}` : '';
+  const suffix = `Siga @${TARGET_ACCOUNT} para acompanhar os próximos conteúdos.\n\nFonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}${mentionLine}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.\n\n${tags.join(' ')}`;
   const available = 2_200 - Array.from(suffix).length - 2;
   if (available < 1) throw new PublishingError('SOURCE_ATTRIBUTION_TOO_LONG');
   const title = cleanText(post.title); const excerpt = cleanText(post.excerpt);
-  const opening = [shorten(title, 600), excerpt.toLowerCase() !== title.toLowerCase() ? shorten(excerpt, 900) : ''].filter(Boolean).join('\n\n');
+  const opening = reviewed ? cleanText(post.publicationCaption) : [shorten(title, 600), excerpt.toLowerCase() !== title.toLowerCase() ? shorten(excerpt, 900) : ''].filter(Boolean).join('\n\n');
   return `${shorten(opening, available)}\n\n${suffix}`;
 }
 
