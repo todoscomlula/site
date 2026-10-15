@@ -3,6 +3,7 @@
 /.githooks/
 /.venv/
 /.cache/
+/.worktrees/
 /.vercel/
 /node_modules/
 /dist/
