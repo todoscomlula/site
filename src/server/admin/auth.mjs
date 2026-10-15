@@ -56,6 +56,9 @@ export function readSession(request, env = process.env, now = Date.now()) {
 export function sessionCookie(token, remove = false) {
   return `${SESSION_COOKIE}=${remove ? '' : token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${remove ? 0 : SESSION_SECONDS}`;
 }
+export function adminRedirect(location,{status=303,cookie}={}) {
+  return new Response(null,{status,headers:{Location:location,'Cache-Control':'private, no-store','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Referrer-Policy':'no-referrer',...(cookie?{'Set-Cookie':cookie}:{})}});
+}
 export function requireSession(request, env = process.env) {
   const session = readSession(request, env);
   if (!session) throw new AdminError('UNAUTHENTICATED', 401);

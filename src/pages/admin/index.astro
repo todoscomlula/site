@@ -2,12 +2,12 @@
 import '../../styles/global.css';
 import '../../styles/admin.css';
 import Icon from '../../components/Icon.astro';
-import { readSession } from '../../server/admin/auth.mjs';
+import { readSession, adminRedirect } from '../../server/admin/auth.mjs';
 export const prerender = false;
 Astro.response.headers.set('Cache-Control','private, no-store');
 Astro.response.headers.set('X-Robots-Tag','noindex, nofollow');
 let session;try{session=readSession(Astro.request);}catch{}
-if(!session)return Astro.redirect('/admin/entrar/');
+if(!session)return adminRedirect('/admin/entrar/',{status:302});
 ---
 <!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><meta name="robots" content="noindex,nofollow"/><title>Administração · Todos com Lula</title><link rel="icon" href="/favicon.svg"/></head><body class="admin-page">
 <a class="skip-link" href="#admin-main">Pular para o painel</a><header class="admin-header"><a href="/admin/" class="brand"><span class="brand-star">★</span><span class="brand-words">TODOS<span>COM LULA</span></span></a><span class="admin-header-label">CENTRAL DE CONTEÚDO</span><a href="/" target="_blank" rel="noopener" class="admin-view-site">Ver o site <Icon name="arrow" size={16}/></a><button type="button" class="admin-mobile-logout" data-admin-logout>Sair</button></header>
