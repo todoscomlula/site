@@ -277,17 +277,17 @@
       "postId": "storiesig-ptsaopaulo-c883e8d800a0",
       "mediaId": "18103387361456676",
       "publishedAt": "2026-10-14T22:02:14.528Z"
+    },
+    {
+      "contentHash": "a42cf67e37fe918b4b38708ef70d8089bb9c2dbdbdfabd90be77e5179099541b",
+      "postId": "storiesig-jeanwyllys_real-c85dcab329a0",
+      "mediaId": "18123914185925415",
+      "publishedAt": "2026-10-15T00:05:38.628Z"
     }
   ],
-  "pending": {
-    "contentHash": "a42cf67e37fe918b4b38708ef70d8089bb9c2dbdbdfabd90be77e5179099541b",
-    "postId": "storiesig-jeanwyllys_real-c85dcab329a0",
-    "containerId": "18132218167655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-15T00:03:26.434Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "8b0fd372-08c9-45a9-9120-a8b2fcf2515c",
-    "expiresAt": "2026-10-15T00:25:30.831Z"
+    "expiresAt": "2026-10-15T00:25:38.628Z"
   }
 }
