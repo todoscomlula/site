@@ -156,7 +156,7 @@ disponível para uso local, sem `COLLECTION_PROVIDER=apify` e sem a chave do Api
 A aprovação inicia a legenda na própria Vercel com `waitUntil`, sem esperar a
 preparação de FFmpeg ou o próximo ciclo do GitHub. A resposta da aprovação é
 imediata; uma falha mantém o vídeo aprovado e registra um código no painel.
-Uma trava privada de noventa segundos impede que o worker e a aprovação
+Uma trava privada de 210 segundos impede que o worker e a aprovação
 façam a mesma geração em paralelo. Depois de uma interrupção, o worker pode
 retomar uma trava expirada.
 
@@ -165,3 +165,12 @@ Relatórios de resposta do DeepSeek ficam somente no Blob privado, em
 término. Eles permitem distinguir resposta truncada de um formato recusado,
 sem registrar cabeçalhos ou credenciais. Não são exportados pelo dashboard
 nem pelo manifesto público.
+
+O DeepSeek tem até 120 segundos para concluir a resposta. A função da Vercel
+usa até 180 segundos, dentro do limite do Fluid Compute do projeto. Um timeout
+ao ler a resposta é exibido como `DEEPSEEK_TIMEOUT`, sem confundi-lo com JSON
+inválido.
+
+O workflow publica os aprovados antes de instalar ferramentas para novas
+coletas. Se uma legenda falhar, **Em publicação → Gerar legenda novamente**
+retoma a geração na Vercel, preservando a aprovação.

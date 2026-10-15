@@ -21,15 +21,16 @@ export async function generateCaption(candidate,{env=process.env,fetchImpl=fetch
   const model=env.DEEPSEEK_MODEL||'deepseek-flash';
   if(!/^[a-z0-9._-]{1,80}$/.test(model))throw new AdminError('INVALID_DEEPSEEK_MODEL',503);
   let response;
-  try{response=await fetchImpl('https://api.deepseek.com/chat/completions',{method:'POST',redirect:'error',signal:AbortSignal.timeout(45000),headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model,messages:captionMessages(candidate),thinking:{type:'disabled'},response_format:{type:'json_object'},max_tokens:1000,stream:false})});}
-  catch{throw new AdminError('DEEPSEEK_UNAVAILABLE',502);}
+  try{response=await fetchImpl('https://api.deepseek.com/chat/completions',{method:'POST',redirect:'error',signal:AbortSignal.timeout(120000),headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},body:JSON.stringify({model,messages:captionMessages(candidate),thinking:{type:'disabled'},response_format:{type:'json_object'},max_tokens:1000,stream:false})});}
+  catch(error){const timeout=['AbortError','TimeoutError'].includes(error?.name);await recordResponse({at:new Date().toISOString(),stage:'request',error:timeout?'timeout':'unavailable'});throw new AdminError(timeout?'DEEPSEEK_TIMEOUT':'DEEPSEEK_UNAVAILABLE',502);}
   if(!response.ok)throw new AdminError(response.status===401?'DEEPSEEK_INVALID_KEY':response.status===402?'DEEPSEEK_BALANCE_REQUIRED':response.status===429?'DEEPSEEK_RATE_LIMIT':'DEEPSEEK_UNAVAILABLE',502);
-  let result;
-  try{const raw=await response.text();if(raw.length>100000)throw new Error();const body=JSON.parse(raw);const choice=body.choices?.[0];const content=choice?.message?.content;
+  let result;let stage='response-body';let responseCharacters=0;let recorded=false;
+  try{const raw=await response.text();responseCharacters=raw.length;stage='response-envelope';if(raw.length>100000)throw new Error();const body=JSON.parse(raw);const choice=body.choices?.[0];const content=choice?.message?.content;
     await recordResponse({at:new Date(now).toISOString(),finishReason:typeof choice?.finish_reason==='string'?choice.finish_reason.slice(0,40):null,content:typeof content==='string'?content.slice(0,10000):null,reasoningCharacters:typeof choice?.message?.reasoning_content==='string'?choice.message.reasoning_content.length:0});
+    recorded=true;
     if(choice?.finish_reason==='length')throw new AdminError('AI_CAPTION_TRUNCATED',502);
     if(typeof content!=='string')throw new Error();result=JSON.parse(content);}
-  catch(error){throw error instanceof AdminError?error:new AdminError('INVALID_AI_CAPTION',502);}
+  catch(error){const timeout=['AbortError','TimeoutError'].includes(error?.name);if(!recorded)await recordResponse({at:new Date().toISOString(),stage,error:timeout?'timeout':stage==='response-body'?'read_failed':'invalid_json',responseCharacters});if(timeout)throw new AdminError('DEEPSEEK_TIMEOUT',502);if(stage==='response-body')throw new AdminError('DEEPSEEK_UNAVAILABLE',502);throw error instanceof AdminError?error:new AdminError('INVALID_AI_CAPTION',502);}
   if(result.insufficient_context)throw new AdminError('CAPTION_NEEDS_CONTEXT',422);
   if(Object.keys(result).sort().join(',')!=='caption,hashtags,title'||typeof result.caption!=='string'||typeof result.title!=='string'||!Array.isArray(result.hashtags))throw new AdminError('INVALID_AI_CAPTION',502);
   if(/https?:\/\/|\bwww\.|@[a-z0-9_]|#[\p{L}\p{N}_]/iu.test(result.caption)||/<\/?[a-z][^>]*>/i.test(result.caption))throw new AdminError('INVALID_AI_CAPTION',502);

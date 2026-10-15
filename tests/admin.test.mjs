@@ -62,3 +62,9 @@ test('truncated AI output records a private report, preserves approval and relea
   assert.equal(response.status,202);await Promise.all(tasks);const result=(await store.load()).candidates[0];assert.equal(result.status,'approved');assert.equal(result.lastError,'AI_CAPTION_TRUNCATED');assert.equal(result.caption,null);
   const report=await store.readJson(`queue/caption-reports/${item.id}.json`);assert.equal(report.finishReason,'length');assert.equal(report.reasoningCharacters,9);assert.equal((await store.readJson(`queue/caption-runs/${item.id}.json`)).owner,null);
 });
+
+test('a timeout while reading the AI response is reported as timeout rather than malformed caption',async()=>{
+  let report;const fetchImpl=async()=>new Response(new ReadableStream({start(controller){controller.error(new DOMException('operation aborted','AbortError'));}}));
+  await assert.rejects(generateCaption(fixtureCandidate(),{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl,recordResponse:async value=>{report=value;}}),{code:'DEEPSEEK_TIMEOUT'});
+  assert.equal(report.stage,'response-body');assert.equal(report.error,'timeout');
+});

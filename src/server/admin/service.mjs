@@ -23,7 +23,7 @@ function editable(item){if(!['pending','approved','error'].includes(item.status)
 function mentionsFor(state,item){try{return item.mentionProfiles?.length===5?item.mentionProfiles:selectMentions(state.sources,item);}catch{return [];}}
 async function makeCaptionForItem(id,{store,env,fetchImpl}){
   const runPath=`queue/caption-runs/${id}.json`;const owner=randomUUID();
-  if(store.mutateJson)await store.mutateJson(runPath,previous=>{if(previous?.owner&&Date.parse(previous.expiresAt)>Date.now())throw new AdminError('CANDIDATE_BUSY',409);return{owner,expiresAt:new Date(Date.now()+90000).toISOString()};});
+  if(store.mutateJson)await store.mutateJson(runPath,previous=>{if(previous?.owner&&Date.parse(previous.expiresAt)>Date.now())throw new AdminError('CANDIDATE_BUSY',409);return{owner,expiresAt:new Date(Date.now()+210000).toISOString()};});
   let candidate; let claimed=false;
   try{
     await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='ready'||item.status==='publishing'||item.status==='awaiting_instagram'||item.status==='published'){candidate=structuredClone(item);return;}if(item.status==='generating'){if(!store.mutateJson)throw new AdminError('CANDIDATE_BUSY',409);item.status='approved';}if(!['approved','error'].includes(item.status)||!item.approvedAt)throw new AdminError('CANDIDATE_NOT_APPROVED',409);item.status='generating';item.lastError=null;candidate=structuredClone(item);claimed=true;});
@@ -91,9 +91,13 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       const input=await readJson(request);const username=input.username?normalizeUsername(input.username):null;
       await store.mutate(state=>{const selected=state.sources.filter(source=>source.enabled&&(!username||source.username===username));if(!selected.length)throw new AdminError('NO_ACTIVE_SOURCE',422);if(pendingBytes(state)>=MAX_PENDING_BYTES||state.candidates.filter(item=>!['published','rejected'].includes(item.status)).length>=100)throw new AdminError('REVIEW_QUEUE_FULL',422);for(const source of selected){if(source.lastStatus==='collecting')continue;source.requestedAt ||= new Date().toISOString();source.lastStatus='queued';source.lastError=null;}addActivity(state,'collect',`Coleta solicitada para ${selected.length} perfil(is).`);});return json({ok:true},202);
     }
-    const candidateAction=action.match(/^candidates\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})(?:\/(approve|reject|preview))?$/);
+    const candidateAction=action.match(/^candidates\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})(?:\/(approve|reject|preview|caption))?$/);
     if(candidateAction){
       const [,id,operation]=candidateAction;const input=await readJson(request);
+      if(operation==='caption'){
+        const item=requireItem(await store.load(),id);if(!item.approvedAt)throw new AdminError('CANDIDATE_NOT_APPROVED',409);
+        const task=makeCaptionForItem(id,{store,env,fetchImpl});if(background){background(task.catch(()=>{}));return json({ok:true},202);}await task;return json({ok:true});
+      }
       if(operation==='preview'){
         const state=await store.load();const item=requireItem(state,id);editable(item);const candidate={...item,notes:'notes'in input?cleanText(input.notes,2500):item.notes};const caption=await generateCaption(candidate,{env,fetchImpl});
         await store.mutate(current=>{const record=requireItem(current,id);editable(record);record.notes=candidate.notes;record.caption=caption;record.lastError=null;});return json({ok:true,caption});
