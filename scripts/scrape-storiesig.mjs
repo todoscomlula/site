@@ -175,6 +175,11 @@ const context = await browser.newContext({ acceptDownloads: true, viewport: { wi
 const page = await context.newPage();
 context.on('page', popup => { if (popup !== page) popup.close().catch(() => {}); });
 let blocked = null;
+let stage = 'opening';
+async function captureFailure(username) {
+  if(process.env.ADMIN_COLLECTION_DIAGNOSTICS!=='1')return;
+  await page.screenshot({path:path.join(staging,`failure-${username}.png`),timeout:5000}).catch(()=>{});
+}
 page.on('response', response => {
   const hostname = new URL(response.url()).hostname;
   if ((hostname === 'storiesig.info' || hostname.endsWith('.storiesig.info')) && [401, 403, 429].includes(response.status())) blocked = response.status() === 429 ? 'rate_limited' : 'access_restricted';
@@ -185,10 +190,13 @@ async function checkAccess() {
   if (blocked) throw new Error(blocked);
 }
 async function normalSearch(username) {
+  stage = 'search-form';
   await page.getByPlaceholder('@username or link').fill(username);
   await page.getByRole('button', { name: 'Search', exact: true }).click();
+  stage = 'download-choice';
   const direct = page.getByText('Prefiro baixar diretamente pelo navegador', { exact: false }).first();
   try { await direct.waitFor({ state: 'visible', timeout: 12000 }); await direct.click(); } catch { await checkAccess(); }
+  stage = 'profile-results';
   await page.getByText(`@${username}`, { exact: true }).first().waitFor({ state: 'visible', timeout: 25000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await checkAccess();
@@ -198,6 +206,7 @@ async function collectTab(username, tab, maxItems, sourceReport) {
   const incremental = tab === 'reels' && options['additional-reels'] > 0;
   const priorCount = options['archive-only'] ? 0 : records.filter(entry => entry.source === username && entry.sourceUrl?.endsWith(tab === 'reels' ? '/reels/' : `/${username}/`)).length;
   if (!incremental && priorCount >= maxItems) return;
+  stage = 'media-tab';
   await page.getByRole('button', { name: tab, exact: true }).click();
   await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
   await sleep(2000);
@@ -281,6 +290,8 @@ try {
       }
     } catch {
       sourceReport.status = blocked || 'public_flow_unavailable';
+      sourceReport.failureStage = stage;
+      await captureFailure(username);
     }
     sourceReport.recordsInFeed = records.filter(entry => entry.source === username).length;
     if (sourceReport.media_budget) sourceReport.status = 'media_budget';
@@ -295,6 +306,8 @@ try {
   }
 } catch {
   report.status = blocked || 'public_flow_unavailable';
+  report.failureStage = stage;
+  if(options.source)await captureFailure(options.source);
 } finally {
   await persist();
   await browser.close();

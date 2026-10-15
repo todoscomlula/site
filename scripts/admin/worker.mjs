@@ -73,11 +73,13 @@ async function collectSource(source,{store,env,timeout=8*60_000}){
   await saveJson(resolve(root,'src/data/storiesig-posts.json'),previous);
   await saveJson(resolve(root,'src/data/sources.json'),snapshot.sources.map(item=>({username:item.username,name:item.name,category:'Comunidade',initials:item.username.slice(0,2).toUpperCase(),color:'green'})));
   const fingerprints=await store.readJson('queue/video-fingerprints.json');if(!fingerprints)throw new AdminError('FINGERPRINTS_NOT_INITIALIZED',503);await saveJson(resolve(root,'.cache/storiesig/video-fingerprints.json'),fingerprints);
-  const result=await run('node',['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'],{allowFailure:true,env,timeout});
+  const result=await run('node',['scripts/scrape-storiesig.mjs','--source',source.username,'--max-posts','0','--max-reels','0','--additional-reels','2','--scan-reels','6','--max-age-days','14','--max-reel-mb','90','--max-total-mb','180'],{allowFailure:true,env:{...env,ADMIN_COLLECTION_DIAGNOSTICS:'1'},timeout});
   const records=await readJson(resolve(root,'src/data/storiesig-posts.json'));const added=records.filter(item=>item.kind==='video'&&!known.has(item.id));
   const report=await readJson(resolve(root,'data/storiesig-import-report.json'));const entry=report.sources?.find(item=>item.source===source.username);const status=entry?.status||report.status||'public_flow_unavailable';
   // Keep diagnostics private, with fixed fields and no provider URLs or headers.
-  await store.putJson(`queue/reports/${source.username}.json`,{at:new Date().toISOString(),status,visibleReels:entry?.tabs?.reels?.visibleDownloads||0,duplicates:(entry?.duplicate||0)+(entry?.duplicate_content||0),tooOld:entry?.older_than_window||0});
+  const reportPath=`queue/reports/${source.username}.json`;let screenshot=null;
+  if(result.code){try{const bytes=await readFile(resolve(root,'.cache/storiesig',`failure-${source.username}.png`));if(bytes.length<2*1024*1024){screenshot=`queue/diagnostics/${source.username}/${hash(bytes).slice(0,12)}.png`;await store.upload(screenshot,bytes,'image/png');const old=await store.readJson(reportPath);if(old?.screenshot&&old.screenshot!==screenshot&&old.screenshot.startsWith(`queue/diagnostics/${source.username}/`))await store.remove(old.screenshot);}}catch{/* Diagnostic storage must not block collection status. */}}
+  await store.putJson(reportPath,{at:new Date().toISOString(),status,stage:entry?.failureStage||report.failureStage||null,screenshot,visibleReels:entry?.tabs?.reels?.visibleDownloads||0,duplicates:(entry?.duplicate||0)+(entry?.duplicate_content||0),tooOld:entry?.older_than_window||0});
   let imported=0;
   for(const record of added.slice(0,2)){
     const state=await store.load();if(state.candidates.some(item=>item.id===record.id))continue;
