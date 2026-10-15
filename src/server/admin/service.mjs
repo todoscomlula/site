@@ -2,6 +2,7 @@ import { AdminError, authConfiguration, checkCredentials, constantEqual, createS
 import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUsername, pendingBytes, selectMentions, validId } from './state.mjs';
 import { createBlobStore } from './blob.mjs';
 import { generateCaption, GUIDANCE_REVISION } from './captions.mjs';
+import { randomUUID } from 'node:crypto';
 
 const headers = {'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store, max-age=0','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'};
 const json = (value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{...headers,...extra}});
@@ -21,16 +22,19 @@ function requireItem(state,id){const item=state.candidates.find(candidate=>candi
 function editable(item){if(!['pending','approved','error'].includes(item.status))throw new AdminError('CANDIDATE_BUSY',409);}
 function mentionsFor(state,item){try{return item.mentionProfiles?.length===5?item.mentionProfiles:selectMentions(state.sources,item);}catch{return [];}}
 async function makeCaptionForItem(id,{store,env,fetchImpl}){
+  const runPath=`queue/caption-runs/${id}.json`;const owner=randomUUID();
+  if(store.mutateJson)await store.mutateJson(runPath,previous=>{if(previous?.owner&&Date.parse(previous.expiresAt)>Date.now())throw new AdminError('CANDIDATE_BUSY',409);return{owner,expiresAt:new Date(Date.now()+90000).toISOString()};});
   let candidate; let claimed=false;
-  await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='ready'||item.status==='publishing'||item.status==='awaiting_instagram'||item.status==='published'){candidate=structuredClone(item);return;}if(!['approved','error'].includes(item.status)||!item.approvedAt)throw new AdminError('CANDIDATE_NOT_APPROVED',409);item.status='generating';item.lastError=null;candidate=structuredClone(item);claimed=true;});
-  if(!claimed)return candidate.caption;
   try{
-    const caption=await generateCaption(candidate,{env,fetchImpl});
+    await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='ready'||item.status==='publishing'||item.status==='awaiting_instagram'||item.status==='published'){candidate=structuredClone(item);return;}if(item.status==='generating'){if(!store.mutateJson)throw new AdminError('CANDIDATE_BUSY',409);item.status='approved';}if(!['approved','error'].includes(item.status)||!item.approvedAt)throw new AdminError('CANDIDATE_NOT_APPROVED',409);item.status='generating';item.lastError=null;candidate=structuredClone(item);claimed=true;});
+    if(!claimed)return candidate.caption;
+    const caption=await generateCaption(candidate,{env,fetchImpl,recordResponse:report=>store.putJson?.(`queue/caption-reports/${id}.json`,report)});
     await store.mutate(state=>{const item=requireItem(state,id);if(item.status!=='generating'||item.approvedAt!==candidate.approvedAt)throw new AdminError('CANDIDATE_CHANGED',409);item.caption=caption;item.status='ready';item.lastError=null;addActivity(state,'caption',`Legenda pronta para @${item.source}.`);});
     return caption;
-  }catch(error){const code=error instanceof AdminError?error.code:'CAPTION_GENERATION_FAILED';await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='generating'){item.status='approved';item.lastError=code;}});throw error instanceof AdminError?error:new AdminError('CAPTION_GENERATION_FAILED',502);}
+  }catch(error){const code=error instanceof AdminError?error.code:'CAPTION_GENERATION_FAILED';if(claimed)await store.mutate(state=>{const item=requireItem(state,id);if(item.status==='generating'){item.status='approved';item.lastError=code;}});throw error instanceof AdminError?error:new AdminError('CAPTION_GENERATION_FAILED',502);}
+  finally{if(store.mutateJson)await store.mutateJson(runPath,previous=>previous?.owner===owner?{owner:null,expiresAt:null}:previous);}
 }
-export async function handleAdminRequest(request,{env=process.env,store=createBlobStore(env),fetchImpl=fetch,clientAddress='unknown'}={}){
+export async function handleAdminRequest(request,{env=process.env,store=createBlobStore(env),fetchImpl=fetch,clientAddress='unknown',background=null}={}){
   const action=new URL(request.url).pathname.replace(/^\/api\/admin\/?/,'').replace(/\/$/,'');
   try{
     if(['worker/caption','worker/status'].includes(action)&&request.method==='POST'){
@@ -98,7 +102,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
         if(operation==='approve'){item.mentionProfiles=selectMentions(state.sources,item);item.approvedAt=new Date().toISOString();item.status=item.caption?'ready':'approved';item.lastError=null;addActivity(state,'approval',`Vídeo de @${item.source} aprovado para site e Instagram.`);}
         else if(operation==='reject'){if(item.status!=='pending'&&item.status!=='error')throw new AdminError('CANDIDATE_BUSY',409);item.status='rejected';item.lastError=null;addActivity(state,'rejection',`Vídeo de @${item.source} não selecionado.`);}
         else if(request.method!=='PATCH')throw new AdminError('NOT_FOUND',404);
-      });return json({ok:true},operation==='approve'?202:200);
+      });if(operation==='approve'&&background)background(makeCaptionForItem(id,{store,env,fetchImpl}).catch(()=>{}));return json({ok:true},operation==='approve'?202:200);
     }
     throw new AdminError('NOT_FOUND',404);
   }catch(error){const safe=error instanceof AdminError?error:new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);return json({error:safe.code},safe.status);}

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
 import { handleAdminRequest } from '../../../server/admin/service.mjs';
+import { waitUntil } from '@vercel/functions';
 export const prerender = false;
-export const ALL: APIRoute = ({ request, clientAddress }) => handleAdminRequest(request, { clientAddress });
+export const ALL: APIRoute = ({ request, clientAddress }) => handleAdminRequest(request, { clientAddress, background: waitUntil });

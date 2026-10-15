@@ -151,9 +151,8 @@ export async function runAdminWorker({env=process.env,store=createBlobStore(env)
   const owner=randomUUID();await store.mutate(state=>{if(state.worker.lease&&Date.parse(state.worker.lease.expiresAt)>Date.now())throw new AdminError('WORKER_BUSY',409);for(const source of state.sources)if(source.enabled&&source.lastStatus==='collecting'){source.lastStatus='queued';source.requestedAt ||= state.worker.lastRunAt||new Date().toISOString();}state.worker.lease={owner,expiresAt:new Date(Date.now()+40*60_000).toISOString()};state.worker.lastRunAt=new Date().toISOString();state.worker.lastError=null;});
   try{
     await reconcile(store,env);
-    // Recover a stopped generation before making a fresh, bounded request.
-    await store.mutate(state=>{for(const item of state.candidates)if(item.status==='generating')item.status='approved';});
-    for(const item of (await store.load()).candidates.filter(item=>item.status==='approved').slice(0,5)){
+    // Vercel owns generation and recovers stale claims. Never reset a live request.
+    for(const item of (await store.load()).candidates.filter(item=>['approved','generating'].includes(item.status)).slice(0,5)){
       if(!env.ADMIN_WORKER_SECRET)throw new AdminError('WORKER_NOT_CONFIGURED',503);
       try{const response=await fetch(new URL('/api/admin/worker/caption/',publicSiteUrl(env.PUBLIC_SITE_URL)),{method:'POST',redirect:'error',signal:AbortSignal.timeout(60000),headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});if(!response.ok){const body=await response.json().catch(()=>({}));const code=typeof body.error==='string'&&/^[A-Z_]{1,80}$/.test(body.error)?body.error:'CAPTION_GENERATION_FAILED';log({mode:'caption-wait',code});if(code==='DEEPSEEK_NOT_CONFIGURED')break;}}
       catch{log({mode:'caption-wait',code:'CAPTION_SERVICE_UNAVAILABLE'});}

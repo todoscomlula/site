@@ -14,7 +14,7 @@ export function captionMessages(candidate) {
   return [{role:'system',content:policy+'\n\nREFERÊNCIAS EDITORIAIS:\n'+guidance.documents.map(document=>`[${document.name}]\n${document.text}`).join('\n\n')},
     {role:'user',content:JSON.stringify({source:candidate.source,sourceName:candidate.sourceName,sourceUrl:candidate.sourceUrl,title:candidate.originalTitle,originalCaption:candidate.originalCaption,editorNotes:candidate.notes})}];
 }
-export async function generateCaption(candidate,{env=process.env,fetchImpl=fetch,now=Date.now()}={}){
+export async function generateCaption(candidate,{env=process.env,fetchImpl=fetch,now=Date.now(),recordResponse=async()=>{}}={}){
   const apiKey=env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API;
   if(!apiKey)throw new AdminError('DEEPSEEK_NOT_CONFIGURED',503);
   if((candidate.originalCaption+' '+candidate.notes).trim().length<20)throw new AdminError('CAPTION_NEEDS_CONTEXT',422);
@@ -25,8 +25,11 @@ export async function generateCaption(candidate,{env=process.env,fetchImpl=fetch
   catch{throw new AdminError('DEEPSEEK_UNAVAILABLE',502);}
   if(!response.ok)throw new AdminError(response.status===401?'DEEPSEEK_INVALID_KEY':response.status===402?'DEEPSEEK_BALANCE_REQUIRED':response.status===429?'DEEPSEEK_RATE_LIMIT':'DEEPSEEK_UNAVAILABLE',502);
   let result;
-  try{const raw=await response.text();if(raw.length>100000)throw new Error();const body=JSON.parse(raw);const content=body.choices?.[0]?.message?.content;if(typeof content!=='string'||body.choices?.[0]?.finish_reason==='length')throw new Error();result=JSON.parse(content);}
-  catch{throw new AdminError('INVALID_AI_CAPTION',502);}
+  try{const raw=await response.text();if(raw.length>100000)throw new Error();const body=JSON.parse(raw);const choice=body.choices?.[0];const content=choice?.message?.content;
+    await recordResponse({at:new Date(now).toISOString(),finishReason:typeof choice?.finish_reason==='string'?choice.finish_reason.slice(0,40):null,content:typeof content==='string'?content.slice(0,10000):null,reasoningCharacters:typeof choice?.message?.reasoning_content==='string'?choice.message.reasoning_content.length:0});
+    if(choice?.finish_reason==='length')throw new AdminError('AI_CAPTION_TRUNCATED',502);
+    if(typeof content!=='string')throw new Error();result=JSON.parse(content);}
+  catch(error){throw error instanceof AdminError?error:new AdminError('INVALID_AI_CAPTION',502);}
   if(result.insufficient_context)throw new AdminError('CAPTION_NEEDS_CONTEXT',422);
   if(Object.keys(result).sort().join(',')!=='caption,hashtags,title'||typeof result.caption!=='string'||typeof result.title!=='string'||!Array.isArray(result.hashtags))throw new AdminError('INVALID_AI_CAPTION',502);
   if(/https?:\/\/|\bwww\.|@[a-z0-9_]|#[\p{L}\p{N}_]/iu.test(result.caption)||/<\/?[a-z][^>]*>/i.test(result.caption))throw new AdminError('INVALID_AI_CAPTION',502);

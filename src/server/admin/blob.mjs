@@ -40,6 +40,14 @@ export function createBlobStore(env = process.env, sdk = { get, put, head, del }
       throw new AdminError('LOGIN_RATE_LIMIT',429);
     },
     async readJson(path){return (await read(path)).value;},
+    async mutateJson(path,change){
+      for(let attempt=0;attempt<5;attempt++){
+        const {value,etag}=await read(path);const next=await change(value);
+        try{await write(path,next,etag);return next;}
+        catch(error){if(!(error instanceof BlobPreconditionFailedError||alreadyExists(error)))throw new AdminError('PRIVATE_STORAGE_UNAVAILABLE',503);}
+      }
+      throw new AdminError('STATE_BUSY',409);
+    },
     async putJson(path,value){const {etag}=await read(path);await write(path,value,etag);},
     async upload(path,bytes,contentType){
       try{return await sdk.put(path,bytes,{...options,addRandomSuffix:false,allowOverwrite:false,contentType,cacheControlMaxAge:86400,abortSignal:AbortSignal.timeout(180000)});}

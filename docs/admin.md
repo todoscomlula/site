@@ -150,3 +150,18 @@ conferir os runs na conta Apify; não repita o POST nem apague o checkpoint sem
 verificar se existe uma execução correspondente. Nenhuma chave ou URL assinada
 é registrada nesses arquivos ou nos logs. O coletor antigo do StoriesIG continua
 disponível para uso local, sem `COLLECTION_PROVIDER=apify` e sem a chave do Apify.
+
+## Legendas na Vercel
+
+A aprovação inicia a legenda na própria Vercel com `waitUntil`, sem esperar a
+preparação de FFmpeg ou o próximo ciclo do GitHub. A resposta da aprovação é
+imediata; uma falha mantém o vídeo aprovado e registra um código no painel.
+Uma trava privada de noventa segundos impede que o worker e a aprovação
+façam a mesma geração em paralelo. Depois de uma interrupção, o worker pode
+retomar uma trava expirada.
+
+Relatórios de resposta do DeepSeek ficam somente no Blob privado, em
+`queue/caption-reports/<id>.json`, com a saída textual limitada e o motivo de
+término. Eles permitem distinguir resposta truncada de um formato recusado,
+sem registrar cabeçalhos ou credenciais. Não são exportados pelo dashboard
+nem pelo manifesto público.
