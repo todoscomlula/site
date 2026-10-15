@@ -68,3 +68,8 @@ test('a timeout while reading the AI response is reported as timeout rather than
   await assert.rejects(generateCaption(fixtureCandidate(),{env:{...env,DEEPSEEK_API_KEY:randomBytes(24).toString('hex')},fetchImpl,recordResponse:async value=>{report=value;}}),{code:'DEEPSEEK_TIMEOUT'});
   assert.equal(report.stage,'response-body');assert.equal(report.error,'timeout');
 });
+
+test('an operator-assisted recovery records the actual caption provider',()=>{
+  const item=fixtureCandidate();item.status='ready';item.approvedAt=instant;item.mentionProfiles=selectMentions(emptyAdminState().sources,item);item.caption={...fixtureCaption(),model:'codex'};
+  const post=candidateToPublic(item,{video:{publicPath:'/media/video.mp4'},poster:{publicPath:'/media/poster.jpg'}});assert.equal(post.captionProvider,'codex');assert.equal(post.captionModel,'codex');assert.equal(post.reviewApprovedAt,instant);
+});
