@@ -35,7 +35,11 @@ jobs:
         run: node scripts/admin/inspect-vercel.mjs
       - name: Validar alterações
         if: inputs.deploy
-        run: npm run test:unit
+        shell: bash
+        run: |
+          set -euo pipefail
+          command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
+          npm run test:unit
       - name: Publicar correções na Vercel
         if: inputs.deploy && steps.inspect.outputs.authorized == 'true'
         env:
