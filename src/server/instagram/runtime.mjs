@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import { send } from '@vercel/queue';
 import { MetaClient } from '../../../scripts/instagram-publishing/meta-client.mjs';
 import { API_VERSION, PublishingError, contentKey, publicSiteUrl, runPublisher, validateState } from '../../../scripts/instagram-publishing/core.mjs';
-import { createBlobStore } from '../admin/blob.mjs';
+import { createBlobStore, storageRetrySeconds } from '../admin/blob.mjs';
+import { AdminError } from '../admin/auth.mjs';
 import { addActivity, selectMentions } from '../admin/state.mjs';
 
 export const INSTAGRAM_STATE_PATH='queue/instagram-publishing-state.json';
@@ -75,6 +76,7 @@ export async function processInstagramTick({env=process.env,store=createBlobStor
     if(result.quotaWait){mode='quota-wait';code='META_PUBLISHING_LIMIT';delay=900;}
     else if(published){mode='published';delay=10;}
   }catch(error){
+    if(error instanceof AdminError&&storageRetrySeconds(error.code))throw error;
     code=error instanceof PublishingError?error.code:'INSTAGRAM_PROCESSING_FAILED';
     if(code==='CONTAINER_PROCESSING_TIMEOUT'){mode='processing';delay=60;}
     else if(['PUBLISHING_LOCK_ACTIVE','INSTAGRAM_STATE_CONFLICT'].includes(code)){mode='processing';delay=60;}

@@ -149,6 +149,9 @@ export async function runAdminWorker({env=process.env,store=createBlobStore(env)
   const now=Date.now();const initial=validateAdminState(await store.load());const due=collect?dueSources(initial,now):[];
   const approved=publish?initial.candidates.filter(item=>['approved','generating','ready','publishing','awaiting_instagram'].includes(item.status)):[];const cleanup=publish&&initial.candidates.some(item=>['rejected','published'].includes(item.status)&&!item.mediaRemoved);
   if(!due.length&&!approved.length&&!cleanup){log({mode:'admin-idle'});return;}
+  // Native Vercel deliveries own this wait. Reconcile confirmations without
+  // acquiring and releasing a worker lease on every idle GitHub cycle.
+  if(!due.length&&!cleanup&&approved.length&&approved.every(item=>item.status==='awaiting_instagram')){await reconcile(store,env);log({mode:'admin-awaiting-instagram'});return;}
   if(!due.length&&!cleanup&&approved.length&&approved.every(item=>['approved','generating'].includes(item.status))){
     const response=await fetch(new URL('/api/admin/worker/status/',publicSiteUrl(env.PUBLIC_SITE_URL)),{method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:'{}'});
     if(response.ok&&!(await response.json()).deepseek){log({mode:'admin-awaiting-deepseek'});return;}

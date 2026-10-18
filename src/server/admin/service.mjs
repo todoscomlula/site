@@ -1,6 +1,6 @@
 import { AdminError, authConfiguration, checkCredentials, constantEqual, createSession, requireSession, requireMutation, requireSameOrigin, readJson, readLoginInput, sessionCookie, digest } from './auth.mjs';
 import { addActivity, cleanText, MAX_PENDING_BYTES, MAX_CANDIDATES, normalizeUsername, pendingBytes, selectMentions, validId } from './state.mjs';
-import { createBlobStore } from './blob.mjs';
+import { createBlobStore, storageRetrySeconds } from './blob.mjs';
 import { generateCaption, checkCaptionProvider, GUIDANCE_REVISION } from './captions.mjs';
 import { randomUUID } from 'node:crypto';
 import { PublishingError, validateState as validatePublishingState } from '../../../scripts/instagram-publishing/core.mjs';
@@ -117,5 +117,5 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       });if(operation==='approve'&&background)background(makeCaptionForItem(id,{store,env,fetchImpl}).catch(()=>{}));return json({ok:true},operation==='approve'?202:200);
     }
     throw new AdminError('NOT_FOUND',404);
-  }catch(error){const safe=error instanceof AdminError?error:error instanceof PublishingError?new AdminError(error.code,503):new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);return json({error:safe.code},safe.status);}
+  }catch(error){const safe=error instanceof AdminError?error:error instanceof PublishingError?new AdminError(error.code,503):new AdminError('ADMIN_SERVICE_UNAVAILABLE',503);const retry=storageRetrySeconds(safe.code);return json({error:safe.code},safe.status,retry?{'Retry-After':String(retry)}:{});}
 }

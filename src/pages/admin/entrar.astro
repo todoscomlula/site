@@ -13,7 +13,7 @@ if(Astro.request.method==='POST'){
   const response=await handleAdminRequest(new Request(new URL('/api/admin/login/',Astro.url),Astro.request),{clientAddress:Astro.clientAddress});
   if(response.ok)return adminRedirect('/admin/',{cookie:response.headers.get('Set-Cookie')});
   const result=await response.json();Astro.response.status=response.status;
-  loginError=result.error==='LOGIN_RATE_LIMIT'?'Muitas tentativas. Aguarde 15 minutos e tente novamente.':result.error==='INVALID_CREDENTIALS'?'E-mail ou senha incorretos. Confira e tente novamente.':'Não foi possível entrar agora. Tente novamente em instantes.';
+  loginError=result.error==='LOGIN_RATE_LIMIT'?'Muitas tentativas. Aguarde 15 minutos e tente novamente.':result.error==='INVALID_CREDENTIALS'?'E-mail ou senha incorretos. Confira e tente novamente.':result.error==='PRIVATE_STORAGE_BLOCKED'?'A Vercel bloqueou o armazenamento privado. Confira Storage e Usage no painel da Vercel para liberar o acesso.':result.error==='PRIVATE_STORAGE_ACCESS_DENIED'?'A Vercel recusou acesso ao armazenamento. Confira a conexão do Blob na Vercel.':'Não foi possível entrar agora. Tente novamente em instantes.';
 }
 let loggedIn=false;try{loggedIn=!!readSession(Astro.request);}catch{}
 if(loggedIn)return adminRedirect('/admin/');

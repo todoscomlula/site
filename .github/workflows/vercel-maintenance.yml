@@ -1,0 +1,50 @@
+name: Diagnóstico e deploy da Vercel
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Publicar o código atual em produção depois de validar o projeto'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: vercel-maintenance-todos-com-lula
+  cancel-in-progress: false
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: instagram-publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - name: Diagnosticar projeto e armazenamento sem expor credenciais
+        id: inspect
+        env:
+          ADMIN_VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
+          ADMIN_BLOB_READ_WRITE_TOKEN: ${{ secrets.ADMIN_BLOB_READ_WRITE_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+        run: node scripts/admin/inspect-vercel.mjs
+      - name: Validar alterações
+        if: inputs.deploy
+        run: npm run test:unit
+      - name: Publicar correções na Vercel
+        if: inputs.deploy && steps.inspect.outputs.authorized == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+        run: npx --yes vercel@64.0.2 --prod --yes
+      - name: Informar credencial sem acesso ao projeto
+        if: inputs.deploy && steps.inspect.outputs.authorized != 'true'
+        run: |
+          echo 'VERCEL_PROJECT_NOT_AUTHORIZED: o token salvo no GitHub não permite publicar neste projeto.'
+          exit 1
