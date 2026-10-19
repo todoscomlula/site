@@ -53,7 +53,9 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     if(action==='login'&&request.method==='POST'){
       requireSameOrigin(request);authConfiguration(env);const input=await readLoginInput(request);
       if(Object.keys(input).sort().join(',')!=='email,password'||typeof input.email!=='string'||typeof input.password!=='string')throw new AdminError('INVALID_CREDENTIALS',401);
-      await store.checkLoginRate(digest(env.ADMIN_SESSION_SECRET+'\0'+clientAddress));
+      // This mode is enabled only after the project firewall rule is verified.
+      // Local/preview instances retain the existing durable limiter.
+      if(env.VERCEL!=='1'||env.ADMIN_LOGIN_RATE_LIMIT_MODE!=='vercel-firewall')await store.checkLoginRate(digest(env.ADMIN_SESSION_SECRET+'\0'+clientAddress));
       if(!checkCredentials(input.email,input.password,env))throw new AdminError('INVALID_CREDENTIALS',401);
       return json({ok:true},200,{'Set-Cookie':sessionCookie(createSession(env))});
     }

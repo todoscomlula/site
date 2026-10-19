@@ -6,6 +6,10 @@ on:
         description: 'Publicar o código atual em produção depois de validar o projeto'
         type: boolean
         default: false
+      configure_login:
+        description: 'Proteger o login no firewall para remover sua dependência do Blob'
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -40,6 +44,13 @@ jobs:
           set -euo pipefail
           command -v ffmpeg >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg; }
           npm run test:unit
+      - name: Configurar proteção do login fora do armazenamento
+        if: inputs.configure_login && steps.inspect.outputs.authorized == 'true'
+        env:
+          ADMIN_VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+        run: node scripts/admin/configure-admin-firewall.mjs
       - name: Publicar correções na Vercel
         if: inputs.deploy && steps.inspect.outputs.authorized == 'true'
         env:
