@@ -23,6 +23,18 @@ async function publicStatus(env,fetchImpl){
 function requireItem(state,id){const item=state.candidates.find(candidate=>candidate.id===id);if(!item)throw new AdminError('CANDIDATE_NOT_FOUND',404);return item;}
 function editable(item){if(!['pending','approved','error'].includes(item.status))throw new AdminError('CANDIDATE_BUSY',409);}
 function mentionsFor(state,item){try{return item.mentionProfiles?.length===5?item.mentionProfiles:selectMentions(state.sources,item);}catch{return [];}}
+async function adminDashboard({env,store,fetchImpl}){
+  const [status,records]=await Promise.all([publicStatus(env,fetchImpl),Promise.allSettled([store.load(),store.readJson?.('queue/collector-status.json')||null,store.readJson?.(INSTAGRAM_STATE_PATH)||null,store.readJson?.(INSTAGRAM_STATUS_PATH)||null])]);
+  const failures=records.filter(result=>result.status==='rejected');
+  for(const result of failures)if(!(result.reason instanceof AdminError)||!storageRetrySeconds(result.reason.code))throw result.reason;
+  const unavailable=failures[0]?.reason.code||null;
+  const [state,collector,instagramState,instagramRuntime]=records.map(result=>result.status==='fulfilled'?result.value:null);
+  const readOnly=!!unavailable;
+  const published=instagramState?validatePublishingState(instagramState).published:status.published;
+  const publishedIds=new Set(published.map(item=>item.postId));
+  const candidates=readOnly?[]:state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
+  return {availability:{readOnly,code:unavailable},sources:readOnly?[]:state.sources,candidates,activity:readOnly?[]:state.activity,worker:readOnly?{lastRunAt:null,lastError:null}:state.worker,instagramRuntime:readOnly?{runtime:'vercel',mode:'paused',code:unavailable,nextAttemptAt:null}:instagramRuntime||null,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)?true:readOnly?null:false})),counts:{pending:readOnly?null:candidates.filter(item=>item.status==='pending').length,queued:readOnly?null:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:readOnly?null:published.length,activeSources:readOnly?null:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:readOnly?null:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{collection:{provider:collector?.provider==='apify'?'apify':'storiesig',configured:collector?.configured===true},deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}};
+}
 async function makeCaptionForItem(id,{store,env,fetchImpl}){
   const runPath=`queue/caption-runs/${id}.json`;const owner=randomUUID();
   if(store.mutateJson)await store.mutateJson(runPath,previous=>{if(previous?.owner&&Date.parse(previous.expiresAt)>Date.now())throw new AdminError('CANDIDATE_BUSY',409);return{owner,expiresAt:new Date(Date.now()+210000).toISOString()};});
@@ -44,7 +56,10 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       if(!constantEqual(request.headers.get('authorization'),`Bearer ${env.ADMIN_WORKER_SECRET}`))throw new AdminError('UNAUTHENTICATED',401);
       if(action==='worker/instagram'){await readJson(request);return json(await enqueueInstagram({env}),202);}
       if(action==='worker/instagram/check'){await readJson(request);return json(await checkInstagramConnection({env,store,fetchImpl}));}
-      if(action==='worker/instagram/status'){const [publishing,status]=await Promise.all([store.readJson(INSTAGRAM_STATE_PATH),store.readJson(INSTAGRAM_STATUS_PATH)]);return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'github',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:!!publishing,published:publishing?.published?.length||0,status:status||null});}
+      if(action==='worker/instagram/status'){
+        try{const [publishing,status]=await Promise.all([store.readJson(INSTAGRAM_STATE_PATH),store.readJson(INSTAGRAM_STATUS_PATH)]);return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'github',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:!!publishing,published:publishing?.published?.length||0,status:status||null});}
+        catch(error){if(!(error instanceof AdminError)||!storageRetrySeconds(error.code))throw error;return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'vercel',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:null,published:null,availability:{readOnly:true,code:error.code},status:{mode:'paused',code:error.code,nextAttemptAt:null}});}
+      }
       if(action==='worker/deepseek'){const input=await readJson(request);if(Object.keys(input).some(key=>!['mode','model'].includes(key))||('mode'in input&&!['metadata','probe'].includes(input.mode))||('model'in input&&typeof input.model!=='string'))throw new AdminError('INVALID_REQUEST');return json(await checkCaptionProvider({env,fetchImpl,metadata:input.mode==='metadata',model:input.model||null}));}
       if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});
       const input=await readJson(request);if(Object.keys(input).join(',')!=='id'||!validId(input.id))throw new AdminError('INVALID_CANDIDATE');
@@ -62,11 +77,7 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
     const session=requireSession(request,env);
     if(action==='session'&&request.method==='GET')return json({email:session.email,csrf:session.csrf,expiresAt:session.expiresAt});
     if(action==='dashboard'&&request.method==='GET'){
-      const [state,status,collector,instagramState,instagramRuntime]=await Promise.all([store.load(),publicStatus(env,fetchImpl),store.readJson?.('queue/collector-status.json')||null,store.readJson?.(INSTAGRAM_STATE_PATH)||null,store.readJson?.(INSTAGRAM_STATUS_PATH)||null]);
-      if(instagramState)status.published=validatePublishingState(instagramState).published;
-      const publishedIds=new Set(status.published.map(item=>item.postId));
-      const candidates=state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
-      return json({sources:state.sources,candidates,activity:state.activity,worker:state.worker,instagramRuntime:instagramRuntime||null,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)})),counts:{pending:candidates.filter(item=>item.status==='pending').length,queued:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:status.published.length,activeSources:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{collection:{provider:collector?.provider==='apify'?'apify':'storiesig',configured:collector?.configured===true},deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}});
+      return json(await adminDashboard({env,store,fetchImpl}));
     }
     const media=action.match(/^media\/(storiesig-[a-z0-9_.]+-[a-f0-9]{12})\/(video|poster)$/);
     if(media&&request.method==='GET'){

@@ -39,11 +39,11 @@ test('storage failure prevents Meta calls and remains a durable hourly retry',as
   assert.deepEqual(instagramQueueRetry(new Error(),{deliveryCount:1}),{afterSeconds:300});
   assert.deepEqual(instagramQueueRetry(new Error(),{deliveryCount:20}),{afterSeconds:3600});
 });
-test('protected status returns the storage cause and Retry-After without disclosing provider details',async()=>{
+test('protected status explicitly reports a paused publisher when storage is blocked',async()=>{
   const env={ADMIN_WORKER_SECRET:'PLACEHOLDER_FOR_OFFLINE_TEST'.repeat(2)};
   const request=new Request('https://example.test/api/admin/worker/instagram/status/',{method:'POST',headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`},body:'{}'});
   const response=await handleAdminRequest(request,{env,store:{readJson:async()=>{throw new AdminError('PRIVATE_STORAGE_BLOCKED',503);}}});
-  assert.equal(response.status,503);assert.equal(response.headers.get('Retry-After'),'3600');assert.match(response.headers.get('Cache-Control'),/no-store/);assert.deepEqual(await response.json(),{error:'PRIVATE_STORAGE_BLOCKED'});
+  assert.equal(response.status,200);assert.match(response.headers.get('Cache-Control'),/no-store/);const result=await response.json();assert.equal(result.status.mode,'paused');assert.equal(result.status.code,'PRIVATE_STORAGE_BLOCKED');assert.equal(result.published,null);assert.equal(result.migrated,null);
 });
 test('Vercel inspection reports only approved fields and validates the target before reading its stores',async()=>{
   const env={GITHUB_REPOSITORY:'todoscomlula/site',ADMIN_VERCEL_TOKEN:'PLACEHOLDER_FOR_OFFLINE_TEST',VERCEL_PROJECT_ID:'prj_example',VERCEL_ORG_ID:'team_example'};
