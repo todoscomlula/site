@@ -22,6 +22,15 @@ export async function inspectVercel({env=process.env,fetchImpl=fetch,store=creat
     const team=await request(`/v2/teams/${encodeURIComponent(env.VERCEL_ORG_ID)}`);
     const block=team.body.featureBlocks?.blob;
     report.plan=label(team.body.billing?.plan);report.blobBlock=block?{blockedFrom:date(block.blockedFrom),blockedUntil:date(block.blockedUntil)}:null;
+    const blobId=(env.ADMIN_BLOB_READ_WRITE_TOKEN||env.BLOB_READ_WRITE_TOKEN||'').split('_')[3];
+    if(blobId&&/^[a-zA-Z0-9]+$/.test(blobId)){
+      const detail=await request(`/v1/storage/stores/store_${blobId}`);const value=detail.body.store;
+      report.connectedStore={statusCode:detail.status,...(value?{status:label(value.status),billingState:label(value.billingState),usageQuotaExceeded:value.usageQuotaExceeded===true}:{} )};
+    }
+    const firewall=await request(`/v1/security/firewall/config/active?projectId=${encodeURIComponent(env.VERCEL_PROJECT_ID)}`);
+    report.firewall={statusCode:firewall.status,enabled:firewall.body.firewallEnabled===true,rules:(firewall.body.rules||[]).map(rule=>({id:label(rule.id),name:typeof rule.name==='string'?rule.name.slice(0,100):null,active:rule.active===true,action:label(rule.action?.mitigate?.action)}))};
+    const deployments=await request(`/v6/deployments?projectId=${encodeURIComponent(env.VERCEL_PROJECT_ID)}&limit=3`);
+    report.deployments=(deployments.body.deployments||[]).map(item=>({id:label(item.uid),state:label(item.readyState||item.state),createdAt:typeof item.created==='number'?new Date(item.created).toISOString():null}));
   }
   try{const state=await store.load();report.privateStorage={readable:true,candidates:state.candidates.length};}
   catch(error){report.privateStorage={readable:false,code:/^PRIVATE_STORAGE_[A-Z_]+$/.test(error.code||'')?error.code:'PRIVATE_STORAGE_CHECK_FAILED'};}
