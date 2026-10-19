@@ -31,6 +31,18 @@ export async function inspectVercel({env=process.env,fetchImpl=fetch,store=creat
     report.firewall={statusCode:firewall.status,enabled:firewall.body.firewallEnabled===true,rules:(firewall.body.rules||[]).map(rule=>({id:label(rule.id),name:typeof rule.name==='string'?rule.name.slice(0,100):null,active:rule.active===true,action:label(rule.action?.mitigate?.action)}))};
     const deployments=await request(`/v6/deployments?projectId=${encodeURIComponent(env.VERCEL_PROJECT_ID)}&limit=3`);
     report.deployments=(deployments.body.deployments||[]).map(item=>({id:label(item.uid),state:label(item.readyState||item.state),createdAt:typeof item.created==='number'?new Date(item.created).toISOString():null}));
+    const query=new URLSearchParams({projectId:env.VERCEL_PROJECT_ID,ownerId:env.VERCEL_ORG_ID,environment:'production',startDate:String(Date.now()-3600000),endDate:String(Date.now())});
+    const logs=await fetchImpl(`https://vercel.com/api/logs/request-logs?${query}`,{headers:{Authorization:`Bearer ${env.ADMIN_VERCEL_TOKEN}`},redirect:'error',signal:AbortSignal.timeout(20000)});
+    report.runtimeLogs={statusCode:logs.status};
+    if(logs.ok){
+      const data=await logs.json();const counts={};let paused=0;
+      for(const row of data.rows||[]){
+        const rawPath=String(row.requestPath||'').split('?')[0];const path=/^\/(?:api\/admin\/|admin\/|api\/instagram\/|instagram-queue)/.test(rawPath)?rawPath:'other';
+        const status=Number.isInteger(row.statusCode)?row.statusCode:0;const key=`${path} ${status}`;counts[key]=(counts[key]||0)+1;
+        if((row.logs||[]).some(item=>String(item.message||'').includes('instagram-paused')))paused++;
+      }
+      report.runtimeLogs={statusCode:logs.status,sampledRequests:data.rows?.length||0,hasMore:data.hasMoreRows===true,counts,pausedDeliveries:paused};
+    }
   }
   try{const state=await store.load();report.privateStorage={readable:true,candidates:state.candidates.length};}
   catch(error){report.privateStorage={readable:false,code:/^PRIVATE_STORAGE_[A-Z_]+$/.test(error.code||'')?error.code:'PRIVATE_STORAGE_CHECK_FAILED'};}
