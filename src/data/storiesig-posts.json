@@ -789,7 +789,7 @@
         "filename": "2efea20614ba.mp4"
       }
     ],
-    "contentGroupId": "storiesig-hilton_erika-f4965976b623",
+    "contentGroupId": "storiesig-hilton_erika-7fe295a80d97",
     "videoQuality": {
       "width": 720,
       "height": 1280,
@@ -2554,5 +2554,144 @@
     "captionProvider": "source-text",
     "captionModel": "source-caption-v1",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc"
+  },
+  {
+    "id": "storiesig-ptbrasil-a038dc5bb63b",
+    "source": "ptbrasil",
+    "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
+    "permalink": null,
+    "title": "Debate na Band: trecho compartilhado pelo PT",
+    "excerpt": "🚨 O povo brasileiro assiste neste exato momento Flávio Bolsonaro mentir há duas horas. Eis a verdad...",
+    "publishedAt": null,
+    "observedAt": "2026-10-19T04:33:23.976Z",
+    "publishedLabel": "3 hours ago",
+    "kind": "video",
+    "mediaUrl": "/media/instagram/ptbrasil/a038dc5bb63b.mp4",
+    "thumbnailUrl": "/media/instagram/ptbrasil/a038dc5bb63b.jpg",
+    "downloadUrl": "/media/instagram/ptbrasil/a038dc5bb63b.mp4",
+    "media": [
+      {
+        "kind": "video",
+        "url": "/media/instagram/ptbrasil/a038dc5bb63b.mp4",
+        "thumbnailUrl": "/media/instagram/ptbrasil/a038dc5bb63b.jpg",
+        "filename": "a038dc5bb63b.mp4"
+      }
+    ],
+    "contentGroupId": "storiesig-ptbrasil-a038dc5bb63b",
+    "publicationCaption": "Descrição da publicação original:\n\n🚨 O povo brasileiro assiste neste exato momento Flávio Bolsonaro mentir há duas horas. Eis a verdad...",
+    "publicationHashtags": [
+      "DebateNaBand",
+      "ptbrasil",
+      "Reels",
+      "VideoCompartilhado"
+    ],
+    "mentionProfiles": [
+      "ptbrasil",
+      "andrejanones",
+      "seremosresistencia",
+      "hilton_erika",
+      "brasilcomlula"
+    ],
+    "reviewApprovedAt": "2026-10-19T04:34:51.394Z",
+    "captionProvider": "source-text",
+    "captionModel": "source-caption-v1",
+    "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
+    "videoQuality": {
+      "width": 720,
+      "height": 1280,
+      "preservedSource": true
+    }
+  },
+  {
+    "id": "storiesig-ptbrasil-c84cc55e3702",
+    "source": "ptbrasil",
+    "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
+    "permalink": null,
+    "title": "Debate na Band: trabalho e transporte",
+    "excerpt": "🚨 #DebateNaBand...",
+    "publishedAt": null,
+    "observedAt": "2026-10-19T04:33:27.158Z",
+    "publishedLabel": "3 hours ago",
+    "kind": "video",
+    "mediaUrl": "/media/instagram/ptbrasil/c84cc55e3702.mp4",
+    "thumbnailUrl": "/media/instagram/ptbrasil/c84cc55e3702.jpg",
+    "downloadUrl": "/media/instagram/ptbrasil/c84cc55e3702.mp4",
+    "media": [
+      {
+        "kind": "video",
+        "url": "/media/instagram/ptbrasil/c84cc55e3702.mp4",
+        "thumbnailUrl": "/media/instagram/ptbrasil/c84cc55e3702.jpg",
+        "filename": "c84cc55e3702.mp4"
+      }
+    ],
+    "contentGroupId": "storiesig-ptbrasil-c84cc55e3702",
+    "publicationCaption": "Descrição da publicação original:\n\n🚨 ...",
+    "publicationHashtags": [
+      "DebateNaBand",
+      "ptbrasil",
+      "Reels"
+    ],
+    "mentionProfiles": [
+      "ptbrasil",
+      "theinterceptbrasil",
+      "fernandohaddadoficial",
+      "ptsaopaulo",
+      "jeanwyllys_real"
+    ],
+    "reviewApprovedAt": "2026-10-19T04:34:51.452Z",
+    "captionProvider": "source-text",
+    "captionModel": "source-caption-v1",
+    "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
+    "videoQuality": {
+      "width": 720,
+      "height": 1280,
+      "preservedSource": true
+    }
+  },
+  {
+    "id": "storiesig-ptbrasil-83473b33c829",
+    "source": "ptbrasil",
+    "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
+    "permalink": null,
+    "title": "Debate na Band: economia em discussão",
+    "excerpt": "🚨 #DebateNaBand...",
+    "publishedAt": null,
+    "observedAt": "2026-10-19T04:33:30.602Z",
+    "publishedLabel": "4 hours ago",
+    "kind": "video",
+    "mediaUrl": "/media/instagram/ptbrasil/83473b33c829.mp4",
+    "thumbnailUrl": "/media/instagram/ptbrasil/83473b33c829.jpg",
+    "downloadUrl": "/media/instagram/ptbrasil/83473b33c829.mp4",
+    "media": [
+      {
+        "kind": "video",
+        "url": "/media/instagram/ptbrasil/83473b33c829.mp4",
+        "thumbnailUrl": "/media/instagram/ptbrasil/83473b33c829.jpg",
+        "filename": "83473b33c829.mp4"
+      }
+    ],
+    "contentGroupId": "storiesig-ptbrasil-83473b33c829",
+    "publicationCaption": "Descrição da publicação original:\n\n🚨 ...",
+    "publicationHashtags": [
+      "DebateNaBand",
+      "ptbrasil",
+      "Reels"
+    ],
+    "mentionProfiles": [
+      "ptbrasil",
+      "pragmatismopolitico",
+      "andrejanones",
+      "seremosresistencia",
+      "hilton_erika"
+    ],
+    "reviewApprovedAt": "2026-10-19T04:34:51.482Z",
+    "captionProvider": "source-text",
+    "captionModel": "source-caption-v1",
+    "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
+    "videoQuality": {
+      "width": 720,
+      "height": 1280,
+      "preservedSource": true
+    }
   }
 ]

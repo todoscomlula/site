@@ -1058,5 +1058,35 @@
     "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-10-15/6eefa0f9e905.jpg",
     "sha256": "6eefa0f9e905c203d957af1f09c08f834521c26f7589c4a21b3472f5ea048882",
     "bytes": 88952
+  },
+  "/media/instagram/ptbrasil/a038dc5bb63b.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/a038dc5bb63b.mp4",
+    "sha256": "a038dc5bb63b4fa42ee02506ab648dfb9b0c8fd3fafaf906f3778376b60bd1bb",
+    "bytes": 4125329
+  },
+  "/media/instagram/ptbrasil/a038dc5bb63b.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/3429e06c77e9.jpg",
+    "sha256": "3429e06c77e946dadd8d3fbdb50755be1434e34a9c99af446d8d2466ec9b3f85",
+    "bytes": 36428
+  },
+  "/media/instagram/ptbrasil/c84cc55e3702.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/c84cc55e3702.mp4",
+    "sha256": "c84cc55e37024ff58f490b89f62b4ce17c88eb22b8aa7b1e27cc45a17d52acf7",
+    "bytes": 6989268
+  },
+  "/media/instagram/ptbrasil/c84cc55e3702.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/193083b2e8ea.jpg",
+    "sha256": "193083b2e8ead47e18bad84565efa3b58f6c320aed27bd632a450e0588e6879d",
+    "bytes": 70287
+  },
+  "/media/instagram/ptbrasil/83473b33c829.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/83473b33c829.mp4",
+    "sha256": "83473b33c829d69fbcdaf0619406ea447bb03dfae3061b41fff785a26e99d9d3",
+    "bytes": 983704
+  },
+  "/media/instagram/ptbrasil/83473b33c829.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-debate-2026-10-19/8fcc8f5f8a85.jpg",
+    "sha256": "8fcc8f5f8a851cd4e1523cd5b8ddbdd8ff4d8ade9c3d093373f8642d6bcfe813",
+    "bytes": 91150
   }
 }
