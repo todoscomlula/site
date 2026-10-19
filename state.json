@@ -3,5 +3,8 @@
   "account": "boraaalula2026",
   "published": [],
   "pending": null,
-  "lease": null
+  "lease": {
+    "owner": "f19cf6a0-93ea-41b0-801d-3947868b7f28",
+    "expiresAt": "2026-10-19T16:22:26.284Z"
+  }
 }
