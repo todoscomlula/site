@@ -1,0 +1,81 @@
+name: Instagram — recuperação em executor temporário
+on:
+  workflow_dispatch:
+    inputs:
+      runner_label:
+        description: 'Etiqueta única do executor temporário, com prefixo lula-recovery-'
+        required: true
+        type: string
+      publish:
+        description: 'Publicar somente os três vídeos aprovados do debate'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: instagram-local-recovery-boraaalula2026
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.repository == 'todoscomlula/site' && github.ref == 'refs/heads/main' && startsWith(inputs.runner_label, 'lula-recovery-')
+    runs-on: ${{ inputs.runner_label }}
+    timeout-minutes: 35
+    environment: instagram-publishing
+    env:
+      PUBLIC_SITE_URL: https://todos-com-lula.vercel.app
+      INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
+      ADMIN_BLOB_READ_WRITE_TOKEN: ${{ secrets.ADMIN_BLOB_READ_WRITE_TOKEN }}
+      ADMIN_WORKER_SECRET: ${{ secrets.ADMIN_WORKER_SECRET }}
+      ADMIN_VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
+      VERCEL_TOKEN: ${{ secrets.ADMIN_VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run test:unit
+      - name: Conferir conta e publicações existentes
+        run: node scripts/instagram-manual.mjs --check
+      - name: Preparar verificação dos checkpoints públicos
+        if: inputs.publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${RUNNER_OS}" = macOS
+          test "$(uname -m)" = arm64
+          task_scan_dir="$RUNNER_TEMP/instagram-manual-gitleaks"
+          mkdir -p "$task_scan_dir" .git/tools
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_darwin_arm64.tar.gz -o "$task_scan_dir/gitleaks_8.30.1_darwin_arm64.tar.gz"
+          curl -fsSL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_checksums.txt -o "$task_scan_dir/gitleaks_8.30.1_checksums.txt"
+          (cd "$task_scan_dir" && shasum -a 256 --check --ignore-missing gitleaks_8.30.1_checksums.txt)
+          tar -xzf "$task_scan_dir/gitleaks_8.30.1_darwin_arm64.tar.gz" -C .git/tools gitleaks
+      - name: Pausar a fila nativa durante o lote
+        id: hold
+        if: inputs.publish
+        env:
+          INSTAGRAM_NATIVE_PAUSED: 'true'
+        run: node scripts/admin/configure-instagram-vercel.mjs
+      - name: Publicar a proteção temporária na Vercel
+        if: inputs.publish
+        run: npx --yes vercel@64.0.2 --prod --yes
+      - name: Publicar os três vídeos aprovados
+        if: inputs.publish
+        run: node scripts/instagram-manual.mjs --publish
+      - name: Retomar a fila nativa
+        id: resume
+        if: always() && steps.hold.outcome == 'success'
+        env:
+          INSTAGRAM_NATIVE_PAUSED: 'false'
+        run: node scripts/admin/configure-instagram-vercel.mjs
+      - name: Publicar a retomada na Vercel
+        if: always() && steps.resume.outcome == 'success'
+        run: npx --yes vercel@64.0.2 --prod --yes
