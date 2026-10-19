@@ -11,6 +11,7 @@ export async function configureInstagramVercel({env=process.env,fetchImpl=fetch}
   const project=await check.json();if(project.id!==env.VERCEL_PROJECT_ID||project.name!=='todos-com-lula')throw new Error('WRONG_VERCEL_PROJECT');
   const values=[{key:'INSTAGRAM_ACCESS_TOKEN',value:env.INSTAGRAM_ACCESS_TOKEN,type:'sensitive'},{key:'CRON_SECRET',value:env.ADMIN_WORKER_SECRET,type:'sensitive'},{key:'INSTAGRAM_API_VERSION',value:env.INSTAGRAM_API_VERSION||'v26.0',type:'plain'},{key:'INSTAGRAM_PUBLISHING_RUNTIME',value:'vercel',type:'plain'}];
   if(env.INSTAGRAM_USER_ID)values.push({key:'INSTAGRAM_USER_ID',value:env.INSTAGRAM_USER_ID,type:'sensitive'});
+  if(['true','false'].includes(env.INSTAGRAM_NATIVE_PAUSED))values.push({key:'INSTAGRAM_NATIVE_PAUSED',value:env.INSTAGRAM_NATIVE_PAUSED,type:'plain'});
   const response=await fetchImpl(`${base}/env?teamId=${encodeURIComponent(env.VERCEL_ORG_ID)}&upsert=true`,{method:'POST',headers,redirect:'error',signal:AbortSignal.timeout(30000),body:JSON.stringify(values.map(item=>({...item,target:['production']})))});
   if(!response.ok)throw new Error('VERCEL_ENV_CONFIGURATION_FAILED');
   return{configured:true,project:'todos-com-lula',runtime:'vercel',variables:values.map(item=>item.key)};

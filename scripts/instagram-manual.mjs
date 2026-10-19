@@ -43,7 +43,8 @@ export async function manualInstagram({env=process.env,fetchImpl=fetch,publish=f
   if(!publish)return {mode:'manual-preflight',account:identity.username,quota,alreadyPublished:existing.length};
   if(!env.ADMIN_WORKER_SECRET||env.ADMIN_WORKER_SECRET.length<40)throw new PublishingError('MANUAL_GUARD_NOT_DEPLOYED');
   const guard=await fetchImpl(new URL('/api/admin/worker/instagram/status/',site),{method:'POST',headers:{Authorization:`Bearer ${env.ADMIN_WORKER_SECRET}`,'Content-Type':'application/json'},body:'{}',redirect:'error',signal:AbortSignal.timeout(15000)});
-  if(!guard.ok||(await guard.json()).manualLedger!==true)throw new PublishingError('MANUAL_GUARD_NOT_DEPLOYED');
+  const guardStatus=guard.ok?await guard.json():null;
+  if(!guardStatus?.manualLedger||guardStatus.manualHold!==true)throw new PublishingError('MANUAL_GUARD_NOT_DEPLOYED');
   // This one-off path is only for the unavailable Blob, while the deployed
   // native consumer observes this separate durable ledger before publishing.
   let blocked=false;try{await blobStore.load();}catch(error){if(error.code==='PRIVATE_STORAGE_BLOCKED')blocked=true;else throw error;}

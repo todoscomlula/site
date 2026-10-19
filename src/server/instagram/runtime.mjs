@@ -62,6 +62,10 @@ async function reconcileAdmin(store,publishing){
 
 export async function processInstagramTick({env=process.env,store=createBlobStore(env),fetchImpl=fetch,sendImpl=send,graph,messageId='manual',now=Date.now(),manualState}={}){
   if(!configured(env))throw new PublishingError('VERCEL_INSTAGRAM_NOT_CONFIGURED');
+  if(env.INSTAGRAM_NATIVE_PAUSED==='true'){
+    await enqueueInstagram({env,sendImpl,delaySeconds:600,idempotencyKey:`instagram-manual-hold-${Math.floor(now/600000)}`,now});
+    return {runtime:'vercel',mode:'paused',code:'MANUAL_RECOVERY_ACTIVE',published:null,checkedAt:new Date(now).toISOString(),nextAttemptAt:new Date(now+600000).toISOString(),publishedThisTick:false};
+  }
   await initializeInstagramState({store,fetchImpl,now});
   const publishingStore=new BlobPublishingState(store);const site=publicSiteUrl(env.PUBLIC_SITE_URL||'https://todos-com-lula.vercel.app');
   let mode='idle';let code=null;let delay=null;let postId=null;let published=false;

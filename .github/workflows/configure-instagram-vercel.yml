@@ -1,11 +1,17 @@
 name: Configurar publicação do Instagram na Vercel
 on:
   workflow_dispatch:
+    inputs:
+      native_mode:
+        description: 'Pausar ou retomar temporariamente a fila nativa durante o lote manual'
+        type: choice
+        options: [keep, pause, resume]
+        default: keep
 permissions:
   contents: read
 jobs:
   configure:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     environment: instagram-publishing
     steps:
@@ -25,4 +31,5 @@ jobs:
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
           INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
           ADMIN_WORKER_SECRET: ${{ secrets.ADMIN_WORKER_SECRET }}
+          INSTAGRAM_NATIVE_PAUSED: ${{ inputs.native_mode == 'pause' && 'true' || inputs.native_mode == 'resume' && 'false' || '' }}
         run: node scripts/admin/configure-instagram-vercel.mjs
