@@ -789,7 +789,7 @@
         "filename": "2efea20614ba.mp4"
       }
     ],
-    "contentGroupId": "storiesig-hilton_erika-7fe295a80d97",
+    "contentGroupId": "storiesig-hilton_erika-f4965976b623",
     "videoQuality": {
       "width": 720,
       "height": 1280,
@@ -2561,7 +2561,7 @@
     "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
     "permalink": null,
     "title": "Debate na Band: trecho compartilhado pelo PT",
-    "excerpt": "🚨 O povo brasileiro assiste neste exato momento Flávio Bolsonaro mentir há duas horas. Eis a verdad...",
+    "excerpt": "Trecho do debate na Band compartilhado pelo perfil PT Brasil.",
     "publishedAt": null,
     "observedAt": "2026-10-19T04:33:23.976Z",
     "publishedLabel": "3 hours ago",
@@ -2578,7 +2578,7 @@
       }
     ],
     "contentGroupId": "storiesig-ptbrasil-a038dc5bb63b",
-    "publicationCaption": "Descrição da publicação original:\n\n🚨 O povo brasileiro assiste neste exato momento Flávio Bolsonaro mentir há duas horas. Eis a verdad...",
+    "publicationCaption": "Trecho do debate na Band compartilhado pelo perfil PT Brasil.",
     "publicationHashtags": [
       "DebateNaBand",
       "ptbrasil",
@@ -2593,8 +2593,8 @@
       "brasilcomlula"
     ],
     "reviewApprovedAt": "2026-10-19T04:34:51.394Z",
-    "captionProvider": "source-text",
-    "captionModel": "source-caption-v1",
+    "captionProvider": "codex",
+    "captionModel": "codex",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
     "videoQuality": {
       "width": 720,
@@ -2608,7 +2608,7 @@
     "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
     "permalink": null,
     "title": "Debate na Band: trabalho e transporte",
-    "excerpt": "🚨 #DebateNaBand...",
+    "excerpt": "Trabalho e transporte em discussão no debate na Band. Trecho compartilhado pelo perfil PT Brasil.",
     "publishedAt": null,
     "observedAt": "2026-10-19T04:33:27.158Z",
     "publishedLabel": "3 hours ago",
@@ -2625,7 +2625,7 @@
       }
     ],
     "contentGroupId": "storiesig-ptbrasil-c84cc55e3702",
-    "publicationCaption": "Descrição da publicação original:\n\n🚨 ...",
+    "publicationCaption": "Trabalho e transporte em discussão no debate na Band. Trecho compartilhado pelo perfil PT Brasil.",
     "publicationHashtags": [
       "DebateNaBand",
       "ptbrasil",
@@ -2639,8 +2639,8 @@
       "jeanwyllys_real"
     ],
     "reviewApprovedAt": "2026-10-19T04:34:51.452Z",
-    "captionProvider": "source-text",
-    "captionModel": "source-caption-v1",
+    "captionProvider": "codex",
+    "captionModel": "codex",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
     "videoQuality": {
       "width": 720,
@@ -2654,7 +2654,7 @@
     "sourceUrl": "https://www.instagram.com/ptbrasil/reels/",
     "permalink": null,
     "title": "Debate na Band: economia em discussão",
-    "excerpt": "🚨 #DebateNaBand...",
+    "excerpt": "Economia em discussão no debate na Band. Trecho compartilhado pelo perfil PT Brasil.",
     "publishedAt": null,
     "observedAt": "2026-10-19T04:33:30.602Z",
     "publishedLabel": "4 hours ago",
@@ -2671,7 +2671,7 @@
       }
     ],
     "contentGroupId": "storiesig-ptbrasil-83473b33c829",
-    "publicationCaption": "Descrição da publicação original:\n\n🚨 ...",
+    "publicationCaption": "Economia em discussão no debate na Band. Trecho compartilhado pelo perfil PT Brasil.",
     "publicationHashtags": [
       "DebateNaBand",
       "ptbrasil",
@@ -2685,8 +2685,8 @@
       "hilton_erika"
     ],
     "reviewApprovedAt": "2026-10-19T04:34:51.482Z",
-    "captionProvider": "source-text",
-    "captionModel": "source-caption-v1",
+    "captionProvider": "codex",
+    "captionModel": "codex",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
     "videoQuality": {
       "width": 720,
