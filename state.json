@@ -2,9 +2,15 @@
   "version": 1,
   "account": "boraaalula2026",
   "published": [],
-  "pending": null,
+  "pending": {
+    "contentHash": "a44a4ce3d591be1038777d5a32dfa9f5f2d8238b5356eac5a9ef24170a5f3aed",
+    "postId": "storiesig-ptbrasil-a038dc5bb63b",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-19T16:02:29.203Z"
+  },
   "lease": {
     "owner": "f19cf6a0-93ea-41b0-801d-3947868b7f28",
-    "expiresAt": "2026-10-19T16:22:26.284Z"
+    "expiresAt": "2026-10-19T16:22:29.203Z"
   }
 }
