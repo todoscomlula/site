@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 export const TARGET_ACCOUNT = 'boraaalula2026';
 export const STATE_BRANCH = 'instagram-publishing-state';
+export const MANUAL_STATE_BRANCH = 'instagram-manual-state';
 export const STATE_REPOSITORY = 'todoscomlula/site';
 export const API_VERSION = 'v26.0';
 export const LEASE_MS = 20 * 60 * 1000;

@@ -5,6 +5,7 @@ import { API_VERSION, PublishingError, contentKey, publicSiteUrl, runPublisher, 
 import { createBlobStore, storageRetrySeconds } from '../admin/blob.mjs';
 import { AdminError } from '../admin/auth.mjs';
 import { addActivity, selectMentions } from '../admin/state.mjs';
+import { readManualHistory,mergeManualHistory } from '../../../scripts/instagram-publishing/manual-history.mjs';
 
 export const INSTAGRAM_STATE_PATH='queue/instagram-publishing-state.json';
 export const INSTAGRAM_STATUS_PATH='queue/instagram-runtime.json';
@@ -59,12 +60,18 @@ async function reconcileAdmin(store,publishing){
   await store.mutate(current=>{for(const item of current.candidates){const proof=confirmed.get(contentKey(item));if(item.approvedAt&&item.status!=='published'&&proof){item.status='published';item.publishedAt=proof.publishedAt;item.lastError=null;addActivity(current,'published',`Vídeo de @${item.source} confirmado no Instagram pela Vercel.`);}}});
 }
 
-export async function processInstagramTick({env=process.env,store=createBlobStore(env),fetchImpl=fetch,sendImpl=send,graph,messageId='manual',now=Date.now()}={}){
+export async function processInstagramTick({env=process.env,store=createBlobStore(env),fetchImpl=fetch,sendImpl=send,graph,messageId='manual',now=Date.now(),manualState}={}){
   if(!configured(env))throw new PublishingError('VERCEL_INSTAGRAM_NOT_CONFIGURED');
   await initializeInstagramState({store,fetchImpl,now});
   const publishingStore=new BlobPublishingState(store);const site=publicSiteUrl(env.PUBLIC_SITE_URL||'https://todos-com-lula.vercel.app');
   let mode='idle';let code=null;let delay=null;let postId=null;let published=false;
   try{
+    const manual=manualState||await readManualHistory({fetchImpl,now});
+    const before=await publishingStore.load();const reconciled=mergeManualHistory(before,manual,now);
+    if(JSON.stringify(before)!==JSON.stringify(reconciled)){
+      if(before.lease&&Date.parse(before.lease.expiresAt)>now)throw new PublishingError('PUBLISHING_LOCK_ACTIVE');
+      await publishingStore.save(reconciled);
+    }
     const response=await fetchImpl(new URL('/feed.json',site),{redirect:'error',signal:AbortSignal.timeout(15000)});
     if(!response.ok)throw new PublishingError('PUBLIC_FEED_UNAVAILABLE');const raw=await response.text();if(raw.length>10000000)throw new PublishingError('INVALID_SITE_FEED');
     const feed=JSON.parse(raw);if(!Array.isArray(feed))throw new PublishingError('INVALID_SITE_FEED');
@@ -78,9 +85,10 @@ export async function processInstagramTick({env=process.env,store=createBlobStor
   }catch(error){
     if(error instanceof AdminError&&storageRetrySeconds(error.code))throw error;
     code=error instanceof PublishingError?error.code:'INSTAGRAM_PROCESSING_FAILED';
-    if(code==='CONTAINER_PROCESSING_TIMEOUT'){mode='processing';delay=60;}
+    if(code==='MANUAL_PUBLISHING_ACTIVE'){mode='paused';delay=300;}
+    else if(code==='CONTAINER_PROCESSING_TIMEOUT'){mode='processing';delay=60;}
     else if(['PUBLISHING_LOCK_ACTIVE','INSTAGRAM_STATE_CONFLICT'].includes(code)){mode='processing';delay=60;}
-    else if(['PUBLISHING_RESULT_UNCERTAIN','WRONG_INSTAGRAM_ACCOUNT','INVALID_INSTAGRAM_USER_ID','INVALID_SITE_FEED'].includes(code)||(error instanceof PublishingError&&[190,10,200].includes(error.providerCode))){mode='attention';}
+    else if(['PUBLISHING_RESULT_UNCERTAIN','WRONG_INSTAGRAM_ACCOUNT','INVALID_INSTAGRAM_USER_ID','INVALID_SITE_FEED','INVALID_MANUAL_HISTORY','MANUAL_PUBLISHING_CONFLICT'].includes(code)||(error instanceof PublishingError&&[190,10,200].includes(error.providerCode))){mode='attention';}
     else{mode='retry';delay=900;}
   }
   const state=await publishingStore.load();await reconcileAdmin(store,state);

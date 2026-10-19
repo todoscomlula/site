@@ -5,6 +5,7 @@ import { generateCaption, checkCaptionProvider, GUIDANCE_REVISION } from './capt
 import { randomUUID } from 'node:crypto';
 import { PublishingError, validateState as validatePublishingState } from '../../../scripts/instagram-publishing/core.mjs';
 import { enqueueInstagram, checkInstagramConnection, INSTAGRAM_STATE_PATH, INSTAGRAM_STATUS_PATH } from '../instagram/runtime.mjs';
+import { readManualHistory } from '../../../scripts/instagram-publishing/manual-history.mjs';
 
 const headers = {'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store, max-age=0','Vercel-CDN-Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow','Vary':'Cookie'};
 const json = (value,status=200,extra={})=>new Response(JSON.stringify(value),{status,headers:{...headers,...extra}});
@@ -16,8 +17,9 @@ async function publicStatus(env,fetchImpl){
   const results=await Promise.allSettled([
     fetchImpl(new URL('/feed.json',origin),{signal:AbortSignal.timeout(8000)}).then(async r=>{if(!r.ok)throw new Error();const text=await r.text();if(text.length>10000000)throw new Error();const v=JSON.parse(text);if(!Array.isArray(v))throw new Error();return v;}),
     fetchImpl('https://raw.githubusercontent.com/todoscomlula/site/refs/heads/instagram-publishing-state/state.json',{signal:AbortSignal.timeout(8000)}).then(async r=>{if(!r.ok)throw new Error();const text=await r.text();if(text.length>1000000)throw new Error();const v=JSON.parse(text);if(v.account!=='boraaalula2026'||!Array.isArray(v.published))throw new Error();return v.published;}),
+    readManualHistory({fetchImpl}).then(state=>state.published),
   ]);
-  publicCache={at:Date.now(),feed:results[0].status==='fulfilled'?results[0].value:publicCache.feed,published:results[1].status==='fulfilled'?results[1].value:publicCache.published};
+  publicCache={at:Date.now(),feed:results[0].status==='fulfilled'?results[0].value:publicCache.feed,published:results[1].status==='fulfilled'?results[1].value:publicCache.published,manualPublished:results[2].status==='fulfilled'?results[2].value:publicCache.manualPublished||[]};
   return publicCache;
 }
 function requireItem(state,id){const item=state.candidates.find(candidate=>candidate.id===id);if(!item)throw new AdminError('CANDIDATE_NOT_FOUND',404);return item;}
@@ -30,7 +32,7 @@ async function adminDashboard({env,store,fetchImpl}){
   const unavailable=failures[0]?.reason.code||null;
   const [state,collector,instagramState,instagramRuntime]=records.map(result=>result.status==='fulfilled'?result.value:null);
   const readOnly=!!unavailable;
-  const published=instagramState?validatePublishingState(instagramState).published:status.published;
+  const published=[...new Map([...(instagramState?validatePublishingState(instagramState).published:status.published),...(status.manualPublished||[])].map(proof=>[proof.contentHash,proof])).values()];
   const publishedIds=new Set(published.map(item=>item.postId));
   const candidates=readOnly?[]:state.candidates.map(item=>({...item,media:{video:{url:`/api/admin/media/${item.id}/video/`,bytes:item.media.video.bytes,width:item.media.video.width,height:item.media.video.height},poster:{url:`/api/admin/media/${item.id}/poster/`}},mentionProfiles:mentionsFor(state,item),status:publishedIds.has(item.id)?'published':item.status}));
   return {availability:{readOnly,code:unavailable},sources:readOnly?[]:state.sources,candidates,activity:readOnly?[]:state.activity,worker:readOnly?{lastRunAt:null,lastError:null}:state.worker,instagramRuntime:readOnly?{runtime:'vercel',mode:'paused',code:unavailable,nextAttemptAt:null}:instagramRuntime||null,archive:status.feed.map(post=>({id:post.id,title:post.title,source:post.source,kind:post.kind,imageUrl:post.imageUrl,url:post.url,instagramPublished:publishedIds.has(post.id)?true:readOnly?null:false})),counts:{pending:readOnly?null:candidates.filter(item=>item.status==='pending').length,queued:readOnly?null:candidates.filter(item=>!['pending','published','rejected'].includes(item.status)).length,site:status.feed.length,instagram:readOnly?null:published.length,activeSources:readOnly?null:state.sources.filter(source=>source.enabled).length},storage:{pendingBytes:readOnly?null:pendingBytes(state),maximumBytes:MAX_PENDING_BYTES},configuration:{collection:{provider:collector?.provider==='apify'?'apify':'storiesig',configured:collector?.configured===true},deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API),model:env.DEEPSEEK_MODEL||'deepseek-flash',worker:!!env.ADMIN_WORKER_SECRET,skillRevision:GUIDANCE_REVISION,skillRepository:'https://github.com/sergebulaev/instagram-skills'}};
@@ -57,8 +59,8 @@ export async function handleAdminRequest(request,{env=process.env,store=createBl
       if(action==='worker/instagram'){await readJson(request);return json(await enqueueInstagram({env}),202);}
       if(action==='worker/instagram/check'){await readJson(request);return json(await checkInstagramConnection({env,store,fetchImpl}));}
       if(action==='worker/instagram/status'){
-        try{const [publishing,status]=await Promise.all([store.readJson(INSTAGRAM_STATE_PATH),store.readJson(INSTAGRAM_STATUS_PATH)]);return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'github',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:!!publishing,published:publishing?.published?.length||0,status:status||null});}
-        catch(error){if(!(error instanceof AdminError)||!storageRetrySeconds(error.code))throw error;return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'vercel',configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:null,published:null,availability:{readOnly:true,code:error.code},status:{mode:'paused',code:error.code,nextAttemptAt:null}});}
+        try{const [publishing,status]=await Promise.all([store.readJson(INSTAGRAM_STATE_PATH),store.readJson(INSTAGRAM_STATUS_PATH)]);return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'github',manualLedger:true,configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:!!publishing,published:publishing?.published?.length||0,status:status||null});}
+        catch(error){if(!(error instanceof AdminError)||!storageRetrySeconds(error.code))throw error;return json({runtime:env.INSTAGRAM_PUBLISHING_RUNTIME||'vercel',manualLedger:true,configured:!!env.INSTAGRAM_ACCESS_TOKEN,migrated:null,published:null,availability:{readOnly:true,code:error.code},status:{mode:'paused',code:error.code,nextAttemptAt:null}});}
       }
       if(action==='worker/deepseek'){const input=await readJson(request);if(Object.keys(input).some(key=>!['mode','model'].includes(key))||('mode'in input&&!['metadata','probe'].includes(input.mode))||('model'in input&&typeof input.model!=='string'))throw new AdminError('INVALID_REQUEST');return json(await checkCaptionProvider({env,fetchImpl,metadata:input.mode==='metadata',model:input.model||null}));}
       if(action==='worker/status')return json({deepseek:!!(env.DEEPSEEK_API_KEY||env.DEEP_SEEK_API)});

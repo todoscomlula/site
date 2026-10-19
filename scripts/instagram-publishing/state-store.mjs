@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { emptyState, PublishingError, STATE_BRANCH, STATE_REPOSITORY, validateState } from './core.mjs';
+import { emptyState, PublishingError, STATE_BRANCH, MANUAL_STATE_BRANCH, STATE_REPOSITORY, validateState } from './core.mjs';
 import { scanPublicState } from './secret-scan.mjs';
 
 export class LocalReadOnlyState {
@@ -15,8 +15,9 @@ export class LocalReadOnlyState {
 }
 
 export class GithubStateStore {
-  constructor({ token, repository = STATE_REPOSITORY, fetchImpl = fetch, scan = scanPublicState }) {
-    if (!token || repository !== STATE_REPOSITORY) throw new PublishingError('MISSING_GITHUB_STATE_CONFIGURATION');
+  constructor({ token, repository = STATE_REPOSITORY, branch = STATE_BRANCH, fetchImpl = fetch, scan = scanPublicState }) {
+    if (!token || repository !== STATE_REPOSITORY || ![STATE_BRANCH,MANUAL_STATE_BRANCH].includes(branch)) throw new PublishingError('MISSING_GITHUB_STATE_CONFIGURATION');
+    this.branch = branch;
     this.token = token;
     this.fetch = fetchImpl;
     this.base = `https://api.github.com/repos/${STATE_REPOSITORY}/`;
@@ -39,7 +40,7 @@ export class GithubStateStore {
   }
 
   async load({ create = false } = {}) {
-    const file = await this.request(`contents/state.json?ref=${STATE_BRANCH}`, { allowMissing: true });
+    const file = await this.request(`contents/state.json?ref=${this.branch}`, { allowMissing: true });
     if (!file) {
       this.sha = null;
       if (create) { await this.initialize(); return this.load(); }
@@ -64,7 +65,7 @@ export class GithubStateStore {
       { path: 'vercel.json', mode: '100644', type: 'blob', sha: configBlob.sha },
     ] } });
     const commit = await this.request('git/commits', { method: 'POST', body: { message: 'Initialize sanitized Instagram state [skip ci]', tree: tree.sha, parents: [] } });
-    await this.request('git/refs', { method: 'POST', body: { ref: `refs/heads/${STATE_BRANCH}`, sha: commit.sha } });
+    await this.request('git/refs', { method: 'POST', body: { ref: `refs/heads/${this.branch}`, sha: commit.sha } });
   }
 
   async save(state) {
@@ -73,7 +74,7 @@ export class GithubStateStore {
     await this.scan(serialized);
     const content = Buffer.from(serialized).toString('base64');
     const result = await this.request('contents/state.json', {
-      method: 'PUT', body: { branch: STATE_BRANCH, sha: this.sha, message: 'Checkpoint sanitized Instagram publishing state [skip ci]', content },
+      method: 'PUT', body: { branch: this.branch, sha: this.sha, message: 'Checkpoint sanitized Instagram publishing state [skip ci]', content },
     });
     if (typeof result.content?.sha !== 'string') throw new PublishingError('INVALID_GITHUB_STATE_RESPONSE');
     this.sha = result.content.sha;
