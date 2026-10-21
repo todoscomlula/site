@@ -57,9 +57,15 @@
       "publishedAt": "2026-10-21T21:53:28.590Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "e19c32df7164afd0835b320b2b7f724830017d13db2a40d9e9cf211bd5d9e1ba",
+    "postId": "storiesig-gleisihoffmann-0efa1ef49823",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-21T21:53:33.596Z"
+  },
   "lease": {
     "owner": "bbeec5fe-b763-48ba-a718-91da091f0847",
-    "expiresAt": "2026-10-21T22:13:31.685Z"
+    "expiresAt": "2026-10-21T22:13:33.596Z"
   }
 }
