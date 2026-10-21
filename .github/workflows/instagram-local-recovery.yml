@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       publish:
-        description: 'Publicar somente os três vídeos aprovados do debate'
+        description: 'Publicar somente os vídeos revisados em instagram-manual-batch.json'
         type: boolean
         default: false
 permissions:
@@ -67,7 +67,7 @@ jobs:
       - name: Publicar a proteção temporária na Vercel
         if: inputs.publish
         run: npx --yes vercel@64.0.2 --prod --yes
-      - name: Publicar os três vídeos aprovados
+      - name: Publicar o lote revisado
         if: inputs.publish
         run: node scripts/instagram-manual.mjs --publish
       - name: Retomar a fila nativa

@@ -1,18 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { emptyState,validateState,contentKey,makeCaption,PublishingError } from '../scripts/instagram-publishing/core.mjs';
-import { manualInstagram,selectManualPosts,findExistingManualPosts,DEBATE_POST_IDS } from '../scripts/instagram-manual.mjs';
+import { manualInstagram,selectManualPosts,findExistingManualPosts,MANUAL_POST_IDS } from '../scripts/instagram-manual.mjs';
 import { readManualHistory,mergeManualHistory } from '../scripts/instagram-publishing/manual-history.mjs';
 import { AdminError } from '../src/server/admin/auth.mjs';
 
 const site=new URL('https://todos-com-lula.vercel.app');
-const posts=DEBATE_POST_IDS.map((id,index)=>({id,contentGroupId:id,source:'ptbrasil',sourceName:'PT Brasil',sourceUrl:'https://www.instagram.com/ptbrasil/reels/',kind:'video',mediaUrl:`/media/instagram/ptbrasil/aaaaaaaaaaa${index}.mp4`,title:'Trecho do debate na Band',publicationCaption:'Trecho compartilhado pelo perfil de origem.',publicationHashtags:['DebateNaBand','ptbrasil','Reels'],mentionProfiles:['lulaoficial','uneoficial','andrejanones','seremosresistencia','brasilcomlula'],reviewApprovedAt:new Date().toISOString()}));
+const posts=MANUAL_POST_IDS.map((id,index)=>({id,contentGroupId:id,source:'ptbrasil',sourceName:'PT Brasil',sourceUrl:'https://www.instagram.com/ptbrasil/reels/',kind:'video',mediaUrl:`/media/instagram/ptbrasil/aaaaaaaaaaa${index}.mp4`,title:'Trecho do debate na Band',publicationCaption:'Trecho compartilhado pelo perfil de origem.',publicationHashtags:['DebateNaBand','ptbrasil','Reels'],mentionProfiles:['lulaoficial','uneoficial','andrejanones','seremosresistencia','brasilcomlula'],reviewApprovedAt:new Date().toISOString()}));
 const proof=(post,id='123')=>({postId:post.id,contentHash:contentKey(post),mediaId:id,publishedAt:new Date().toISOString()});
 
-test('manual publishing accepts only the three recent reviewed debate videos',()=>{
-  assert.equal(selectManualPosts(posts).length,3);
+test('manual publishing accepts only the configured recently reviewed videos',()=>{
+  assert.equal(selectManualPosts(posts).length,MANUAL_POST_IDS.length);
   assert.throws(()=>selectManualPosts(posts,['unreviewed']),{code:'INVALID_MANUAL_BATCH'});
   assert.throws(()=>selectManualPosts(posts.map(post=>({...post,reviewApprovedAt:'2020-01-01T00:00:00.000Z'}))),{code:'MANUAL_BATCH_NOT_APPROVED'});
+  assert.throws(()=>selectManualPosts(posts.map(post=>({...post,reviewApprovedAt:'invalid'}))),{code:'MANUAL_BATCH_NOT_APPROVED'});
+  assert.throws(()=>selectManualPosts(posts,[...MANUAL_POST_IDS,MANUAL_POST_IDS[0]]),{code:'INVALID_MANUAL_BATCH'});
+  assert.throws(()=>selectManualPosts(posts.map(post=>({...post,contentGroupId:'same-video'}))),{code:'DUPLICATE_MANUAL_CONTENT'});
 });
 test('media lookup follows only a cursor on the verified account and recovers exact public post links',async()=>{
   const requests=[];const graph={userId:'123',request:async(path,options)=>{requests.push({path,options});return requests.length===1?{data:[],paging:{next:'https://untrusted.example/',cursors:{after:'opaque-cursor'}}}:{data:[{id:'456',caption:makeCaption(posts[0],site),timestamp:new Date().toISOString(),permalink:'https://www.instagram.com/reel/Test123/'}]};}};
@@ -38,7 +41,7 @@ function fixture({existing=0,blocked=true,guard=true,state=emptyState(),publishE
   return{options,events,get state(){return saved;},get published(){return published;},get created(){return created;}};
 }
 test('manual batch skips an existing Instagram post and durably confirms only the remaining selected clips',async()=>{
-  const f=fixture({existing:1});const result=await manualInstagram(f.options);assert.equal(result.confirmed,3);assert.equal(f.published,2);assert.equal(f.created,2);assert.equal(f.state.published.length,3);assert.equal(f.state.pending,null);assert.equal(f.state.lease,null);
+  const f=fixture({existing:1});const result=await manualInstagram(f.options);assert.equal(result.confirmed,posts.length);assert.equal(f.published,posts.length-1);assert.equal(f.created,posts.length-1);assert.equal(f.state.published.length,posts.length);assert.equal(f.state.pending,null);assert.equal(f.state.lease,null);
 });
 test('manual batch refuses a healthy native runtime or an undeployed reconciliation guard',async()=>{
   const healthy=fixture({blocked:false});await assert.rejects(manualInstagram(healthy.options),{code:'NATIVE_RUNTIME_AVAILABLE_USE_VERCEL'});assert.equal(healthy.created,0);

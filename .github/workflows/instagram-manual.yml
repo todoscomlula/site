@@ -1,9 +1,9 @@
-name: Instagram — lote manual do debate
+name: Instagram — lote manual aprovado
 on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publicar somente os três vídeos aprovados do debate de 18/10'
+        description: 'Publicar somente os vídeos revisados em instagram-manual-batch.json'
         type: boolean
         default: false
 permissions:
@@ -14,7 +14,7 @@ concurrency:
 jobs:
   manual:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 35
     environment: instagram-publishing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

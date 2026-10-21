@@ -3,12 +3,14 @@ import { API_VERSION,MANUAL_STATE_BRANCH,PublishingError,contentKey,publicSiteUr
 import { MetaClient } from './instagram-publishing/meta-client.mjs';
 import { GithubStateStore } from './instagram-publishing/state-store.mjs';
 import { createBlobStore } from '../src/server/admin/blob.mjs';
+import manualBatch from '../src/data/instagram-manual-batch.json' with { type: 'json' };
 
-export const DEBATE_POST_IDS=['storiesig-ptbrasil-a038dc5bb63b','storiesig-ptbrasil-c84cc55e3702','storiesig-ptbrasil-83473b33c829'];
-export function selectManualPosts(feed,ids=DEBATE_POST_IDS,now=Date.now()){
-  if(!Array.isArray(feed)||ids.length<1||ids.length>3||new Set(ids).size!==ids.length||ids.some(id=>!DEBATE_POST_IDS.includes(id)))throw new PublishingError('INVALID_MANUAL_BATCH');
+export const MANUAL_POST_IDS=Object.freeze([...manualBatch.postIds]);
+export function selectManualPosts(feed,ids=MANUAL_POST_IDS,now=Date.now()){
+  if(!Array.isArray(feed)||ids.length<1||ids.length>10||new Set(ids).size!==ids.length||ids.some(id=>!MANUAL_POST_IDS.includes(id)))throw new PublishingError('INVALID_MANUAL_BATCH');
   const posts=ids.map(id=>feed.find(post=>post.id===id));
-  if(posts.some(post=>!post||post.kind!=='video'||!post.reviewApprovedAt||Date.parse(post.reviewApprovedAt)>now+300000||now-Date.parse(post.reviewApprovedAt)>2*86400000))throw new PublishingError('MANUAL_BATCH_NOT_APPROVED');
+  if(posts.some(post=>!post||post.kind!=='video'||!Number.isFinite(Date.parse(post.reviewApprovedAt))||Date.parse(post.reviewApprovedAt)>now+300000||now-Date.parse(post.reviewApprovedAt)>2*86400000))throw new PublishingError('MANUAL_BATCH_NOT_APPROVED');
+  if(new Set(posts.map(contentKey)).size!==posts.length)throw new PublishingError('DUPLICATE_MANUAL_CONTENT');
   for(const post of posts)makeCaption(post,new URL('https://todos-com-lula.vercel.app'));
   return posts;
 }
@@ -55,7 +57,7 @@ export async function manualInstagram({env=process.env,fetchImpl=fetch,publish=f
   if(state.pending&&!posts.some(post=>post.id===state.pending.postId))throw new PublishingError('MANUAL_PENDING_OUTSIDE_BATCH');
   for(const {permalink,...proof} of existing){if(!state.published.some(item=>item.contentHash===proof.contentHash))state.published.push(proof);if(state.pending?.contentHash===proof.contentHash)state.pending=null;}
   await store.save(state);
-  const result=await runPublishingQueue({posts,siteUrl:site.href,publish:true,graph,store,fetchImpl,log,...(sleep?{sleep}:{})},{maximum:4,budgetMs:12*60*1000});
+  const result=await runPublishingQueue({posts,siteUrl:site.href,publish:true,graph,store,fetchImpl,log,...(sleep?{sleep}:{})},{maximum:posts.length+1,budgetMs:25*60*1000});
   const confirmed=await findExistingManualPosts(graph,posts,site);
   log({mode:'manual-confirmed',posts:confirmed.map(({postId,mediaId,permalink})=>({postId,mediaId,permalink}))});
   return {...result,confirmed:confirmed.length};

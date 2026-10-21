@@ -2,6 +2,21 @@
 
 > O envio atual roda na Vercel. Consulte [Envio ao Instagram na Vercel](admin.md#envio-ao-instagram-na-vercel). Os comandos e o workflow abaixo descrevem o publicador legado, preservado para manutenção do histórico.
 
+## Lote manual durante a indisponibilidade do armazenamento
+
+O workflow **Instagram — lote manual aprovado** lê somente os IDs de
+`src/data/instagram-manual-batch.json`. O lote de 21/10/2026 contém dez vídeos
+coletados naquele dia, com horários relativos compatíveis com a data em
+America/Sao_Paulo. Esses horários não viram datas exatas de publicação.
+Cada vídeo tem legenda revisada, atribuição e cinco marcações.
+
+O envio exige aprovação nas últimas 48 horas, armazenamento privado bloqueado
+e `INSTAGRAM_NATIVE_PAUSED=true` no deployment ativo. Confere a conta e os
+posts existentes na Meta antes de enviar, mantém os checkpoints na branch
+`instagram-manual-state` e interrompe o lote diante de um resultado incerto.
+O histórico anterior é preservado. Após o lote, restaure a configuração anterior
+de `INSTAGRAM_NATIVE_PAUSED` e publique o deployment correspondente.
+
 A automação prepara a fila do acervo e, no modo padrão, publica **no máximo um conteúdo por execução** na conta `boraaalula2026`. O workflow verifica a fila a cada 15 minutos quando `INSTAGRAM_AUTOPUBLISH_ENABLED=true`. Inclui o acervo elegível que ainda não foi publicado e as novas adições, na ordem de chegada ao acervo. `observedAt` serve para ordenar a coleta; não é apresentado como data original de publicação.
 
 A publicação já está autorizada pelo responsável pelo projeto. A fila deve ser ativada somente depois de validar a autenticação da conta.
