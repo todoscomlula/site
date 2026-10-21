@@ -45,9 +45,15 @@
       "publishedAt": "2026-10-21T21:50:42.852Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "cf8ded4d5296320061018b1a6ca94d40e1e507653784ce7ed6825238ff1a1bcc",
+    "postId": "storiesig-brasilcomlula-d62808b17be2",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-21T21:50:48.094Z"
+  },
   "lease": {
     "owner": "3f02bb36-f26b-46df-8674-1775d94a3b66",
-    "expiresAt": "2026-10-21T22:10:46.052Z"
+    "expiresAt": "2026-10-21T22:10:48.094Z"
   }
 }
