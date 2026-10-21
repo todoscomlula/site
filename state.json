@@ -63,9 +63,15 @@
       "publishedAt": "2026-10-21T21:54:49.697Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "8a0e5b42c75d4c6d325dc5ab33c4850a9967198094a37b664df4aeb7f2c9c07e",
+    "postId": "storiesig-fernandohaddadoficial-c9e9e2eafa37",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-21T21:54:54.943Z"
+  },
   "lease": {
     "owner": "c9a99c51-aa12-4943-80b8-74b1397f2155",
-    "expiresAt": "2026-10-21T22:14:53.061Z"
+    "expiresAt": "2026-10-21T22:14:54.943Z"
   }
 }
