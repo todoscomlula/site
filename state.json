@@ -75,9 +75,15 @@
       "publishedAt": "2026-10-21T21:58:34.473Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "b752a913c6958d5c83477bca6673140285dd51effaf8ad7352e1f2b41f6229a8",
+    "postId": "storiesig-jeanwyllys_real-62dc6e9b6671",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-21T21:58:39.806Z"
+  },
   "lease": {
     "owner": "b761f7df-de43-4c67-be1a-1b6250234a85",
-    "expiresAt": "2026-10-21T22:18:37.654Z"
+    "expiresAt": "2026-10-21T22:18:39.806Z"
   }
 }
