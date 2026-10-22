@@ -99,9 +99,15 @@
       "publishedAt": "2026-10-22T01:31:46.064Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "11a269b9e5d48c7622c1549e1bd454c1fd680e989ef960029f624e3fd614fbe9",
+    "postId": "storiesig-lulaoficial-f867c7350d91",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-22T01:31:52.080Z"
+  },
   "lease": {
     "owner": "03cb66b4-dc55-4b4a-80ab-b78ccdcdfc00",
-    "expiresAt": "2026-10-22T01:51:50.174Z"
+    "expiresAt": "2026-10-22T01:51:52.080Z"
   }
 }
