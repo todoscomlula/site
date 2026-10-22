@@ -193,17 +193,17 @@
       "postId": "storiesig-pragmatismopolitico-c737141602a3",
       "mediaId": "17943673335091776",
       "publishedAt": "2026-10-22T17:29:44.892Z"
+    },
+    {
+      "contentHash": "511004fc2db958fc7a8c47558ca379a9403a9f3bacbaa5642704b014f78a2ea0",
+      "postId": "storiesig-pragmatismopolitico-fd526e2d2027",
+      "mediaId": "17994398754019647",
+      "publishedAt": "2026-10-22T17:32:01.852Z"
     }
   ],
-  "pending": {
-    "contentHash": "511004fc2db958fc7a8c47558ca379a9403a9f3bacbaa5642704b014f78a2ea0",
-    "postId": "storiesig-pragmatismopolitico-fd526e2d2027",
-    "containerId": "18134993140655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T17:29:50.699Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "8282dca8-1e18-4405-80a2-b49a9736bd40",
-    "expiresAt": "2026-10-22T17:51:55.050Z"
+    "expiresAt": "2026-10-22T17:52:01.852Z"
   }
 }
