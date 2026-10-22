@@ -108,12 +108,12 @@
   "pending": {
     "contentHash": "fc485760aa9baf1b43120f13d4f6a64fd0e5f005cb1ae22ce431c090779c1701",
     "postId": "storiesig-lulaoficial-1539d4d4e7e6",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18134752867655634",
+    "stage": "processing",
     "createdAt": "2026-10-22T01:33:08.247Z"
   },
   "lease": {
     "owner": "3f791d9b-69bf-4333-9b6d-65fb6335895d",
-    "expiresAt": "2026-10-22T01:53:08.247Z"
+    "expiresAt": "2026-10-22T01:53:10.244Z"
   }
 }
