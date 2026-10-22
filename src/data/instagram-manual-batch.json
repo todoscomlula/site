@@ -2,15 +2,27 @@
   "date": "2026-10-21",
   "timeZone": "America/Sao_Paulo",
   "postIds": [
-    "storiesig-lulaoficial-219ed4e681d5",
-    "storiesig-lulaoficial-80789d7c4f9b",
-    "storiesig-lulaoficial-8382846b492b",
-    "storiesig-brasilcomlula-5f432722fca9",
-    "storiesig-brasilcomlula-d62808b17be2",
-    "storiesig-brasilcomlula-d642f1d9b2de",
-    "storiesig-gleisihoffmann-0efa1ef49823",
-    "storiesig-fernandohaddadoficial-c9e9e2eafa37",
-    "storiesig-lulaoficial-b51305bc39fc",
-    "storiesig-jeanwyllys_real-62dc6e9b6671"
-  ]
+    "storiesig-lulaoficial-ee6aae47f12b",
+    "storiesig-fernandohaddadoficial-4c7032a60c87",
+    "storiesig-lulaoficial-73fabb21fde9",
+    "storiesig-lulaoficial-f867c7350d91",
+    "storiesig-lulaoficial-1539d4d4e7e6",
+    "storiesig-lulaoficial-2b67169bfd15",
+    "storiesig-ptbrasil-74040afc6fd7",
+    "storiesig-fernandohaddadoficial-db059b9028cc",
+    "storiesig-lulaoficial-80a02b55c47c",
+    "storiesig-brasilcomlula-9c5ca88d2be9"
+  ],
+  "selection": {
+    "primaryMetric": "likes",
+    "tieBreaker": "comments",
+    "provider": "storiesig-public-browser",
+    "profiles": 15,
+    "reelsScanned": 143,
+    "todayCandidates": 54,
+    "observedFrom": "2026-10-22T01:14:59.751Z",
+    "observedUntil": "2026-10-22T01:16:46.202Z",
+    "counts": "Approximate values parsed from rounded public counters",
+    "excluded": "Previously imported videos and visual duplicates"
+  }
 }

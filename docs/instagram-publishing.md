@@ -10,6 +10,13 @@ coletados naquele dia, com horários relativos compatíveis com a data em
 America/Sao_Paulo. Esses horários não viram datas exatas de publicação.
 Cada vídeo tem legenda revisada, atribuição e cinco marcações.
 
+Na atualização da noite, a seleção examinou 143 Reels de quinze perfis e
+identificou 54 com horários compatíveis com 21/10 no fuso de São Paulo.
+Os dez vídeos adicionais foram priorizados pelas curtidas exibidas no StoriesIG,
+com comentários como desempate, excluindo vídeos já importados e cópias visuais.
+As contagens arredondadas e o horário da consulta ficam em `engagementSnapshot`
+nos registros; o critério e o alcance da consulta estão no manifesto do lote.
+
 O envio exige aprovação nas últimas 48 horas, armazenamento privado bloqueado
 e `INSTAGRAM_NATIVE_PAUSED=true` no deployment ativo. Confere a conta e os
 posts existentes na Meta antes de enviar, mantém os checkpoints na branch
