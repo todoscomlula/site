@@ -115,11 +115,11 @@
     "contentHash": "8f1f426324a9a263a89fc483d839c471910dc5e50e444754052b71a97e70b5dc",
     "postId": "storiesig-lulaoficial-2b67169bfd15",
     "containerId": "18134753314655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-22T01:34:26.153Z"
   },
   "lease": {
     "owner": "214248ce-f0c5-4c5e-b4dc-a8d858deb6ea",
-    "expiresAt": "2026-10-22T01:54:28.328Z"
+    "expiresAt": "2026-10-22T01:55:30.386Z"
   }
 }
