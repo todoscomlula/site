@@ -175,11 +175,11 @@
     "contentHash": "cc22efa25939c699b33b6bb2623f483c0303f5b4606c9e0b5ef838f3f1621830",
     "postId": "storiesig-ptbrasil-00d54ca517c5",
     "containerId": "18134990641655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-22T17:24:30.705Z"
   },
   "lease": {
     "owner": "003c4a6b-8e68-4464-b7f7-57a3553c9589",
-    "expiresAt": "2026-10-22T17:44:32.789Z"
+    "expiresAt": "2026-10-22T17:45:35.225Z"
   }
 }
