@@ -175,17 +175,17 @@
       "postId": "storiesig-ptbrasil-00d54ca517c5",
       "mediaId": "17961741285215846",
       "publishedAt": "2026-10-22T17:25:43.931Z"
+    },
+    {
+      "contentHash": "d1d2d7150809e57d201d4037ac2050fcb25b371a136c01944b44291e198b153d",
+      "postId": "storiesig-seremosresistencia-419ae2e4b143",
+      "mediaId": "17907560991592625",
+      "publishedAt": "2026-10-22T17:27:05.186Z"
     }
   ],
-  "pending": {
-    "contentHash": "d1d2d7150809e57d201d4037ac2050fcb25b371a136c01944b44291e198b153d",
-    "postId": "storiesig-seremosresistencia-419ae2e4b143",
-    "containerId": "18134991196655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T17:25:51.158Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "5c89f974-af8e-480e-a220-3d28119ed5ee",
-    "expiresAt": "2026-10-22T17:46:56.092Z"
+    "expiresAt": "2026-10-22T17:47:05.186Z"
   }
 }
