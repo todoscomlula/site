@@ -138,12 +138,12 @@
   "pending": {
     "contentHash": "63ce6d18d9583da5067ae8eaa4b4081ded0cec29a4cd8b7ec975ff4116487f77",
     "postId": "storiesig-brasilcomlula-9c5ca88d2be9",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18134755852655634",
+    "stage": "processing",
     "createdAt": "2026-10-22T01:40:35.639Z"
   },
   "lease": {
     "owner": "220d9fed-4725-470b-abfe-16ebb2febead",
-    "expiresAt": "2026-10-22T02:00:35.640Z"
+    "expiresAt": "2026-10-22T02:00:38.165Z"
   }
 }
