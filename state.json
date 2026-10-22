@@ -120,12 +120,12 @@
   "pending": {
     "contentHash": "4c21131d447081961133f3bab90aa3988e4d4ea2234622b2f6092f3a83a05592",
     "postId": "storiesig-ptbrasil-74040afc6fd7",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18134753971655634",
+    "stage": "processing",
     "createdAt": "2026-10-22T01:35:44.913Z"
   },
   "lease": {
     "owner": "3087d320-c610-4817-a784-c1d42c5de1bb",
-    "expiresAt": "2026-10-22T01:55:44.913Z"
+    "expiresAt": "2026-10-22T01:55:46.832Z"
   }
 }
