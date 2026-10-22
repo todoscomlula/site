@@ -181,17 +181,17 @@
       "postId": "storiesig-seremosresistencia-419ae2e4b143",
       "mediaId": "17907560991592625",
       "publishedAt": "2026-10-22T17:27:05.186Z"
+    },
+    {
+      "contentHash": "c0f687abc285c934214178f59f139a2435f238cd380c9b30b117507732ddb9db",
+      "postId": "storiesig-theinterceptbrasil-d0b1f06d7921",
+      "mediaId": "18116745962102458",
+      "publishedAt": "2026-10-22T17:28:25.273Z"
     }
   ],
-  "pending": {
-    "contentHash": "c0f687abc285c934214178f59f139a2435f238cd380c9b30b117507732ddb9db",
-    "postId": "storiesig-theinterceptbrasil-d0b1f06d7921",
-    "containerId": "18134991862655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T17:27:11.892Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "dfa5162a-f539-4588-b8b1-58839cefc4e1",
-    "expiresAt": "2026-10-22T17:48:16.535Z"
+    "expiresAt": "2026-10-22T17:48:25.273Z"
   }
 }
