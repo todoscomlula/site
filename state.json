@@ -115,17 +115,17 @@
       "postId": "storiesig-lulaoficial-2b67169bfd15",
       "mediaId": "17925788265201847",
       "publishedAt": "2026-10-22T01:35:37.717Z"
+    },
+    {
+      "contentHash": "4c21131d447081961133f3bab90aa3988e4d4ea2234622b2f6092f3a83a05592",
+      "postId": "storiesig-ptbrasil-74040afc6fd7",
+      "mediaId": "18124705531898622",
+      "publishedAt": "2026-10-22T01:36:56.771Z"
     }
   ],
-  "pending": {
-    "contentHash": "4c21131d447081961133f3bab90aa3988e4d4ea2234622b2f6092f3a83a05592",
-    "postId": "storiesig-ptbrasil-74040afc6fd7",
-    "containerId": "18134753971655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T01:35:44.913Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "3087d320-c610-4817-a784-c1d42c5de1bb",
-    "expiresAt": "2026-10-22T01:56:48.925Z"
+    "expiresAt": "2026-10-22T01:56:56.771Z"
   }
 }
