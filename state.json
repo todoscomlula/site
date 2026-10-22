@@ -187,17 +187,17 @@
       "postId": "storiesig-theinterceptbrasil-d0b1f06d7921",
       "mediaId": "18116745962102458",
       "publishedAt": "2026-10-22T17:28:25.273Z"
+    },
+    {
+      "contentHash": "396e6a1fe305b92a9c7c4f451673510ddf33bfa2cecc79821c385d20dfba502b",
+      "postId": "storiesig-pragmatismopolitico-c737141602a3",
+      "mediaId": "17943673335091776",
+      "publishedAt": "2026-10-22T17:29:44.892Z"
     }
   ],
-  "pending": {
-    "contentHash": "396e6a1fe305b92a9c7c4f451673510ddf33bfa2cecc79821c385d20dfba502b",
-    "postId": "storiesig-pragmatismopolitico-c737141602a3",
-    "containerId": "18134992561655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T17:28:32.126Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "4120b8d2-8084-4c24-ac08-d43af19bb007",
-    "expiresAt": "2026-10-22T17:49:36.625Z"
+    "expiresAt": "2026-10-22T17:49:44.892Z"
   }
 }
