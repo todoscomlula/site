@@ -151,11 +151,11 @@
     "contentHash": "cec5f62acb60909fa5e5e7be25f0fa7f9aebb8b449e995fdf0239001bcc8248e",
     "postId": "storiesig-andrejanones-87abff69a90e",
     "containerId": "18134988463655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-22T17:17:59.880Z"
   },
   "lease": {
     "owner": "ee02d090-3afd-425e-b6ed-32f83bcbee56",
-    "expiresAt": "2026-10-22T17:38:03.680Z"
+    "expiresAt": "2026-10-22T17:39:06.712Z"
   }
 }
