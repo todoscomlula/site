@@ -121,17 +121,17 @@
       "postId": "storiesig-ptbrasil-74040afc6fd7",
       "mediaId": "18124705531898622",
       "publishedAt": "2026-10-22T01:36:56.771Z"
+    },
+    {
+      "contentHash": "c28781ecdb059dd07cafab50536637d7deee8fd4331bb803d2b665c74c8a32c8",
+      "postId": "storiesig-fernandohaddadoficial-db059b9028cc",
+      "mediaId": "18636884770039887",
+      "publishedAt": "2026-10-22T01:39:13.259Z"
     }
   ],
-  "pending": {
-    "contentHash": "c28781ecdb059dd07cafab50536637d7deee8fd4331bb803d2b665c74c8a32c8",
-    "postId": "storiesig-fernandohaddadoficial-db059b9028cc",
-    "containerId": "18134754622655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T01:37:02.437Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "a41ac060-4bfd-463a-9d95-6459575b5e21",
-    "expiresAt": "2026-10-22T01:59:06.433Z"
+    "expiresAt": "2026-10-22T01:59:13.259Z"
   }
 }
