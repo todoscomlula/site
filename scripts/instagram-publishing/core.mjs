@@ -168,7 +168,7 @@ export function makeCaption(post, site) {
   if(reviewed && (!Array.isArray(generatedTags)||generatedTags.length<3||generatedTags.length>5||!generatedTags.every(value=>typeof value==='string'&&/^[\p{L}\p{N}_]{2,50}$/u.test(value))))throw new PublishingError('INVALID_REVIEWED_HASHTAGS');
   const tags = reviewed ? generatedTags.map(tag=>`#${tag}`) : publicationHashtags(post);
   const mentionLine = requiresMentions ? `\n\nPerfis: ${mentions.map(value=>`@${value}`).join(' ')}` : '';
-  const suffix = `Siga @${TARGET_ACCOUNT} para acompanhar os próximos conteúdos.\n\nFonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}${mentionLine}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.\n\n${tags.join(' ')}`;
+  const suffix = `Siga @${TARGET_ACCOUNT} e vem com a gente.\n\nFonte: ${shorten(cleanText(post.sourceName), 120)}\n${source}${mentionLine}\n\n${new URL(`/conteudo/${encodeURIComponent(post.id)}/`, site).href}\nTodos com Lula · projeto independente.\n\n${tags.join(' ')}`;
   const available = 2_200 - Array.from(suffix).length - 2;
   if (available < 1) throw new PublishingError('SOURCE_ATTRIBUTION_TOO_LONG');
   const title = cleanText(post.title); const excerpt = cleanText(post.excerpt);

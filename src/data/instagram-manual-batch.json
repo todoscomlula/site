@@ -1,28 +1,29 @@
 {
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "timeZone": "America/Sao_Paulo",
   "postIds": [
-    "storiesig-lulaoficial-ee6aae47f12b",
-    "storiesig-fernandohaddadoficial-4c7032a60c87",
-    "storiesig-lulaoficial-73fabb21fde9",
-    "storiesig-lulaoficial-f867c7350d91",
-    "storiesig-lulaoficial-1539d4d4e7e6",
-    "storiesig-lulaoficial-2b67169bfd15",
-    "storiesig-ptbrasil-74040afc6fd7",
-    "storiesig-fernandohaddadoficial-db059b9028cc",
-    "storiesig-lulaoficial-80a02b55c47c",
-    "storiesig-brasilcomlula-9c5ca88d2be9"
+    "storiesig-andrejanones-64e555b4ee5a",
+    "storiesig-andrejanones-87abff69a90e",
+    "storiesig-seremosresistencia-efb8f6e1d44d",
+    "storiesig-pragmatismopolitico-348b7c2ae7dd",
+    "storiesig-ptbrasil-84d7563f6596",
+    "storiesig-ptbrasil-00d54ca517c5",
+    "storiesig-seremosresistencia-419ae2e4b143",
+    "storiesig-theinterceptbrasil-d0b1f06d7921",
+    "storiesig-pragmatismopolitico-c737141602a3",
+    "storiesig-pragmatismopolitico-fd526e2d2027"
   ],
   "selection": {
+    "window": "last24hours",
     "primaryMetric": "likes",
     "tieBreaker": "comments",
     "provider": "storiesig-public-browser",
-    "profiles": 15,
-    "reelsScanned": 143,
-    "todayCandidates": 54,
-    "observedFrom": "2026-10-22T01:14:59.751Z",
-    "observedUntil": "2026-10-22T01:16:46.202Z",
+    "profiles": 14,
+    "reelsScanned": 88,
+    "recentCandidates": 46,
+    "observedFrom": "2026-10-22T16:10:37.247Z",
+    "observedUntil": "2026-10-22T17:07:52.979Z",
     "counts": "Approximate values parsed from rounded public counters",
-    "excluded": "Previously imported videos and visual duplicates"
+    "excluded": "Previously imported videos, visual duplicates and a second cut of the same interview"
   }
 }

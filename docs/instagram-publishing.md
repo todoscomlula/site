@@ -5,17 +5,22 @@
 ## Lote manual durante a indisponibilidade do armazenamento
 
 O workflow **Instagram — lote manual aprovado** lê somente os IDs de
-`src/data/instagram-manual-batch.json`. O lote de 21/10/2026 contém dez vídeos
-coletados naquele dia, com horários relativos compatíveis com a data em
-America/Sao_Paulo. Esses horários não viram datas exatas de publicação.
+`src/data/instagram-manual-batch.json`. O lote de 22/10/2026 contém dez vídeos
+adicionais selecionados entre os que exibiam publicação nas últimas 24 horas
+durante a coleta. Esses horários relativos não viram datas exatas de publicação.
 Cada vídeo tem legenda revisada, atribuição e cinco marcações.
 
-Na atualização da noite, a seleção examinou 143 Reels de quinze perfis e
-identificou 54 com horários compatíveis com 21/10 no fuso de São Paulo.
-Os dez vídeos adicionais foram priorizados pelas curtidas exibidas no StoriesIG,
+Os vídeos foram priorizados pelas curtidas exibidas no StoriesIG,
 com comentários como desempate, excluindo vídeos já importados e cópias visuais.
 As contagens arredondadas e o horário da consulta ficam em `engagementSnapshot`
 nos registros; o critério e o alcance da consulta estão no manifesto do lote.
+
+As legendas usam português brasileiro de conversa, com palavras comuns e uma
+abertura clara. A preferência editorial está em
+`.agents/references/voice-profile.md` e na política do gerador de legendas.
+Vinte legendas anteriores também foram revistas no site, preservando as chaves
+de publicação. As versões para trocar no aplicativo do Instagram estão em
+`public/legendas-revisadas-2026-10-22.txt`; o publicador não edita posts já enviados.
 
 O envio exige aprovação nas últimas 48 horas, armazenamento privado bloqueado
 e `INSTAGRAM_NATIVE_PAUSED=true` no deployment ativo. Confere a conta e os
