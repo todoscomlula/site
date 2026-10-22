@@ -157,17 +157,17 @@
       "postId": "storiesig-seremosresistencia-efb8f6e1d44d",
       "mediaId": "18315012112303991",
       "publishedAt": "2026-10-22T17:21:40.844Z"
+    },
+    {
+      "contentHash": "ab6d654d0f576f0741ce0e06a35f7288c564baa272b44f4cf277612e1f82bad8",
+      "postId": "storiesig-pragmatismopolitico-348b7c2ae7dd",
+      "mediaId": "18173175085460227",
+      "publishedAt": "2026-10-22T17:23:03.503Z"
     }
   ],
-  "pending": {
-    "contentHash": "ab6d654d0f576f0741ce0e06a35f7288c564baa272b44f4cf277612e1f82bad8",
-    "postId": "storiesig-pragmatismopolitico-348b7c2ae7dd",
-    "containerId": "18134989936655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-22T17:21:49.083Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "0143f62c-6a8f-4123-9f4c-310b1e95f014",
-    "expiresAt": "2026-10-22T17:42:54.322Z"
+    "expiresAt": "2026-10-22T17:43:03.503Z"
   }
 }
