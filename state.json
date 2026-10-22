@@ -192,12 +192,12 @@
   "pending": {
     "contentHash": "396e6a1fe305b92a9c7c4f451673510ddf33bfa2cecc79821c385d20dfba502b",
     "postId": "storiesig-pragmatismopolitico-c737141602a3",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18134992561655634",
+    "stage": "processing",
     "createdAt": "2026-10-22T17:28:32.126Z"
   },
   "lease": {
     "owner": "4120b8d2-8084-4c24-ac08-d43af19bb007",
-    "expiresAt": "2026-10-22T17:48:32.126Z"
+    "expiresAt": "2026-10-22T17:48:34.322Z"
   }
 }
