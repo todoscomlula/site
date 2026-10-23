@@ -249,9 +249,15 @@
       "publishedAt": "2026-10-23T18:56:17.507Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "contentHash": "4d0c39a493e1e87951309279cd64f825998b0fe0386e7c29a26358e1bfa0fe1c",
+    "postId": "storiesig-seremosresistencia-ef6b75b1920c",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-23T18:56:22.226Z"
+  },
   "lease": {
     "owner": "a1508d00-d48a-40fe-8f7f-0b0970106613",
-    "expiresAt": "2026-10-23T19:16:20.525Z"
+    "expiresAt": "2026-10-23T19:16:22.226Z"
   }
 }
