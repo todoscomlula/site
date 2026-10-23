@@ -210,12 +210,12 @@
   "pending": {
     "contentHash": "f07d025a04dc1613161e8a8d541de8330c38f1bacbeeb98b8372f814dd4e7a17",
     "postId": "storiesig-theinterceptbrasil-8b0d500ebf55",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135367300655634",
+    "stage": "processing",
     "createdAt": "2026-10-23T18:46:14.517Z"
   },
   "lease": {
     "owner": "902e81fb-450a-4860-b6e8-8f9de8f944ab",
-    "expiresAt": "2026-10-23T19:06:14.517Z"
+    "expiresAt": "2026-10-23T19:06:16.060Z"
   }
 }
