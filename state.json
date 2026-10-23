@@ -247,17 +247,17 @@
       "postId": "storiesig-fernandohaddadoficial-8c7b19e2b78c",
       "mediaId": "18034982675909749",
       "publishedAt": "2026-10-23T18:56:17.507Z"
+    },
+    {
+      "contentHash": "4d0c39a493e1e87951309279cd64f825998b0fe0386e7c29a26358e1bfa0fe1c",
+      "postId": "storiesig-seremosresistencia-ef6b75b1920c",
+      "mediaId": "18085652225703131",
+      "publishedAt": "2026-10-23T18:57:35.745Z"
     }
   ],
-  "pending": {
-    "contentHash": "4d0c39a493e1e87951309279cd64f825998b0fe0386e7c29a26358e1bfa0fe1c",
-    "postId": "storiesig-seremosresistencia-ef6b75b1920c",
-    "containerId": "18135370468655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-23T18:56:22.226Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "a1508d00-d48a-40fe-8f7f-0b0970106613",
-    "expiresAt": "2026-10-23T19:17:26.086Z"
+    "expiresAt": "2026-10-23T19:17:35.745Z"
   }
 }
