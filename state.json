@@ -235,11 +235,11 @@
     "contentHash": "efa88beda26f46b2e146e9d8c0e46dffbfcd8cde81bd2c2829e6b88c6d320ed3",
     "postId": "storiesig-theinterceptbrasil-ede277263f54",
     "containerId": "18135369226655634",
-    "stage": "processing",
+    "stage": "publishing",
     "createdAt": "2026-10-23T18:52:29.413Z"
   },
   "lease": {
     "owner": "bfc006c8-e1a4-41a5-9a7d-7142299a7029",
-    "expiresAt": "2026-10-23T19:12:31.394Z"
+    "expiresAt": "2026-10-23T19:13:33.420Z"
   }
 }
