@@ -1,29 +1,31 @@
 {
-  "date": "2026-10-22",
+  "date": "2026-10-23",
   "timeZone": "America/Sao_Paulo",
   "postIds": [
-    "storiesig-andrejanones-64e555b4ee5a",
-    "storiesig-andrejanones-87abff69a90e",
-    "storiesig-seremosresistencia-efb8f6e1d44d",
-    "storiesig-pragmatismopolitico-348b7c2ae7dd",
-    "storiesig-ptbrasil-84d7563f6596",
-    "storiesig-ptbrasil-00d54ca517c5",
-    "storiesig-seremosresistencia-419ae2e4b143",
-    "storiesig-theinterceptbrasil-d0b1f06d7921",
-    "storiesig-pragmatismopolitico-c737141602a3",
-    "storiesig-pragmatismopolitico-fd526e2d2027"
+    "storiesig-seremosresistencia-804dc6a50974",
+    "storiesig-theinterceptbrasil-8b0d500ebf55",
+    "storiesig-ptbrasil-b26d2c8bf089",
+    "storiesig-ptbrasil-58cda99f3f1a",
+    "storiesig-ptbrasil-975ea81b89ae",
+    "storiesig-theinterceptbrasil-ede277263f54",
+    "storiesig-seremosresistencia-110354015e10",
+    "storiesig-fernandohaddadoficial-8c7b19e2b78c",
+    "storiesig-seremosresistencia-ef6b75b1920c",
+    "storiesig-andrejanones-dc2025143ba2"
   ],
   "selection": {
-    "window": "last24hours",
+    "window": "sameDay",
+    "publicationDate": "2026-10-23",
     "primaryMetric": "likes",
     "tieBreaker": "comments",
     "provider": "storiesig-public-browser",
-    "profiles": 14,
-    "reelsScanned": 88,
-    "recentCandidates": 46,
-    "observedFrom": "2026-10-22T16:10:37.247Z",
-    "observedUntil": "2026-10-22T17:07:52.979Z",
+    "profiles": 15,
+    "reelsScanned": 129,
+    "observedFrom": "2026-10-23T18:32:48.816Z",
+    "observedUntil": "2026-10-23T18:34:14.570Z",
     "counts": "Approximate values parsed from rounded public counters",
-    "excluded": "Previously imported videos, visual duplicates and a second cut of the same interview"
+    "excluded": "Previously imported videos, visual duplicates and repeated captions within the selected batch",
+    "todayCandidates": 50,
+    "dateEvidence": "Conservative intervals from rounded relative publication ages, all within the collection date in America/Sao_Paulo"
   }
 }
