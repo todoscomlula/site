@@ -211,17 +211,17 @@
       "postId": "storiesig-theinterceptbrasil-8b0d500ebf55",
       "mediaId": "18119383106102471",
       "publishedAt": "2026-10-23T18:47:30.068Z"
+    },
+    {
+      "contentHash": "1f0779d765da39d30a773456175e015b1cd9cc6ae6f51458c13ee404ca25f42b",
+      "postId": "storiesig-ptbrasil-b26d2c8bf089",
+      "mediaId": "18118425587049999",
+      "publishedAt": "2026-10-23T18:48:45.983Z"
     }
   ],
-  "pending": {
-    "contentHash": "1f0779d765da39d30a773456175e015b1cd9cc6ae6f51458c13ee404ca25f42b",
-    "postId": "storiesig-ptbrasil-b26d2c8bf089",
-    "containerId": "18135367612655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-23T18:47:34.828Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "71573978-98c2-49b8-b6a5-38ef0e9c0e09",
-    "expiresAt": "2026-10-23T19:08:38.619Z"
+    "expiresAt": "2026-10-23T19:08:45.983Z"
   }
 }
