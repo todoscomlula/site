@@ -355,15 +355,15 @@
       "postId": "vacina-ja-existia-marco-2021-fake-debate-2026-10-23",
       "mediaId": "17876814141582197",
       "publishedAt": "2026-10-24T02:53:04.789Z"
+    },
+    {
+      "contentHash": "1ad6c3c064bd430321e48798e054421e70676f3d77433b7f1578fa065cbed431",
+      "postId": "patrimonio-lula-tse-2026-fake-debate-2026-10-23",
+      "mediaId": "18124639018902939",
+      "publishedAt": "2026-10-24T02:54:12.245Z"
     }
   ],
-  "pending": {
-    "postId": "patrimonio-lula-tse-2026-fake-debate-2026-10-23",
-    "contentHash": "1ad6c3c064bd430321e48798e054421e70676f3d77433b7f1578fa065cbed431",
-    "containerId": "18135477586655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:54:01.119Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "9b529cb3-03d3-4f1d-9196-bbf3561004bf",
     "expiresAt": "2026-10-24T03:08:57.895Z"
