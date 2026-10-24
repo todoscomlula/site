@@ -378,8 +378,8 @@
   "pending": {
     "postId": "transposicao-agua-2017-cronologia-debate-2026-10-23",
     "contentHash": "b4edeb947b155c70c5e6409ca2b1bd38536de0a3021c348b369f7ab82be8dffd",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135482443655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T03:10:23.947Z"
   },
   "lease": {
