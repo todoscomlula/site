@@ -283,15 +283,15 @@
       "postId": "auxilio-brasil-600-prazo-debate-2026-10-23",
       "mediaId": "18340053631277807",
       "publishedAt": "2026-10-24T01:46:43.831Z"
+    },
+    {
+      "contentHash": "73903d5c206dd8bddd11bfab98f09ce4a8beec5302f62115146a31d6d4730532",
+      "postId": "juros-focus-previsao-2026-debate-2026-10-23",
+      "mediaId": "18114740450027350",
+      "publishedAt": "2026-10-24T02:05:58.664Z"
     }
   ],
-  "pending": {
-    "postId": "juros-focus-previsao-2026-debate-2026-10-23",
-    "contentHash": "73903d5c206dd8bddd11bfab98f09ce4a8beec5302f62115146a31d6d4730532",
-    "containerId": "18135465718655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:05:45.338Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "e24d855f-c4ea-4f1b-9fa9-275a14d76f6a",
     "expiresAt": "2026-10-24T02:20:41.649Z"
