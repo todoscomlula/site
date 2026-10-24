@@ -357,7 +357,13 @@
       "publishedAt": "2026-10-24T02:53:04.789Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "patrimonio-lula-tse-2026-fake-debate-2026-10-23",
+    "contentHash": "1ad6c3c064bd430321e48798e054421e70676f3d77433b7f1578fa065cbed431",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:54:01.119Z"
+  },
   "lease": {
     "owner": "9b529cb3-03d3-4f1d-9196-bbf3561004bf",
     "expiresAt": "2026-10-24T03:08:57.895Z"
