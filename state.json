@@ -306,8 +306,8 @@
   "pending": {
     "postId": "ana-clara-debate-globo-2026-10-23",
     "contentHash": "ddd3f9ad2d39022f5cfe7330f5cc887f772514be7f1a063253b5768aa5eb12e5",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135468802655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T02:22:06.937Z"
   },
   "lease": {
