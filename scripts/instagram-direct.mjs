@@ -7,13 +7,22 @@ import {GithubStateStore} from './instagram-publishing/state-store.mjs';
 import {MANUAL_STATE_BRANCH,PublishingError,contentKey,validateState} from './instagram-publishing/core.mjs';
 import {connectLocalInstagram} from './instagram-local-auth.mjs';
 
+export const directCarouselHash=images=>createHash('sha256').update(JSON.stringify(images.map(image=>image.sha256))).digest('hex');
+function validateImage(image) {
+  if(!image||!/^[a-f0-9]{64}$/.test(image.sha256||''))throw new PublishingError('INVALID_DIRECT_IMAGE');
+  let url;try{url=new URL(image.imageUrl);}catch{throw new PublishingError('INVALID_DIRECT_IMAGE');}
+  const release=url.origin==='https://github.com'&&/^\/todoscomlula\/site\/releases\/download\/[a-zA-Z0-9_-]+\/[a-f0-9]{12}\.jpg$/.test(url.pathname);
+  const raw=url.origin==='https://raw.githubusercontent.com'&&url.pathname==='/todoscomlula/site/instagram-media/'+image.sha256+'.jpg';
+  if((!release&&!raw)||url.username||url.password||url.search||url.hash)throw new PublishingError('INVALID_DIRECT_IMAGE');
+}
 export function validateDirectPost(post,now=Date.now()) {
   if(!post||!/^[a-zA-Z0-9_-]{1,160}$/.test(post.id)||typeof post.caption!=='string'||post.caption.length<15||Array.from(post.caption).length>2200||typeof post.title!=='string'||post.title.length>1000||!/^[a-f0-9]{64}$/.test(post.sha256||''))throw new PublishingError('INVALID_DIRECT_POST');
   const age=now-Date.parse(post.reviewApprovedAt);if(!Number.isFinite(age)||age< -300000||age>48*3600000)throw new PublishingError('DIRECT_POST_NOT_REVIEWED');
-  let url;try{url=new URL(post.imageUrl);}catch{throw new PublishingError('INVALID_DIRECT_IMAGE');}
-  const release=url.origin==='https://github.com'&&/^\/todoscomlula\/site\/releases\/download\/[a-zA-Z0-9_-]+\/[a-f0-9]{12}\.jpg$/.test(url.pathname);
-  const raw=url.origin==='https://raw.githubusercontent.com'&&url.pathname==='/todoscomlula/site/instagram-media/'+post.sha256+'.jpg';
-  if((!release&&!raw)||url.username||url.password||url.search||url.hash)throw new PublishingError('INVALID_DIRECT_IMAGE');
+  if(post.kind==='CAROUSEL'){
+    if(!Array.isArray(post.images)||post.images.length<2||post.images.length>10)throw new PublishingError('INVALID_DIRECT_CAROUSEL');
+    post.images.forEach(validateImage);
+    if(new Set(post.images.map(image=>image.sha256)).size!==post.images.length||post.sha256!==directCarouselHash(post.images))throw new PublishingError('INVALID_DIRECT_CAROUSEL');
+  }else{if(post.kind&&post.kind!=='IMAGE')throw new PublishingError('INVALID_DIRECT_POST');validateImage(post);}
   return post;
 }
 export async function publishDirect({post,graph,store,publish=false,fetchImpl=fetch,sleep=ms=>new Promise(r=>setTimeout(r,ms)),log=e=>console.log(JSON.stringify(e)),now=Date.now}={}) {
@@ -23,9 +32,10 @@ export async function publishDirect({post,graph,store,publish=false,fetchImpl=fe
   const proof=state.published.find(p=>p.contentHash===key);
   const lookup=async()=>{const data=await graph.request(graph.userId+'/media',{query:{fields:'id,caption,permalink,timestamp',limit:'100'}});if(!Array.isArray(data.data))throw new PublishingError('INVALID_META_MEDIA_LIST');return data.data.find(p=>typeof p.caption==='string'&&p.caption.trim()===post.caption.trim());};
   if(proof){const media=await lookup();log({mode:'direct-existing',postId:post.id,permalink:media?.permalink||null});return{published:false,permalink:media?.permalink||null};}
-  if(!publish){log({mode:'direct-ready',postId:post.id,runtime:'local',kind:'IMAGE'});return{published:false};}
+  if(!publish){log({mode:'direct-ready',postId:post.id,runtime:'local',kind:post.kind||'IMAGE'});return{published:false};}
   if(state.lease&&Date.parse(state.lease.expiresAt)>now())throw new PublishingError('PUBLISHING_LOCK_ACTIVE');
   if(state.pending&&state.pending.postId!==post.id)throw new PublishingError('DIRECT_PENDING_OUTSIDE_POST');
+  if(state.pending&&(Boolean(state.pending.carousel)!==(post.kind==='CAROUSEL')||state.pending.carousel&&state.pending.carousel.mediaHash!==post.sha256))throw new PublishingError('DIRECT_PENDING_CONTENT_CHANGED');
   const owner=randomUUID();state.lease={owner,expiresAt:new Date(now()+15*60000).toISOString()};
   const save=()=>store.save(validateState(state));await save();
   const finish=async media=>{if(!state.published.some(p=>p.contentHash===key))state.published.push({contentHash:key,postId:post.id,mediaId:media?.id||null,publishedAt:media?.timestamp?new Date(media.timestamp).toISOString():new Date(now()).toISOString()});state.pending=null;await save();};
@@ -36,15 +46,30 @@ export async function publishDirect({post,graph,store,publish=false,fetchImpl=fe
       const media=await lookup();await finish(media);return{published:false,recovered:true,permalink:media?.permalink||null};
     }
     if(!state.pending){
-      const image=await fetchImpl(post.imageUrl,{redirect:'follow',signal:AbortSignal.timeout(30000)});if(!image.ok||image.headers.get('content-type')?.split(';')[0]!=='image/jpeg')throw new PublishingError('DIRECT_IMAGE_UNAVAILABLE');
+      for(const asset of post.kind==='CAROUSEL'?post.images:[post]){
+      const image=await fetchImpl(asset.imageUrl,{redirect:'follow',signal:AbortSignal.timeout(30000)});if(!image.ok||image.headers.get('content-type')?.split(';')[0]!=='image/jpeg')throw new PublishingError('DIRECT_IMAGE_UNAVAILABLE');
       const declared=Number(image.headers.get('content-length'));if(declared>8*1024*1024)throw new PublishingError('DIRECT_IMAGE_TOO_LARGE');
       const chunks=[];let length=0;for await(const chunk of image.body){length+=chunk.length;if(length>8*1024*1024)throw new PublishingError('DIRECT_IMAGE_TOO_LARGE');chunks.push(chunk);}const bytes=Buffer.concat(chunks);
-      if(createHash('sha256').update(bytes).digest('hex')!==post.sha256)throw new PublishingError('DIRECT_IMAGE_HASH_MISMATCH');
+      if(createHash('sha256').update(bytes).digest('hex')!==asset.sha256)throw new PublishingError('DIRECT_IMAGE_HASH_MISMATCH');
+      }
       const quota=await graph.quota();if(!Number.isInteger(quota.used)||!Number.isInteger(quota.maximum)||quota.used>=quota.maximum)throw new PublishingError('META_PUBLISHING_LIMIT');
-      state.pending={postId:post.id,contentHash:key,containerId:null,stage:'reserved',createdAt:new Date(now()).toISOString()};await save();
+      state.pending={postId:post.id,contentHash:key,containerId:null,stage:'reserved',createdAt:new Date(now()).toISOString(),...(post.kind==='CAROUSEL'?{carousel:{mediaHash:post.sha256,childIds:[]}}:{})};await save();
     }
     if(!state.pending.containerId){
-      const containerId=await graph.createContainer({kind:'IMAGE',mediaUrl:post.imageUrl,post:{title:post.title}},post.caption);if(typeof containerId!=='string'||!/^\d{1,40}$/.test(containerId))throw new PublishingError('INVALID_CONTAINER_ID');
+      let containerId;
+      if(post.kind==='CAROUSEL'){
+        for(let index=state.pending.carousel.childIds.length;index<post.images.length;index++){
+          const childId=await graph.createCarouselItem({...post.images[index],title:post.images[index].title||post.title});
+          if(typeof childId!=='string'||!/^\d{1,40}$/.test(childId))throw new PublishingError('INVALID_CONTAINER_ID');
+          state.pending.carousel.childIds.push(childId);await save();
+        }
+        for(const childId of state.pending.carousel.childIds){
+          let status;
+          for(let attempt=0;attempt<=5;attempt++){status=await graph.containerStatus(childId);if(status==='FINISHED')break;if(status!=='IN_PROGRESS')throw new PublishingError('DIRECT_CHILD_NOT_READY');if(attempt===5)throw new PublishingError('DIRECT_CHILD_NOT_READY');await sleep(60000);}
+        }
+        containerId=await graph.createCarouselContainer(state.pending.carousel.childIds,post.caption);
+      }else containerId=await graph.createContainer({kind:'IMAGE',mediaUrl:post.imageUrl,post:{title:post.title}},post.caption);
+      if(typeof containerId!=='string'||!/^\d{1,40}$/.test(containerId))throw new PublishingError('INVALID_CONTAINER_ID');
       state.pending.containerId=containerId;state.pending.stage='processing';await save();
     }
     let status;for(let attempt=0;attempt<=5;attempt++){status=await graph.containerStatus(state.pending.containerId);if(['FINISHED','PUBLISHED'].includes(status))break;if(status!=='IN_PROGRESS')throw new PublishingError('DIRECT_CONTAINER_'+String(status).replace(/[^A-Z_]/g,''));if(attempt===5)throw new PublishingError('DIRECT_CONTAINER_NOT_READY');await sleep(60000);}

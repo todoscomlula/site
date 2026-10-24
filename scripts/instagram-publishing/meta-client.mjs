@@ -69,6 +69,21 @@ export class MetaClient {
     return data.status_code;
   }
 
+  async createCarouselItem(image) {
+    const data = await this.request(`${this.userId}/media`, { method: 'POST', body: {
+      image_url: image.imageUrl, is_carousel_item: true,
+      alt_text: Array.from(image.title || 'Slide do carrossel').slice(0, 1000).join(''),
+    } });
+    return data.id;
+  }
+
+  async createCarouselContainer(children, caption) {
+    const data = await this.request(`${this.userId}/media`, { method: 'POST', body: {
+      media_type: 'CAROUSEL', children: children.join(','), caption,
+    } });
+    return data.id;
+  }
+
   async publishContainer(containerId) {
     // Intentionally one attempt: a transport failure does not prove the post failed.
     const data = await this.request(`${this.userId}/media_publish`, { method: 'POST', body: { creation_id: containerId } });

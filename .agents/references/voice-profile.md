@@ -24,6 +24,7 @@ ignored.
 - Formatting (Instagram): abertura na primeira linha, parágrafos curtos e hashtags ao final da legenda.
 - Visual (Instagram): alternar composições entre postagens. Usar fundos claros e escuros, linhas do tempo, comparação de dados e chamadas editoriais conforme o assunto. Evitar repetir o mesmo card amarelo com caixa vermelha e número central. Manter fonte legível, crédito visível e identificação de iniciativa independente.
 - Debate ao vivo: nas falas falsas, usar chamada grande "É FAKE! MENTIU DE NOVO!", com português corrigido e explicação curta. Preservar os vereditos das fontes: enganoso e parcial não viram falso.
+- Fotos e compilados: incluir fotografias reais nas artes, com crédito e indicação de arquivo quando aplicável. Publicar compilações de checagens em carrossel, com uma fala e sua correção por lâmina.
 
 ## 2. Who you are and who you write for
 

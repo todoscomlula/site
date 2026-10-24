@@ -37,7 +37,13 @@ export function validateState(state) {
     && Array.isArray(state.published) && state.published.length <= 50_000
     && state.published.every((item) => hasExactKeys(item, ['contentHash', 'postId', 'mediaId', 'publishedAt'])
       && validKey(item.contentHash) && validPostId(item.postId) && validMediaId(item.mediaId) && validDate(item.publishedAt))
-    && (state.pending === null || (hasExactKeys(state.pending, ['contentHash', 'postId', 'containerId', 'stage', 'createdAt'])
+    && (state.pending === null || ((hasExactKeys(state.pending, ['contentHash', 'postId', 'containerId', 'stage', 'createdAt'])
+      || (hasExactKeys(state.pending, ['contentHash', 'postId', 'containerId', 'stage', 'createdAt', 'carousel'])
+        && hasExactKeys(state.pending.carousel, ['mediaHash', 'childIds'])
+        && validKey(state.pending.carousel.mediaHash)
+        && Array.isArray(state.pending.carousel.childIds) && state.pending.carousel.childIds.length <= 10
+        && state.pending.carousel.childIds.every(id => id !== null && validMediaId(id))
+        && new Set(state.pending.carousel.childIds).size === state.pending.carousel.childIds.length))
       && validKey(state.pending.contentHash) && validPostId(state.pending.postId)
       && validMediaId(state.pending.containerId)
       && ['reserved', 'processing', 'publishing'].includes(state.pending.stage)
