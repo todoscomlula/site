@@ -339,7 +339,13 @@
       "publishedAt": "2026-10-24T02:46:04.425Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "cartao-corporativo-defesa-civil-comparacao-debate-2026-10-23",
+    "contentHash": "6c92346012d14eab1a033ec00b64ff5e15b98ecd34a0bcab230c3b234045aded",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:50:27.349Z"
+  },
   "lease": {
     "owner": "319eac5c-7a1d-4b54-ae27-6ad5e975d020",
     "expiresAt": "2026-10-24T03:05:24.584Z"
