@@ -367,15 +367,15 @@
       "postId": "milicias-discurso-alerj-2007-fato-debate-2026-10-23",
       "mediaId": "18348917341282895",
       "publishedAt": "2026-10-24T03:00:10.012Z"
+    },
+    {
+      "contentHash": "f2a631ad3a11e97ebdd5f6c9eb746e0ace74b7c18468b70996c46537a49f4480",
+      "postId": "queimadas-amazonas-apoio-federal-fake-debate-2026-10-23",
+      "mediaId": "18137053132647551",
+      "publishedAt": "2026-10-24T03:05:19.902Z"
     }
   ],
-  "pending": {
-    "postId": "queimadas-amazonas-apoio-federal-fake-debate-2026-10-23",
-    "contentHash": "f2a631ad3a11e97ebdd5f6c9eb746e0ace74b7c18468b70996c46537a49f4480",
-    "containerId": "18135481489655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T03:05:08.572Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "4364a8e7-4aa9-4f0f-9d9b-7c901c4054b1",
     "expiresAt": "2026-10-24T03:20:06.223Z"
