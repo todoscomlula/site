@@ -385,28 +385,15 @@
       "postId": "richarlison-imovel-apuracao-pf-foto-debate-2026-10-23",
       "mediaId": "18117620912085158",
       "publishedAt": "2026-10-24T03:39:16.898Z"
+    },
+    {
+      "contentHash": "b1d40e480da1cc0654cf727d492e90ba20dfe8e70ee8b0685cad3a1bc2b0658f",
+      "postId": "compiladao-da-mentira-debate-2026-10-23",
+      "mediaId": "18137822824650802",
+      "publishedAt": "2026-10-24T03:44:25.649Z"
     }
   ],
-  "pending": {
-    "postId": "compiladao-da-mentira-debate-2026-10-23",
-    "contentHash": "b1d40e480da1cc0654cf727d492e90ba20dfe8e70ee8b0685cad3a1bc2b0658f",
-    "containerId": "18135490981655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T03:43:33.151Z",
-    "carousel": {
-      "mediaHash": "48b9fcb8c9f839a03ededf3ce3d5233fd15f326eca5c0243eafc6ae53bf2b5d8",
-      "childIds": [
-        "18135490729655634",
-        "18135490753655634",
-        "18135490777655634",
-        "18135490804655634",
-        "18135490834655634",
-        "18135490867655634",
-        "18135490918655634",
-        "18135490942655634"
-      ]
-    }
-  },
+  "pending": null,
   "lease": {
     "owner": "e8a659d3-b0a8-4868-92c1-638b52404389",
     "expiresAt": "2026-10-24T03:58:29.362Z"
