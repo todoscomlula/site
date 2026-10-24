@@ -325,15 +325,15 @@
       "postId": "custodia-celular-fake-debate-2026-10-23",
       "mediaId": "18031102550752014",
       "publishedAt": "2026-10-24T02:37:36.790Z"
+    },
+    {
+      "contentHash": "3fdde70dfb1ccf0ac2609d8becfcb6148a914298398ec6b3464c07c52bbb3163",
+      "postId": "filme-bolsonaro-pf-laudo-fake-debate-2026-10-23",
+      "mediaId": "18367938424301322",
+      "publishedAt": "2026-10-24T02:40:00.613Z"
     }
   ],
-  "pending": {
-    "postId": "filme-bolsonaro-pf-laudo-fake-debate-2026-10-23",
-    "contentHash": "3fdde70dfb1ccf0ac2609d8becfcb6148a914298398ec6b3464c07c52bbb3163",
-    "containerId": "18135474295655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:39:48.599Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "c96f1d8e-a1fe-44e5-bfc6-f3481e4572c0",
     "expiresAt": "2026-10-24T02:54:46.051Z"
