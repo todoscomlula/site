@@ -295,15 +295,15 @@
       "postId": "bets-linha-tempo-2018-2026-debate",
       "mediaId": "18030265685752350",
       "publishedAt": "2026-10-24T02:06:59.176Z"
+    },
+    {
+      "contentHash": "cdfd40b72e4c9355611a4ca67c5fbef340c67be54da89ecbbd4f2c8ae1b5d862",
+      "postId": "ensino-integral-verba-direta-fundeb-debate-2026-10-23",
+      "mediaId": "18136439443570338",
+      "publishedAt": "2026-10-24T02:12:44.988Z"
     }
   ],
-  "pending": {
-    "postId": "ensino-integral-verba-direta-fundeb-debate-2026-10-23",
-    "contentHash": "cdfd40b72e4c9355611a4ca67c5fbef340c67be54da89ecbbd4f2c8ae1b5d862",
-    "containerId": "18135467104655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:12:33.789Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "828d48b1-0341-4f52-93ee-3a90711e5c84",
     "expiresAt": "2026-10-24T02:27:29.727Z"
