@@ -351,7 +351,13 @@
       "publishedAt": "2026-10-24T02:51:37.049Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "vacina-ja-existia-marco-2021-fake-debate-2026-10-23",
+    "contentHash": "9fd270050489a1fe705ad0705ec1e909d1e88806f246c7c158c9d1a60a4fa647",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:52:52.361Z"
+  },
   "lease": {
     "owner": "8d142df1-bf3f-4b62-aaf8-9b1418bcf6ea",
     "expiresAt": "2026-10-24T03:07:49.390Z"
