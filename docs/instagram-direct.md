@@ -8,7 +8,7 @@ npm run instagram:post -- --image caminho/card.jpg --caption-file caminho/legend
 
 O script prepara a imagem, verifica segredos com Gitleaks e publica diretamente
 na conta `boraaalula2026`. Não altera o site nem executa deploy na Vercel.
-A imagem fica em um release público deste repositório, pois o Instagram precisa
+A imagem fica na branch pública `instagram-media` deste repositório, pois o Instagram precisa
 baixá-la por HTTPS. A legenda e as credenciais permanecem locais.
 
 Na primeira conexão, GitHub Actions entrega a credencial existente ao computador

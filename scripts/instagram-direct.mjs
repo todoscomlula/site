@@ -11,7 +11,9 @@ export function validateDirectPost(post,now=Date.now()) {
   if(!post||!/^[a-zA-Z0-9_-]{1,160}$/.test(post.id)||typeof post.caption!=='string'||post.caption.length<15||Array.from(post.caption).length>2200||typeof post.title!=='string'||post.title.length>1000||!/^[a-f0-9]{64}$/.test(post.sha256||''))throw new PublishingError('INVALID_DIRECT_POST');
   const age=now-Date.parse(post.reviewApprovedAt);if(!Number.isFinite(age)||age< -300000||age>48*3600000)throw new PublishingError('DIRECT_POST_NOT_REVIEWED');
   let url;try{url=new URL(post.imageUrl);}catch{throw new PublishingError('INVALID_DIRECT_IMAGE');}
-  if(url.origin!=='https://github.com'||url.username||url.password||url.search||url.hash||!/^\/todoscomlula\/site\/releases\/download\/[a-zA-Z0-9_-]+\/[a-f0-9]{12}\.jpg$/.test(url.pathname))throw new PublishingError('INVALID_DIRECT_IMAGE');
+  const release=url.origin==='https://github.com'&&/^\/todoscomlula\/site\/releases\/download\/[a-zA-Z0-9_-]+\/[a-f0-9]{12}\.jpg$/.test(url.pathname);
+  const raw=url.origin==='https://raw.githubusercontent.com'&&url.pathname==='/todoscomlula/site/instagram-media/'+post.sha256+'.jpg';
+  if((!release&&!raw)||url.username||url.password||url.search||url.hash)throw new PublishingError('INVALID_DIRECT_IMAGE');
   return post;
 }
 export async function publishDirect({post,graph,store,publish=false,fetchImpl=fetch,sleep=ms=>new Promise(r=>setTimeout(r,ms)),log=e=>console.log(JSON.stringify(e)),now=Date.now}={}) {
