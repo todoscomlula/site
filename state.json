@@ -348,8 +348,8 @@
   "pending": {
     "postId": "cervejinha-video-editado-fake-debate-2026-10-23",
     "contentHash": "96f057ced360d0dbb2b6cd05f5d422f493c9e4b846c4117d542000106a0fd79d",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135476518655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T02:51:23.621Z"
   },
   "lease": {
