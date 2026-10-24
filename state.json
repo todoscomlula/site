@@ -321,7 +321,13 @@
       "publishedAt": "2026-10-24T02:33:57.728Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "custodia-celular-fake-debate-2026-10-23",
+    "contentHash": "c80f1a2488abbe7d93abffb76a926964e0f3f34d63a7cd5c3517a9c2f9492a0c",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:37:23.286Z"
+  },
   "lease": {
     "owner": "0204883f-5b2d-4091-85e6-9c63d9a969e7",
     "expiresAt": "2026-10-24T02:52:20.172Z"
