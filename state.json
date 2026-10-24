@@ -288,8 +288,8 @@
   "pending": {
     "postId": "juros-focus-previsao-2026-debate-2026-10-23",
     "contentHash": "73903d5c206dd8bddd11bfab98f09ce4a8beec5302f62115146a31d6d4730532",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135465718655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T02:05:45.338Z"
   },
   "lease": {
