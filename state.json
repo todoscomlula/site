@@ -361,15 +361,15 @@
       "postId": "patrimonio-lula-tse-2026-fake-debate-2026-10-23",
       "mediaId": "18124639018902939",
       "publishedAt": "2026-10-24T02:54:12.245Z"
+    },
+    {
+      "contentHash": "167627550ff82994ef699dd5692a6455bbcd8e6c2a9a29ea2bbbbb50b5911d85",
+      "postId": "milicias-discurso-alerj-2007-fato-debate-2026-10-23",
+      "mediaId": "18348917341282895",
+      "publishedAt": "2026-10-24T03:00:10.012Z"
     }
   ],
-  "pending": {
-    "postId": "milicias-discurso-alerj-2007-fato-debate-2026-10-23",
-    "contentHash": "167627550ff82994ef699dd5692a6455bbcd8e6c2a9a29ea2bbbbb50b5911d85",
-    "containerId": "18135479512655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:59:56.543Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "fbca558e-6839-48d2-abc6-0702da957170",
     "expiresAt": "2026-10-24T03:14:54.268Z"
