@@ -297,7 +297,13 @@
       "publishedAt": "2026-10-24T02:06:59.176Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "ensino-integral-verba-direta-fundeb-debate-2026-10-23",
+    "contentHash": "cdfd40b72e4c9355611a4ca67c5fbef340c67be54da89ecbbd4f2c8ae1b5d862",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:12:33.789Z"
+  },
   "lease": {
     "owner": "828d48b1-0341-4f52-93ee-3a90711e5c84",
     "expiresAt": "2026-10-24T02:27:29.727Z"
