@@ -1488,5 +1488,15 @@
     "url": "https://github.com/todoscomlula/site/releases/download/media-2026-10-23/dee65289096c.jpg",
     "sha256": "dee65289096c528c220196a8be5b1e397c02f4cad5d7c666a719d49e579b4a27",
     "bytes": 94499
+  },
+  "/media/instagram/boraaalula2026/5b9371720589.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-plano-safra-2026-10-23/5b9371720589.mp4",
+    "sha256": "5b9371720589960f2fa40ed659a487b0167ffdd3e80c911ce6d66021a4b8ad3c",
+    "bytes": 263643
+  },
+  "/media/instagram/boraaalula2026/5b9371720589.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-plano-safra-2026-10-23/217edd54df00.jpg",
+    "sha256": "217edd54df003ff65656a11a20dc95236b1bd0df0ffb94dd873ae8b3fb6fc6f2",
+    "bytes": 156085
   }
 }

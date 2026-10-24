@@ -2,6 +2,7 @@
   "date": "2026-10-23",
   "timeZone": "America/Sao_Paulo",
   "postIds": [
+    "plano-safra-2026-2027-debate",
     "storiesig-seremosresistencia-804dc6a50974",
     "storiesig-theinterceptbrasil-8b0d500ebf55",
     "storiesig-ptbrasil-b26d2c8bf089",
@@ -10,22 +11,23 @@
     "storiesig-theinterceptbrasil-ede277263f54",
     "storiesig-seremosresistencia-110354015e10",
     "storiesig-fernandohaddadoficial-8c7b19e2b78c",
-    "storiesig-seremosresistencia-ef6b75b1920c",
-    "storiesig-andrejanones-dc2025143ba2"
+    "storiesig-seremosresistencia-ef6b75b1920c"
   ],
   "selection": {
-    "window": "sameDay",
-    "publicationDate": "2026-10-23",
-    "primaryMetric": "likes",
-    "tieBreaker": "comments",
-    "provider": "storiesig-public-browser",
-    "profiles": 15,
-    "reelsScanned": 129,
-    "observedFrom": "2026-10-23T18:32:48.816Z",
-    "observedUntil": "2026-10-23T18:34:14.570Z",
-    "counts": "Approximate values parsed from rounded public counters",
-    "excluded": "Previously imported videos, visual duplicates and repeated captions within the selected batch",
-    "todayCandidates": 50,
-    "dateEvidence": "Conservative intervals from rounded relative publication ages, all within the collection date in America/Sao_Paulo"
+    "purpose": "One new editorial post; nine previously published entries retained only for reconciliation",
+    "newPostIds": [
+      "plano-safra-2026-2027-debate"
+    ],
+    "previouslyPublishedPostIds": [
+      "storiesig-seremosresistencia-804dc6a50974",
+      "storiesig-theinterceptbrasil-8b0d500ebf55",
+      "storiesig-ptbrasil-b26d2c8bf089",
+      "storiesig-ptbrasil-58cda99f3f1a",
+      "storiesig-ptbrasil-975ea81b89ae",
+      "storiesig-theinterceptbrasil-ede277263f54",
+      "storiesig-seremosresistencia-110354015e10",
+      "storiesig-fernandohaddadoficial-8c7b19e2b78c",
+      "storiesig-seremosresistencia-ef6b75b1920c"
+    ]
   }
 }
