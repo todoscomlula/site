@@ -259,15 +259,15 @@
       "postId": "storiesig-andrejanones-dc2025143ba2",
       "mediaId": "18098085215406783",
       "publishedAt": "2026-10-23T18:58:55.638Z"
+    },
+    {
+      "contentHash": "be9cd2391c2240a19ca268170dc045197f36a137af98f1db5d2c384823d5a4e0",
+      "postId": "plano-safra-2026-2027-debate",
+      "mediaId": "17995583076021201",
+      "publishedAt": "2026-10-24T01:25:59.972Z"
     }
   ],
-  "pending": {
-    "postId": "plano-safra-2026-2027-debate",
-    "contentHash": "be9cd2391c2240a19ca268170dc045197f36a137af98f1db5d2c384823d5a4e0",
-    "containerId": "18135456901655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T01:25:48.772Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "33ea84bf-4c11-4073-b6c1-459b367e92ca",
     "expiresAt": "2026-10-24T01:40:46.015Z"
