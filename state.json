@@ -312,8 +312,8 @@
   "pending": {
     "postId": "ana-clara-troca-de-tiros-fake-debate-2026-10-23",
     "contentHash": "3e05e9015262dca5927aa4ca237254508197c0ad8123eff1fbad4c5d78220cfd",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135471997655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T02:31:39.482Z"
   },
   "lease": {
