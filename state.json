@@ -333,7 +333,13 @@
       "publishedAt": "2026-10-24T02:40:00.613Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "lula-30-milhoes-provas-debate-2026-10-23",
+    "contentHash": "47672004edeeff74dcb86a029308922fd3a00572c642cdd99e6b962035ad3835",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:45:51.235Z"
+  },
   "lease": {
     "owner": "68671bfb-3855-4d5f-98b8-b2381e137d35",
     "expiresAt": "2026-10-24T03:00:47.532Z"
