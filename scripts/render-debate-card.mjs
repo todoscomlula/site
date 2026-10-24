@@ -11,13 +11,15 @@ export function renderDebateSvg(input,layout='timeline-dark'){
   let body=`<rect width="1080" height="1350" fill="${bg}"/>`;
   if(red)body+='<path d="M1030 0H1080V1350H900Z" fill="#F4CE47"/>';
   body+=text(['TODOS COM LULA'],72,94,24,ink,700)+text([input.kicker||'DEBATE · EM TEMPO REAL'],72,181,26,accent,700);
-  const headline=wrap(input.headline,19);if(headline.length>4)throw new Error('HEADLINE_TOO_LONG');
+  const headline=wrap(input.headline,16);if(headline.length>4)throw new Error('HEADLINE_TOO_LONG');
+  const bodyLimit=dark?31:red?32:40;
+  if(input.items.some(item=>wrap(item.text,bodyLimit).length>3))throw new Error('BODY_TOO_LONG');
   body+=text(headline,70,294,78,ink,800,1.08);
   if(dark){body+='<path d="M100 615V1015" stroke="#5D7480" stroke-width="3"/>';
     for(const[item,i]of input.items.map((item,i)=>[item,i])){const y=646+i*245;body+=`<circle cx="100" cy="${y-10}" r="12" fill="${accent}"/>`+text([item.label],145,y,29,accent,700)+text(wrap(item.text,31),145,y+66,38,ink,500,1.3);}
   }else if(!red){
     body+='<path d="M72 545H1008" stroke="#132B31" stroke-width="3"/>';
-    input.items.forEach((item,i)=>{const y=632+i*234;body+=text([item.label],72,y,30,accent,800)+text(wrap(item.text,35),72,y+64,39,ink,500,1.28);if(i===0)body+='<path d="M72 795H1008" stroke="#B5C6BF" stroke-width="2"/>';});
+    input.items.forEach((item,i)=>{const y=632+i*234;body+=text([item.label],72,y,30,accent,800)+text(wrap(item.text,40),72,y+64,39,ink,500,1.28);if(i===0)body+='<path d="M72 824H1008" stroke="#B5C6BF" stroke-width="2"/>';});
   }else{
     input.items.forEach((item,i)=>{const y=638+i*236;body+=text([item.label],72,y,31,accent,800)+text(wrap(item.text,32),72,y+66,39,ink,500,1.25);});
   }
