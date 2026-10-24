@@ -343,15 +343,15 @@
       "postId": "cartao-corporativo-defesa-civil-comparacao-debate-2026-10-23",
       "mediaId": "17904138666599812",
       "publishedAt": "2026-10-24T02:50:39.614Z"
+    },
+    {
+      "contentHash": "96f057ced360d0dbb2b6cd05f5d422f493c9e4b846c4117d542000106a0fd79d",
+      "postId": "cervejinha-video-editado-fake-debate-2026-10-23",
+      "mediaId": "17869661703659963",
+      "publishedAt": "2026-10-24T02:51:37.049Z"
     }
   ],
-  "pending": {
-    "postId": "cervejinha-video-editado-fake-debate-2026-10-23",
-    "contentHash": "96f057ced360d0dbb2b6cd05f5d422f493c9e4b846c4117d542000106a0fd79d",
-    "containerId": "18135476518655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:51:23.621Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "c0ae7ca1-744d-4b11-bd84-33c78f1b5655",
     "expiresAt": "2026-10-24T03:06:21.594Z"
