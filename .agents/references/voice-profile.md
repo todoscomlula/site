@@ -11,7 +11,7 @@ ignored.
 
 - filled: yes
 - source: orientação direta do responsável pelo projeto, sem amostra histórica de posts
-- updated: 2026-10-22
+- updated: 2026-10-23
 
 ## 1. Voice fingerprint
 
@@ -22,6 +22,7 @@ ignored.
 - Words and phrases you NEVER use: o perfil compartilha; registro compartilhado; o tema deste vídeo é; linguagem de relatório.
 - Emoji: até dois, quando combinarem com a mensagem; respeitar assuntos de luto.
 - Formatting (Instagram): abertura na primeira linha, parágrafos curtos e hashtags ao final da legenda.
+- Visual (Instagram): alternar composições entre postagens. Usar fundos claros e escuros, linhas do tempo, comparação de dados e chamadas editoriais conforme o assunto. Evitar repetir o mesmo card amarelo com caixa vermelha e número central. Manter fonte legível, crédito visível e identificação de iniciativa independente.
 
 ## 2. Who you are and who you write for
 
