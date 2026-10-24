@@ -291,7 +291,13 @@
       "publishedAt": "2026-10-24T02:05:58.664Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "bets-linha-tempo-2018-2026-debate",
+    "contentHash": "f9c72a516dfc2cd3e16e78f35b341023ba502ae261aea3344c8420753dfe2803",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:06:47.391Z"
+  },
   "lease": {
     "owner": "32bda0a7-929b-4f6b-b76d-5b67d7eebcb7",
     "expiresAt": "2026-10-24T02:21:44.279Z"
