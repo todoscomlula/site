@@ -23,6 +23,7 @@ ignored.
 - Emoji: até dois, quando combinarem com a mensagem; respeitar assuntos de luto.
 - Formatting (Instagram): abertura na primeira linha, parágrafos curtos e hashtags ao final da legenda.
 - Visual (Instagram): alternar composições entre postagens. Usar fundos claros e escuros, linhas do tempo, comparação de dados e chamadas editoriais conforme o assunto. Evitar repetir o mesmo card amarelo com caixa vermelha e número central. Manter fonte legível, crédito visível e identificação de iniciativa independente.
+- Debate ao vivo: nas falas falsas, usar chamada grande "É FAKE! MENTIU DE NOVO!", com português corrigido e explicação curta. Preservar os vereditos das fontes: enganoso e parcial não viram falso.
 
 ## 2. Who you are and who you write for
 

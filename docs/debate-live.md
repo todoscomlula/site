@@ -5,11 +5,16 @@ npm run debate:scrape
 npm run debate:scrape -- --watch-minutes 15 --interval-seconds 30
 ```
 
-O coletor lê os dois endereços de acompanhamento indicados pelo responsável:
-g1 e Radar da Eleição/UOL. Descobre o feed público do g1 pelo navegador na primeira
+O coletor lê as três fontes indicadas pelo responsável:
+g1, Radar da Eleição/UOL e checagemaovivo.org. Descobre o feed público do g1 pelo navegador na primeira
 consulta e utiliza esse feed nas consultas seguintes. O UOL é extraído da página
 pública. Respostas de bloqueio são registradas como bloqueio, sem contornar
 login, CAPTCHA ou outras restrições.
+
+O Checagem Ao Vivo é consultado pelo manifesto público e seus blocos de dados.
+Cada item preserva o veredito, as fontes e a indicação de revisão automática ou
+humana. A própria página avisa que as análises por IA são preliminares. A coleta
+mantém essa distinção para a revisão antes de publicar.
 
 O resultado fica em `.cache/debate-live/latest.json`; a fila deduplicada, em
 `queue.json`. Cada entrada preserva a fonte, o identificador, o horário quando
@@ -32,6 +37,10 @@ O arquivo de dados usa `headline`, `kicker`, `source` e dois `items`, cada um co
 clara e composição editorial vermelha. O crédito e a indicação de iniciativa
 independente ficam visíveis. Também é possível selecionar `timeline-dark`,
 `comparison-light` ou `editorial-red` explicitamente.
+
+Para uma fala falsa, informe `"verdict": "FAKE"` nos dados do card. A chamada
+**É FAKE! MENTIU DE NOVO!** aparece em tamanho grande. Classificações como
+enganoso, parcial ou inconclusivo conservam seu veredito e não recebem essa chamada.
 
 Publique a arte e a legenda pelo comando local descrito em
 [Publicação local no Instagram](instagram-direct.md). O coletor não publica

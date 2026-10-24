@@ -11,10 +11,12 @@ export function renderDebateSvg(input,layout='timeline-dark'){
   let body=`<rect width="1080" height="1350" fill="${bg}"/>`;
   if(red)body+='<path d="M1030 0H1080V1350H900Z" fill="#F4CE47"/>';
   body+=text(['TODOS COM LULA'],72,94,24,ink,700)+text([input.kicker||'DEBATE · EM TEMPO REAL'],72,181,26,accent,700);
-  const headline=wrap(input.headline,16);if(headline.length>4)throw new Error('HEADLINE_TOO_LONG');
+  const fake=input.verdict==='FAKE';
+  const headline=wrap(input.headline,fake?32:16);if(headline.length>(fake?2:4))throw new Error('HEADLINE_TOO_LONG');
   const bodyLimit=dark?31:red?32:40;
   if(input.items.some(item=>wrap(item.text,bodyLimit).length>3))throw new Error('BODY_TOO_LONG');
-  body+=text(headline,70,294,78,ink,800,1.08);
+  if(fake)body+=text(['É FAKE!'],70,314,132,accent,900)+text(['MENTIU DE NOVO!'],70,424,86,ink,900)+text(headline,72,505,39,ink,700,1.15);
+  else body+=text(headline,70,294,78,ink,800,1.08);
   if(dark){body+='<path d="M100 615V1015" stroke="#5D7480" stroke-width="3"/>';
     for(const[item,i]of input.items.map((item,i)=>[item,i])){const y=646+i*245;body+=`<circle cx="100" cy="${y-10}" r="12" fill="${accent}"/>`+text([item.label],145,y,29,accent,700)+text(wrap(item.text,31),145,y+66,38,ink,500,1.3);}
   }else if(!red){
