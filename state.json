@@ -330,8 +330,8 @@
   "pending": {
     "postId": "filme-bolsonaro-pf-laudo-fake-debate-2026-10-23",
     "contentHash": "3fdde70dfb1ccf0ac2609d8becfcb6148a914298398ec6b3464c07c52bbb3163",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135474295655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T02:39:48.599Z"
   },
   "lease": {
