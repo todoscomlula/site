@@ -315,7 +315,13 @@
       "publishedAt": "2026-10-24T02:31:51.799Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "saneamento-meta-2033-fake-debate-2026-10-23",
+    "contentHash": "2726d9f8a1b6c54bd51dcdada64b39278252f168f3d5b8f98e3f669915debbf3",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:33:46.404Z"
+  },
   "lease": {
     "owner": "cada6682-347f-4f51-a0e7-8285bdd3f778",
     "expiresAt": "2026-10-24T02:48:43.756Z"
