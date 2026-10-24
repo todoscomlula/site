@@ -279,7 +279,13 @@
       "publishedAt": "2026-10-24T01:40:43.157Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "auxilio-brasil-600-prazo-debate-2026-10-23",
+    "contentHash": "52275938d0ee2ba968f1be341211ab1d702803edf2472822ee1cd379ebfee689",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T01:46:33.368Z"
+  },
   "lease": {
     "owner": "4b693a1b-3395-476e-873f-893b10ae9cef",
     "expiresAt": "2026-10-24T02:01:30.819Z"
