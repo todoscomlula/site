@@ -1,0 +1,43 @@
+name: Instagram — conexão local protegida
+on:
+  workflow_dispatch:
+    inputs:
+      callback:
+        required: true
+        type: string
+      public_key:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  connect:
+    if: github.repository == 'todoscomlula/site' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    environment: instagram-publishing
+    steps:
+      - name: Conectar a sessão local com criptografia
+        env:
+          CALLBACK: ${{ inputs.callback }}
+          PUBLIC_KEY: ${{ inputs.public_key }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          INSTAGRAM_API_VERSION: ${{ vars.INSTAGRAM_API_VERSION || 'v26.0' }}
+        run: |
+          node --input-type=module <<'JS'
+          import {randomBytes,createCipheriv,publicEncrypt,constants} from 'node:crypto';
+          try {
+            const url=new URL(process.env.CALLBACK);
+            if(url.protocol!=='https:'||!url.hostname.endsWith('.trycloudflare.com')||url.username||url.password||url.search||url.hash||!/^\/[a-f0-9]{64}$/.test(url.pathname))throw new Error();
+            if(!process.env.INSTAGRAM_ACCESS_TOKEN)throw new Error();
+            const key=randomBytes(32),iv=randomBytes(12);
+            const cipher=createCipheriv('aes-256-gcm',key,iv);
+            const secret=JSON.stringify({accessToken:process.env.INSTAGRAM_ACCESS_TOKEN,userId:process.env.INSTAGRAM_USER_ID||null,version:process.env.INSTAGRAM_API_VERSION});
+            const ciphertext=Buffer.concat([cipher.update(secret,'utf8'),cipher.final()]);
+            const wrapped=publicEncrypt({key:Buffer.from(process.env.PUBLIC_KEY,'base64').toString('utf8'),padding:constants.RSA_PKCS1_OAEP_PADDING,oaepHash:'sha256'},key);
+            const response=await fetch(url,{method:'POST',redirect:'error',signal:AbortSignal.timeout(60000),headers:{'Content-Type':'application/json'},body:JSON.stringify({key:wrapped.toString('base64'),iv:iv.toString('base64'),tag:cipher.getAuthTag().toString('base64'),ciphertext:ciphertext.toString('base64')})});
+            if(!response.ok)throw new Error();
+            console.log('Sessão entregue ao processo local com criptografia.');
+          } catch {console.error('Não foi possível conectar a sessão local.');process.exitCode=1;}
+          JS

@@ -65,7 +65,7 @@ export const posts: Post[] = [
     category: post.tags?.find((tag: string) => topics.some((topic) => topic.id === tag)) || 'publicacoes',
     kind: post.kind || 'image',
     source: post.source,
-    sourceName: typeof post.editorialSourceName === 'string' ? post.editorialSourceName : sources.find((source) => source.username === post.source)?.name || `@${post.source}`,
+    sourceName: sources.find((source) => source.username === post.source)?.name || `@${post.source}`,
     sourceUrl: post.sourceUrl || post.permalink || `https://www.instagram.com/${post.source}/`,
     permalink: post.permalink || null,
     publishedAt: post.publishedAt || null,

@@ -5,10 +5,10 @@
 ## Lote manual durante a indisponibilidade do armazenamento
 
 O workflow **Instagram — lote manual aprovado** lê somente os IDs de
-`src/data/instagram-manual-batch.json`. O lote atual contém o card editorial do
-Plano Safra em vídeo e nove IDs já publicados, mantidos apenas para reconciliação.
-Somente o post editorial é novo. O manifesto distingue esses grupos em
-`newPostIds` e `previouslyPublishedPostIds`, preservando o histórico anterior.
+`src/data/instagram-manual-batch.json`. O lote de 23/10/2026 contém dez vídeos
+adicionais cujos horários relativos indicam publicação no próprio dia, no fuso
+America/Sao_Paulo. A seleção considera a incerteza do arredondamento desses
+horários; os intervalos ficam em `publicationWindow`, sem inventar datas exatas.
 Cada vídeo tem legenda revisada, atribuição e cinco marcações.
 
 Os vídeos foram priorizados pelas curtidas exibidas no StoriesIG,

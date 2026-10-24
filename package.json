@@ -16,7 +16,9 @@
     "scrape:instagram": ".venv/bin/python scripts/scrape-instagram.py --max-posts 5 --max-reels 5",
     "scrape:storiesig": "node scripts/scrape-storiesig.mjs",
     "scrape:storiesig:update": "node scripts/scrape-storiesig.mjs --max-posts 0 --max-reels 0 --additional-reels 1 --scan-reels 6 --max-age-days 14",
-    "postbuild": "node scripts/build-instagram-queue.mjs"
+    "postbuild": "node scripts/build-instagram-queue.mjs",
+    "instagram:direct": "node scripts/instagram-direct.mjs",
+    "instagram:post": "node scripts/instagram-direct-prepare.mjs"
   },
   "dependencies": {
     "@astrojs/vercel": "11.0.14",

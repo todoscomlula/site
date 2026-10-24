@@ -4956,52 +4956,5 @@
     "captionModel": "codex",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc",
     "captionVoiceRevision": "popular-br-2026-10-22"
-  },
-  {
-    "id": "plano-safra-2026-2027-debate",
-    "source": "boraaalula2026",
-    "sourceUrl": "https://www.gov.br/agricultura/pt-br/assuntos/noticias/alckmin-e-andre-de-paula-anunciam-plano-safra-2026-2027-com-r-525-1-bilhoes-em-credito-para-fortalecer-quem-produz",
-    "permalink": null,
-    "title": "Plano Safra: R$ 525,1 bilhões para a agricultura empresarial",
-    "excerpt": "Lula e o agro: olha esse número. 🌾\n\nO Plano Safra 2026/27 anunciou R$ 525,1 bilhões em crédito para a agricultura empresarial. É financiamento pra produzir, investir e vender a safra.\n\nO valor é nominal, sem correção pela inflação. Crédito anunciado não é a mesma coisa que dinheiro já contratado ou gasto direto do governo.",
-    "kind": "video",
-    "publishedAt": null,
-    "observedAt": "2026-10-24T01:09:09.758Z",
-    "mediaUrl": "/media/instagram/boraaalula2026/5b9371720589.mp4",
-    "thumbnailUrl": "/media/instagram/boraaalula2026/5b9371720589.jpg",
-    "downloadUrl": "/media/instagram/boraaalula2026/5b9371720589.mp4",
-    "media": [
-      {
-        "kind": "video",
-        "url": "/media/instagram/boraaalula2026/5b9371720589.mp4",
-        "thumbnailUrl": "/media/instagram/boraaalula2026/5b9371720589.jpg",
-        "filename": "5b9371720589.mp4"
-      }
-    ],
-    "contentGroupId": "plano-safra-2026-2027-debate",
-    "publicationCaption": "Lula e o agro: olha esse número. 🌾\n\nO Plano Safra 2026/27 anunciou R$ 525,1 bilhões em crédito para a agricultura empresarial. É financiamento pra produzir, investir e vender a safra.\n\nO valor é nominal, sem correção pela inflação. Crédito anunciado não é a mesma coisa que dinheiro já contratado ou gasto direto do governo.",
-    "publicationHashtags": [
-      "fakenewsdebatetemporeal",
-      "PlanoSafra",
-      "CreditoRural",
-      "TodosComLula"
-    ],
-    "reviewApprovedAt": "2026-10-24T01:09:09.760Z",
-    "captionProvider": "codex",
-    "captionModel": "codex",
-    "captionVoiceRevision": "popular-br-2026-10-22",
-    "videoQuality": {
-      "width": 1080,
-      "height": 1350,
-      "generated": true
-    },
-    "editorialSourceName": "Ministério da Agricultura e Pecuária",
-    "mentionProfiles": [
-      "renatofreitasumdenos",
-      "gleisihoffmann",
-      "theinterceptbrasil",
-      "fernandohaddadoficial",
-      "ptsaopaulo"
-    ]
   }
 ]
