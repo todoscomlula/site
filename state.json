@@ -372,8 +372,8 @@
   "pending": {
     "postId": "queimadas-amazonas-apoio-federal-fake-debate-2026-10-23",
     "contentHash": "f2a631ad3a11e97ebdd5f6c9eb746e0ace74b7c18468b70996c46537a49f4480",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135481489655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T03:05:08.572Z"
   },
   "lease": {
