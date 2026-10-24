@@ -29,7 +29,7 @@ export function parseG1(data){
 }
 export function parseUol(html){
   const headings=[...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)];
-  return headings.map((match,index)=>{const title=strip(match[1]);const body=strip(html.slice(match.index+match[0].length,headings[index+1]?.index||html.length)).split(/Continua após a publicidade|Newsletter|PRA COMEÇAR O DIA/i)[0].trim();return entry('uol',null,title,body.slice(0,4500));}).filter(item=>item.title&&item.text&&!/resumo da cobertura|newsletter|assine|sobre o uol/i.test(item.title));
+  return headings.map((match,index)=>{const title=strip(match[1]);const body=strip(html.slice(match.index+match[0].length,headings[index+1]?.index||html.length)).split(/Continua após a publicidade|Newsletter|PRA COMEÇAR O DIA|Pesquisas eleitorais do segundo turno:|Veja resultados da apuração das Eleições 2026 no UOL/i)[0].trim();return entry('uol',null,title,body.slice(0,4500));}).filter(item=>item.title&&item.text&&!/resumo da cobertura|newsletter|assine|sobre o uol/i.test(item.title));
 }
 export function parseChecagem(data){
   if(!Array.isArray(data?.claims))throw new Error('INVALID_CHECAGEM_FEED');
