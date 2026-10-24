@@ -373,15 +373,15 @@
       "postId": "queimadas-amazonas-apoio-federal-fake-debate-2026-10-23",
       "mediaId": "18137053132647551",
       "publishedAt": "2026-10-24T03:05:19.902Z"
+    },
+    {
+      "contentHash": "b4edeb947b155c70c5e6409ca2b1bd38536de0a3021c348b369f7ab82be8dffd",
+      "postId": "transposicao-agua-2017-cronologia-debate-2026-10-23",
+      "mediaId": "18113977928146393",
+      "publishedAt": "2026-10-24T03:10:36.525Z"
     }
   ],
-  "pending": {
-    "postId": "transposicao-agua-2017-cronologia-debate-2026-10-23",
-    "contentHash": "b4edeb947b155c70c5e6409ca2b1bd38536de0a3021c348b369f7ab82be8dffd",
-    "containerId": "18135482443655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T03:10:23.947Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "d5b6a451-7820-4bbe-9c10-33b733eb0a8e",
     "expiresAt": "2026-10-24T03:25:20.941Z"
