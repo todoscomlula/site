@@ -289,15 +289,15 @@
       "postId": "juros-focus-previsao-2026-debate-2026-10-23",
       "mediaId": "18114740450027350",
       "publishedAt": "2026-10-24T02:05:58.664Z"
+    },
+    {
+      "contentHash": "f9c72a516dfc2cd3e16e78f35b341023ba502ae261aea3344c8420753dfe2803",
+      "postId": "bets-linha-tempo-2018-2026-debate",
+      "mediaId": "18030265685752350",
+      "publishedAt": "2026-10-24T02:06:59.176Z"
     }
   ],
-  "pending": {
-    "postId": "bets-linha-tempo-2018-2026-debate",
-    "contentHash": "f9c72a516dfc2cd3e16e78f35b341023ba502ae261aea3344c8420753dfe2803",
-    "containerId": "18135465826655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:06:47.391Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "32bda0a7-929b-4f6b-b76d-5b67d7eebcb7",
     "expiresAt": "2026-10-24T02:21:44.279Z"
