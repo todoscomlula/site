@@ -331,15 +331,15 @@
       "postId": "filme-bolsonaro-pf-laudo-fake-debate-2026-10-23",
       "mediaId": "18367938424301322",
       "publishedAt": "2026-10-24T02:40:00.613Z"
+    },
+    {
+      "contentHash": "47672004edeeff74dcb86a029308922fd3a00572c642cdd99e6b962035ad3835",
+      "postId": "lula-30-milhoes-provas-debate-2026-10-23",
+      "mediaId": "18110849831523476",
+      "publishedAt": "2026-10-24T02:46:04.425Z"
     }
   ],
-  "pending": {
-    "postId": "lula-30-milhoes-provas-debate-2026-10-23",
-    "contentHash": "47672004edeeff74dcb86a029308922fd3a00572c642cdd99e6b962035ad3835",
-    "containerId": "18135475384655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-24T02:45:51.235Z"
-  },
+  "pending": null,
   "lease": {
     "owner": "68671bfb-3855-4d5f-98b8-b2381e137d35",
     "expiresAt": "2026-10-24T03:00:47.532Z"
