@@ -9,7 +9,7 @@ const strip=value=>clean(entities(String(value).replace(/<(script|style|nav|head
 export function classifyEntry(title,text){
   // A candidate's accusation or an ordinary news report is not a fact-check.
   const lead=clean(title||text.split('\n')[0]);
-  return /^(?:🔎\s*)?UOL Confere\s*:/i.test(lead)||/^É\s+#?(?:FAKE|FATO)\b/i.test(lead)||/^Fato ou Fake\s*:/i.test(lead)||/\bCHECAGEM\s*:/i.test(text)?'factcheck':'news';
+  return /^(?:🔎\s*)?UOL Confere\s*:/i.test(lead)||/^É\s+#?(?:FAKE|FATO)\b/i.test(lead)||/^Fato ou Fake\s*(?::|$)/i.test(lead)||/\bCHECAGEM\s*:/i.test(text)?'factcheck':'news';
 }
 function entry(source,id,title,text,publishedAt=null,timeLabel=null){
   const body=text.trim().slice(0,4500);const heading=clean(title)||clean(body).slice(0,140);
@@ -18,7 +18,13 @@ function entry(source,id,title,text,publishedAt=null,timeLabel=null){
 }
 export function parseG1(data){
   if(!Array.isArray(data?.posts?.items))throw new Error('INVALID_G1_FEED');
-  return data.posts.items.map(post=>entry('g1',post.id,post.title,(post.body?.blocks||[]).map(block=>block.text||'').filter(Boolean).join('\n'),post.created)).filter(item=>item.text);
+  return data.posts.items.map(post=>{
+    const blocks=post.body?.blocks||[];const item=entry('g1',post.id,post.title,blocks.map(block=>block.text||'').filter(Boolean).join('\n'),post.created);
+    const badge=blocks.map(block=>block.data?.caption||'').find(caption=>/^Selo\s+(?:Fato|Fake)\b/i.test(caption));
+    item.verdict=badge?.match(/^Selo\s+(Fato|Fake)\b/i)?.[1].toUpperCase()||null;
+    const links=[];const walk=value=>{if(typeof value==='string'&&/^https:\/\/g1\.globo\.com\/fato-ou-fake\//.test(value))links.push(value);else if(Array.isArray(value))value.forEach(walk);else if(value&&typeof value==='object')Object.values(value).forEach(walk);};walk(post.body);item.links=[...new Set(links)];
+    if(item.verdict)item.kind='factcheck';item.contentHash=hash(item.contentHash+'\0'+(item.verdict||'')+'\0'+item.links.join('\n'));return item;
+  }).filter(item=>item.text);
 }
 export function parseUol(html){
   const headings=[...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)];
