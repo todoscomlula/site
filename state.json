@@ -395,7 +395,9 @@
     "createdAt": "2026-10-24T03:43:33.151Z",
     "carousel": {
       "mediaHash": "48b9fcb8c9f839a03ededf3ce3d5233fd15f326eca5c0243eafc6ae53bf2b5d8",
-      "childIds": []
+      "childIds": [
+        "18135490729655634"
+      ]
     }
   },
   "lease": {
