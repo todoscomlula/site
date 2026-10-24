@@ -267,7 +267,13 @@
       "publishedAt": "2026-10-24T01:25:59.972Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "obras-paralisadas-tcu-abril-2026-debate",
+    "contentHash": "da976e3a4937441475f6d0f94bc0d69fa64b684ff96acce023ae44416707f671",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T01:33:27.616Z"
+  },
   "lease": {
     "owner": "4d6d8e9a-cd34-4b4b-a24b-a0c97ac30b89",
     "expiresAt": "2026-10-24T01:48:25.293Z"
