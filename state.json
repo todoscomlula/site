@@ -384,8 +384,8 @@
   "pending": {
     "postId": "richarlison-imovel-apuracao-pf-foto-debate-2026-10-23",
     "contentHash": "bfc53270fe4c413662776ca5448bc65b412fa31c5b3997ee58e0d44c5442ed53",
-    "containerId": null,
-    "stage": "reserved",
+    "containerId": "18135489721655634",
+    "stage": "processing",
     "createdAt": "2026-10-24T03:39:05.089Z"
   },
   "lease": {
