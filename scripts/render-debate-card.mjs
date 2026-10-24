@@ -20,7 +20,7 @@ export function renderDebateSvg(input,layout='timeline-dark'){
   if(dark){body+='<path d="M100 615V1015" stroke="#5D7480" stroke-width="3"/>';
     for(const[item,i]of input.items.map((item,i)=>[item,i])){const y=646+i*245;body+=`<circle cx="100" cy="${y-10}" r="12" fill="${accent}"/>`+text([item.label],145,y,29,accent,700)+text(wrap(item.text,31),145,y+66,38,ink,500,1.3);}
   }else if(!red){
-    body+='<path d="M72 545H1008" stroke="#132B31" stroke-width="3"/>';
+    body+=`<path d="M72 ${fake?580:545}H1008" stroke="#132B31" stroke-width="3"/>`;
     input.items.forEach((item,i)=>{const y=632+i*234;body+=text([item.label],72,y,30,accent,800)+text(wrap(item.text,40),72,y+64,39,ink,500,1.28);if(i===0)body+='<path d="M72 824H1008" stroke="#B5C6BF" stroke-width="2"/>';});
   }else{
     input.items.forEach((item,i)=>{const y=638+i*236;body+=text([item.label],72,y,31,accent,800)+text(wrap(item.text,32),72,y+66,39,ink,500,1.25);});
