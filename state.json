@@ -363,7 +363,13 @@
       "publishedAt": "2026-10-24T02:54:12.245Z"
     }
   ],
-  "pending": null,
+  "pending": {
+    "postId": "milicias-discurso-alerj-2007-fato-debate-2026-10-23",
+    "contentHash": "167627550ff82994ef699dd5692a6455bbcd8e6c2a9a29ea2bbbbb50b5911d85",
+    "containerId": null,
+    "stage": "reserved",
+    "createdAt": "2026-10-24T02:59:56.543Z"
+  },
   "lease": {
     "owner": "fbca558e-6839-48d2-abc6-0702da957170",
     "expiresAt": "2026-10-24T03:14:54.268Z"
