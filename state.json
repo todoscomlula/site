@@ -397,26 +397,15 @@
       "postId": "fundo-amazonia-retomada-foto-debate-2026-10-23",
       "mediaId": "18010731092995066",
       "publishedAt": "2026-10-24T04:32:29.338Z"
+    },
+    {
+      "contentHash": "a7cba7760471d39a263f10362ed034f3289294b7870169cf1752af3aaee2b2a5",
+      "postId": "flavio-eua-imprensa-2026-10-27",
+      "mediaId": "18145105531595137",
+      "publishedAt": "2026-10-27T20:47:47.922Z"
     }
   ],
-  "pending": {
-    "postId": "flavio-eua-imprensa-2026-10-27",
-    "contentHash": "a7cba7760471d39a263f10362ed034f3289294b7870169cf1752af3aaee2b2a5",
-    "containerId": "18136854361655634",
-    "stage": "publishing",
-    "createdAt": "2026-10-27T20:47:02.327Z",
-    "carousel": {
-      "mediaHash": "75633da6216e613b2c0fb0c2e8195357195f93e6760c0134bc3a3f8b104837a4",
-      "childIds": [
-        "18136854205655634",
-        "18136854232655634",
-        "18136854250655634",
-        "18136854280655634",
-        "18136854304655634",
-        "18136854343655634"
-      ]
-    }
-  },
+  "pending": null,
   "lease": {
     "owner": "656d036c-5580-4e6d-8d8d-31c920d7936e",
     "expiresAt": "2026-10-27T21:01:55.021Z"
