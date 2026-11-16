@@ -1568,5 +1568,15 @@
     "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-11-15/5407f7776dc8.jpg",
     "sha256": "5407f7776dc8cc6476eed240a8eb2e81c230f7ba59fbde2cf82fe1123d89f8ed",
     "bytes": 97339
+  },
+  "/media/instagram/brasilcomlula/412bcce6d9f2.mp4": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-11-16/412bcce6d9f2.mp4",
+    "sha256": "412bcce6d9f2722332831bf92980a8ece880d3065113366cb81279b11946efbb",
+    "bytes": 22889435
+  },
+  "/media/instagram/brasilcomlula/0ef081619eeb.jpg": {
+    "url": "https://github.com/todoscomlula/site/releases/download/media-admin-2026-11-16/0ef081619eeb.jpg",
+    "sha256": "0ef081619eeb8abd92fc51f32a926d1805213760c9118d50560d1115d619a220",
+    "bytes": 129425
   }
 }

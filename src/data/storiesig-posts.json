@@ -5338,5 +5338,52 @@
     "captionProvider": "deepseek",
     "captionModel": "deepseek-flash",
     "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc"
+  },
+  {
+    "id": "storiesig-brasilcomlula-412bcce6d9f2",
+    "source": "brasilcomlula",
+    "sourceUrl": "https://www.instagram.com/brasilcomlula/reels/",
+    "permalink": "https://www.instagram.com/p/Dehx4A-SrGN/",
+    "title": "Salário por hora: a cilada por trás da \"liberdade\"",
+    "excerpt": "Ele chama de liberdade. Mas o nome disso é salário reduzido e fim de direitos.\n\nA proposta de Flávio Bolsonaro é o salário por hora: se o movimento cair, você não recebe. Se ficar doente, também não. É a precarização da vida de quem trabalha.\n\nVale a pena trocar o que é certo pel",
+    "publishedAt": null,
+    "observedAt": "2026-10-15T20:42:30.493Z",
+    "publishedLabel": null,
+    "kind": "video",
+    "mediaUrl": "/media/instagram/brasilcomlula/412bcce6d9f2.mp4",
+    "thumbnailUrl": "/media/instagram/brasilcomlula/0ef081619eeb.jpg",
+    "downloadUrl": "/media/instagram/brasilcomlula/412bcce6d9f2.mp4",
+    "media": [
+      {
+        "kind": "video",
+        "url": "/media/instagram/brasilcomlula/412bcce6d9f2.mp4",
+        "thumbnailUrl": "/media/instagram/brasilcomlula/0ef081619eeb.jpg",
+        "filename": "412bcce6d9f2.mp4"
+      }
+    ],
+    "contentGroupId": "storiesig-brasilcomlula-412bcce6d9f2",
+    "videoQuality": {
+      "width": 1080,
+      "height": 1920,
+      "preservedSource": true
+    },
+    "publicationCaption": "Ele chama de liberdade. Mas o nome disso é salário reduzido e fim de direitos.\n\nA proposta de Flávio Bolsonaro é o salário por hora: se o movimento cair, você não recebe. Se ficar doente, também não. É a precarização da vida de quem trabalha.\n\nVale a pena trocar o que é certo pela incerteza do dia a dia?",
+    "publicationHashtags": [
+      "SalárioPorHora",
+      "DireitosTrabalhistas",
+      "PrecarizaçãoDoTrabalho",
+      "Brasil"
+    ],
+    "mentionProfiles": [
+      "brasilcomlula",
+      "fernandohaddadoficial",
+      "ptsaopaulo",
+      "jeanwyllys_real",
+      "lulaoficial"
+    ],
+    "reviewApprovedAt": "2026-10-16T22:22:37.747Z",
+    "captionProvider": "deepseek",
+    "captionModel": "deepseek-flash",
+    "captionSkillRevision": "1e6fb1691e4f88aa455dd8ba5f74d1239d8091cc"
   }
 ]
